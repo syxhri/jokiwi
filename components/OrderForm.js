@@ -79,7 +79,8 @@ export default function OrderForm({ order = null }) {
       );
       if (!ok) return;
     }
-    router.push('/orders');
+    router.back();
+    // router.push('/orders');
   }
 
   return (
