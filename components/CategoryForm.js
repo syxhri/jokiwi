@@ -53,8 +53,9 @@ export default function CategoryForm({ category = null }) {
       );
       if (!ok) return;
     }
+    router.back();
     // Langsung balik ke halaman kategori
-    router.push('/');
+    // router.push('/');
   }
 
   return (
