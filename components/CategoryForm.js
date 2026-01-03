@@ -1,114 +1,126 @@
 // components/CategoryForm.js
+
 'use client';
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+/**
+ * Form for creating or editing a category. Accepts an optional
+ * category object; when present the form fields are prefilled and
+ * submission will update the existing category. On success the user
+ * is redirected back to the categories list. A back button allows
+ * the user to navigate away; if unsaved changes exist a
+ * confirmation prompt is displayed.
+ *
+ * @param {object} props
+ * @param {object|null} props.category
+ */
 export default function CategoryForm({ category = null }) {
   const router = useRouter();
-
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     name: category?.name || '',
     description: category?.description || '',
     notes: category?.notes || '',
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const initialSnapshot = useMemo(
-    () => JSON.stringify(formData),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-  const isDirty = JSON.stringify(formData) !== initialSnapshot;
+  // Snapshot of initial state to detect unsaved changes
+  const initialSnapshot = useMemo(() => JSON.stringify(form), []);
+  const isDirty = JSON.stringify(form) !== initialSnapshot;
 
-  const handleChange = (field) => (e) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  async function handleSubmit(e) {
+  const handleSubmit = async e => {
     e.preventDefault();
-
-    const url = category
-      ? `/api/categories/${category.id}`
-      : '/api/categories';
-    const method = category ? 'PUT' : 'POST';
-
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
-
-    if (!res.ok) {
-      alert('Gagal menyimpan kategori');
-      return;
+    setError('');
+    setLoading(true);
+    try {
+      const url = category ? `/api/categories/${category.id}` : '/api/categories';
+      const method = category ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        router.push('/');
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data?.error || 'Gagal menyimpan kategori');
+      }
+    } catch {
+      setError('Gagal menyimpan kategori');
+    } finally {
+      setLoading(false);
     }
-
-    router.push('/');
-  }
+  };
 
   function handleBack() {
     if (isDirty) {
-      const ok = window.confirm(
-        'Perubahan belum disimpan. Yakin ingin kembali?',
-      );
+      const ok = window.confirm('Perubahan belum disimpan. Yakin ingin kembali?');
       if (!ok) return;
     }
-    // Langsung balik ke halaman kategori
     router.push('/');
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+      {error && (
+        <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
       <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Nama Kategori *
-        </label>
+        <label className="label">Nama Kategori *</label>
         <input
           type="text"
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          className="input"
           required
-          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-          value={formData.name}
-          onChange={handleChange('name')}
         />
       </div>
-
       <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Deskripsi
-        </label>
+        <label className="label">Deskripsi</label>
         <textarea
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          className="input"
           rows={3}
-          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-          value={formData.description}
-          onChange={handleChange('description')}
         />
       </div>
-
       <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Catatan
-        </label>
+        <label className="label">Catatan</label>
         <textarea
+          name="notes"
+          value={form.notes}
+          onChange={handleChange}
+          className="input"
           rows={2}
-          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-          value={formData.notes}
-          onChange={handleChange('notes')}
         />
       </div>
-
       <div className="flex justify-end gap-3">
         <button
           type="button"
           onClick={handleBack}
-          className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="btn btn-secondary"
         >
           Kembali
         </button>
         <button
           type="submit"
-          className="rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+          className="btn btn-primary"
+          disabled={loading}
         >
-          Simpan
+          {loading ? 'Menyimpan…' : 'Simpan'}
         </button>
       </div>
     </form>

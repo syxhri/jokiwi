@@ -1,15 +1,29 @@
 // components/OrderForm.js
+
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+/**
+ * Form for creating or editing an order. When an `order` prop is
+ * provided the form fields are prefilled and submission will update
+ * the existing order. Otherwise a new order is created. The form
+ * fetches categories on mount so users can assign the order to a
+ * category. Unsaved changes trigger a confirmation prompt when
+ * navigating away via the back button. After a successful save the
+ * user is redirected to the orders page.
+ *
+ * @param {object} props
+ * @param {object|null} props.order
+ */
 export default function OrderForm({ order = null }) {
   const router = useRouter();
-
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     client_name: order?.client_name || '',
     task_name: order?.task_name || '',
     categoryId: order?.categoryId || '',
@@ -22,165 +36,169 @@ export default function OrderForm({ order = null }) {
     deadline_date: order?.deadline_date || '',
   });
 
-  const initialSnapshot = useMemo(
-    () => JSON.stringify(formData),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-
-  const isDirty = JSON.stringify(formData) !== initialSnapshot;
+  // Save initial state for dirty check
+  const initialSnapshot = useMemo(() => JSON.stringify(form), []);
+  const isDirty = JSON.stringify(form) !== initialSnapshot;
 
   useEffect(() => {
-    async function loadCategories() {
-      const res = await fetch('/api/categories');
-      if (!res.ok) return;
-      const data = await res.json();
-      setCategories(data);
+    async function fetchCategories() {
+      try {
+        const res = await fetch('/api/categories');
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data);
+        }
+      } catch {
+        // ignore
+      }
     }
-    loadCategories().catch(console.error);
+    fetchCategories().catch(() => {});
   }, []);
 
-  const handleChange = (field) => (e) => {
-    const value =
-      e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleChange = e => {
+    const { name, value, type, checked } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
-  async function handleSubmit(e) {
+  const handleSubmit = async e => {
     e.preventDefault();
-
-    const payload = {
-      ...formData,
-      price: Number(formData.price || 0),
-    };
-
-    const url = order ? `/api/orders/${order.id}` : '/api/orders';
-    const method = order ? 'PUT' : 'POST';
-
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      // TODO: tampilkan error lebih proper
-      alert('Gagal menyimpan order');
-      return;
+    setError('');
+    setLoading(true);
+    try {
+      const url = order ? `/api/orders/${order.id}` : '/api/orders';
+      const method = order ? 'PUT' : 'POST';
+      const payload = {
+        ...form,
+        price: Number(form.price) || 0,
+      };
+      // If categoryId is empty string, remove it to indicate no category
+      if (!payload.categoryId) {
+        delete payload.categoryId;
+      }
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        router.push('/orders');
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data?.error || 'Gagal menyimpan order');
+      }
+    } catch {
+      setError('Gagal menyimpan order');
+    } finally {
+      setLoading(false);
     }
-
-    router.push('/orders');
-  }
+  };
 
   function handleBack() {
     if (isDirty) {
-      const ok = window.confirm(
-        'Perubahan belum disimpan. Yakin ingin kembali?',
-      );
+      const ok = window.confirm('Perubahan belum disimpan. Yakin ingin kembali?');
       if (!ok) return;
     }
-    router.back();
-    // router.push('/orders');
+    router.push('/orders');
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-6">
+      {error && (
+        <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Nama Client *
-          </label>
+          <label className="label">Nama Client *</label>
           <input
             type="text"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-            value={formData.client_name}
-            onChange={handleChange('client_name')}
+            name="client_name"
+            value={form.client_name}
+            onChange={handleChange}
+            className="input"
             required
           />
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Nama Tugas *
-          </label>
+          <label className="label">Nama Tugas *</label>
           <input
             type="text"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-            value={formData.task_name}
-            onChange={handleChange('task_name')}
+            name="task_name"
+            value={form.task_name}
+            onChange={handleChange}
+            className="input"
             required
           />
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Kategori / Mata Kuliah
-          </label>
+          <label className="label">Kategori / Mata Kuliah</label>
           <select
-            className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-            value={formData.categoryId}
-            onChange={handleChange('categoryId')}
+            name="categoryId"
+            value={form.categoryId}
+            onChange={handleChange}
+            className="input"
           >
             <option value="">Tanpa kategori</option>
-            {categories.map((cat) => (
+            {categories.map(cat => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
             ))}
           </select>
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Harga (Rp) *
-          </label>
+          <label className="label">Harga (Rp) *</label>
           <input
             type="number"
-            min={0}
-            className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-            value={formData.price}
-            onChange={handleChange('price')}
+            name="price"
+            value={form.price}
+            onChange={handleChange}
+            className="input"
             required
+            min="0"
           />
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Tanggal Disuruh
-          </label>
+          <label className="label">Tanggal Disuruh</label>
           <input
             type="date"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-            value={formData.assigned_date}
-            onChange={handleChange('assigned_date')}
+            name="assigned_date"
+            value={form.assigned_date}
+            onChange={handleChange}
+            className="input"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Tanggal Deadline
-          </label>
+          <label className="label">Tanggal Deadline</label>
           <input
             type="date"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-            value={formData.deadline_date}
-            onChange={handleChange('deadline_date')}
+            name="deadline_date"
+            value={form.deadline_date}
+            onChange={handleChange}
+            className="input"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Catatan
-        </label>
+        <label className="label">Catatan</label>
         <textarea
+          name="notes"
+          value={form.notes}
+          onChange={handleChange}
+          className="input"
           rows={3}
-          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-          value={formData.notes}
-          onChange={handleChange('notes')}
         />
       </div>
 
@@ -188,19 +206,20 @@ export default function OrderForm({ order = null }) {
         <label className="inline-flex items-center gap-2 text-sm">
           <input
             type="checkbox"
+            name="is_done"
+            checked={form.is_done}
+            onChange={handleChange}
             className="h-4 w-4 rounded border-gray-300"
-            checked={formData.is_done}
-            onChange={handleChange('is_done')}
           />
           <span>Selesai</span>
         </label>
-
         <label className="inline-flex items-center gap-2 text-sm">
           <input
             type="checkbox"
+            name="is_paid"
+            checked={form.is_paid}
+            onChange={handleChange}
             className="h-4 w-4 rounded border-gray-300"
-            checked={formData.is_paid}
-            onChange={handleChange('is_paid')}
           />
           <span>Lunas</span>
         </label>
@@ -210,15 +229,16 @@ export default function OrderForm({ order = null }) {
         <button
           type="button"
           onClick={handleBack}
-          className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="btn btn-secondary"
         >
           Kembali
         </button>
         <button
           type="submit"
-          className="rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+          className="btn btn-primary"
+          disabled={loading}
         >
-          Simpan
+          {loading ? 'Menyimpan…' : 'Simpan'}
         </button>
       </div>
     </form>

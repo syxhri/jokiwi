@@ -1,8 +1,13 @@
 // app/categories/new/page.js
 
+import { requireAuth } from '../../../lib/auth.js';
 import CategoryForm from '../../../components/CategoryForm';
 
-export default function NewCategoryPage() {
+/**
+ * Page for creating a new category. This page enforces authentication.
+ */
+export default async function NewCategoryPage() {
+  await requireAuth();
   return (
     <div className="max-w-3xl space-y-6">
       <div>

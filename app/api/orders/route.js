@@ -1,68 +1,103 @@
 // app/api/orders/route.js
+
 import { NextResponse } from 'next/server';
-import { getDb, computeStats } from '../../../lib/db.js';
+import { cookies } from 'next/headers';
+import {
+  filterOrders,
+  computeStats,
+  createOrder,
+} from '../../../lib/db.js';
 
+/**
+ * GET /api/orders
+ *
+ * Retrieves orders for the authenticated user, applying optional
+ * filters and sorting. Accepts the following query parameters:
+ *   - search: string to match against client_name, task_name,
+ *     category_name and notes
+ *   - is_done: 'true' | 'false' to filter by completion status
+ *   - is_paid: 'true' | 'false' to filter by payment status
+ *   - categoryId: numeric ID of a category to restrict results
+ *   - sortBy: 'assigned_date' | 'deadline_date' | 'price'
+ *   - sortDir: 'asc' | 'desc'
+ */
 export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-
-  const search = (searchParams.get('search') || '').toLowerCase();
-  const isDone = searchParams.get('is_done');
-  const isPaid = searchParams.get('is_paid');
-  const sortBy = searchParams.get('sortBy') || 'assigned_date';
-  const sortDir = searchParams.get('sortDir') === 'asc' ? 'asc' : 'desc';
-  const categoryIdParam = searchParams.get('categoryId');
-
-  const db = await getDb();
-  let orders = db.data.orders || [];
-
-  // filter by kategori kalau ada
-  if (categoryIdParam) {
-    const categoryId = Number(categoryIdParam);
-    orders = orders.filter((o) => Number(o.categoryId) === categoryId);
-  }
-
-  // search nama client / tugas
-  if (search) {
-    orders = orders.filter((o) => {
-      const name = (o.client_name || '').toLowerCase();
-      const task = (o.task_name || '').toLowerCase();
-      return name.includes(search) || task.includes(search);
-    });
-  }
-
-  // filter selesai
-  if (isDone === 'true') {
-    orders = orders.filter((o) => !!o.is_done);
-  } else if (isDone === 'false') {
-    orders = orders.filter((o) => !o.is_done);
-  }
-
-  // filter lunas
-  if (isPaid === 'true') {
-    orders = orders.filter((o) => !!o.is_paid);
-  } else if (isPaid === 'false') {
-    orders = orders.filter((o) => !o.is_paid);
-  }
-
-  // sort
-  orders = orders.slice().sort((a, b) => {
-    let va = a[sortBy];
-    let vb = b[sortBy];
-
-    if (sortBy === 'price') {
-      va = Number(va) || 0;
-      vb = Number(vb) || 0;
-    } else if (sortBy === 'assigned_date' || sortBy === 'deadline_date') {
-      va = va ? new Date(va).getTime() : 0;
-      vb = vb ? new Date(vb).getTime() : 0;
+  try {
+    const cookieStore = cookies();
+    const idStr = cookieStore.get('userId')?.value;
+    if (!idStr) {
+      return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
     }
+    const userId = Number(idStr);
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get('search') || '';
+    const isDone = searchParams.get('is_done');
+    const isPaid = searchParams.get('is_paid');
+    const categoryId = searchParams.get('categoryId');
+    const sortBy = searchParams.get('sortBy') || 'assigned_date';
+    const sortDir = searchParams.get('sortDir') || 'desc';
+    const orders = await filterOrders({
+      userId,
+      search,
+      isDone,
+      isPaid,
+      categoryId,
+      sortBy,
+      sortDir,
+    });
+    const stats = computeStats(orders);
+    return NextResponse.json({ orders, stats });
+  } catch (err) {
+    console.error('Failed to fetch orders:', err);
+    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
+  }
+}
 
-    if (va < vb) return sortDir === 'asc' ? -1 : 1;
-    if (va > vb) return sortDir === 'asc' ? 1 : -1;
-    return 0;
-  });
-
-  const stats = computeStats(orders);
-
-  return NextResponse.json({ orders, stats });
+/**
+ * POST /api/orders
+ *
+ * Creates a new order for the authenticated user. Expects a JSON body
+ * containing at least `client_name`, `task_name` and `price`. Optional
+ * fields: `categoryId`, `notes`, `is_done`, `is_paid`, `assigned_date`,
+ * `deadline_date`.
+ */
+export async function POST(request) {
+  try {
+    const cookieStore = cookies();
+    const idStr = cookieStore.get('userId')?.value;
+    if (!idStr) {
+      return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+    }
+    const userId = Number(idStr);
+    const data = await request.json();
+    const {
+      client_name,
+      task_name,
+      price,
+      categoryId,
+      notes,
+      is_done = false,
+      is_paid = false,
+      assigned_date,
+      deadline_date,
+    } = data || {};
+    if (!client_name || !task_name || price === undefined) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+    const newOrder = await createOrder(userId, {
+      client_name,
+      task_name,
+      price,
+      categoryId,
+      notes,
+      is_done,
+      is_paid,
+      assigned_date,
+      deadline_date,
+    });
+    return NextResponse.json(newOrder, { status: 201 });
+  } catch (err) {
+    console.error('Failed to create order:', err);
+    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+  }
 }

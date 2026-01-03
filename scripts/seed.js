@@ -1,122 +1,127 @@
 // scripts/seed.js
-//
-// Reset db.json dan isi dengan data dummy
-// yang sudah punya kategori + tanggal disuruh + deadline.
 
-import { JSONFilePreset } from 'lowdb/node';
+/**
+ * Reset and seed the lowdb JSON database with sample users,
+ * categories and orders. This script utilises the data layer
+ * functions provided by lib/db.js. To run it execute
+ * `npm run seed` after installing dependencies. Seed data is
+ * deliberately simple and small to demonstrate multi-user
+ * functionality without bloating the repository. Passwords are
+ * stored in plain text for demonstration only; do not use this
+ * approach in production.
+ */
+
+import {
+  getDb,
+  createUser,
+  createCategory,
+  createOrder,
+} from '../lib/db.js';
 
 async function main() {
-  const defaultData = {
-    orders: [],
-    categories: [],
-    meta: {
-      nextOrderId: 1,
-      nextCategoryId: 1,
-    },
-  };
-
-  const db = await JSONFilePreset('db.json', defaultData);
-
-  // --- definisi kategori ---
-  const categories = [
-    {
-      id: 1,
-      name: 'Algoritma',
-      description: 'Tugas-tugas terkait algoritma & struktur data',
-      notes: '',
-    },
-    {
-      id: 2,
-      name: 'Basis Data',
-      description: 'Tugas mata kuliah basis data',
-      notes: '',
-    },
-    {
-      id: 3,
-      name: 'RPL',
-      description: 'Rekayasa Perangkat Lunak / RPLF',
-      notes: '',
-    },
-    {
-      id: 4,
-      name: 'Literasi Digital',
-      description: 'Tugas literasi digital / LD-15',
-      notes: '',
-    },
-  ];
-
-  // --- definisi orders (mirip contoh yang kamu kasih) ---
-  const orders = [
-    {
-      id: 1,
-      client_name: 'Rina Melati',
-      task_name: 'Algoritma Struktur Data',
-      categoryId: 1,
-      category_name: 'Algoritma',
-      price: 250000,
-      is_done: false,
-      is_paid: false,
-      notes: 'Bayar nyicil',
-      created_at: new Date().toISOString(),
-      assigned_date: '2026-01-01',
-      deadline_date: '2026-01-03',
-    },
-    {
-      id: 2,
-      client_name: 'Andi Wijaya',
-      task_name: 'Basis Data 3',
-      categoryId: 2,
-      category_name: 'Basis Data',
-      price: 300000,
-      is_done: false,
-      is_paid: true,
-      notes: 'Deadline 2 minggu',
-      created_at: new Date().toISOString(),
-      assigned_date: '2026-01-02',
-      deadline_date: '2026-01-08',
-    },
-    {
-      id: 3,
-      client_name: 'Siti Aisyah',
-      task_name: 'Format RPLF',
-      categoryId: 3,
-      category_name: 'RPL',
-      price: 200000,
-      is_done: true,
-      is_paid: false,
-      notes: 'Utang 50%',
-      created_at: new Date().toISOString(),
-      assigned_date: '2026-01-03',
-      deadline_date: '2026-01-09',
-    },
-    {
-      id: 4,
-      client_name: 'Budi Santoso',
-      task_name: 'Literasi Digital LD-15',
-      categoryId: 4,
-      category_name: 'Literasi Digital',
-      price: 150000,
-      is_done: true,
-      is_paid: true,
-      notes: 'Selesai tepat waktu',
-      created_at: new Date().toISOString(),
-      assigned_date: '2026-01-04',
-      deadline_date: '2026-01-10',
-    },
-  ];
-
-  db.data.orders = orders;
-  db.data.categories = categories;
-  db.data.meta = {
-    nextOrderId: orders.length + 1,
-    nextCategoryId: categories.length + 1,
-  };
-
+  console.log('Resetting and seeding database...');
+  const db = await getDb();
+  // Clear existing data
+  db.data.users = [];
+  db.data.categories = [];
+  db.data.orders = [];
+  db.data.meta = { nextUserId: 1, nextCategoryId: 1, nextOrderId: 1 };
   await db.write();
-  console.log('Database seeded with dummy categories & orders.');
+
+  // Create sample users
+  const alice = await createUser({ username: 'alice', password: 'password', name: 'Alice' });
+  const bob = await createUser({ username: 'bob', password: 'password', name: 'Bob' });
+
+  // Create categories for Alice
+  const catAlgo = await createCategory(alice.id, {
+    name: 'Algoritma',
+    description: 'Tugas algoritma & struktur data',
+    notes: '',
+  });
+  const catDatabase = await createCategory(alice.id, {
+    name: 'Basis Data',
+    description: 'Tugas mata kuliah basis data',
+    notes: '',
+  });
+  const catRPL = await createCategory(alice.id, {
+    name: 'RPL',
+    description: 'Rekayasa Perangkat Lunak / RPLF',
+    notes: '',
+  });
+  const catLiterasi = await createCategory(alice.id, {
+    name: 'Literasi Digital',
+    description: 'Tugas literasi digital',
+    notes: '',
+  });
+
+  // Create orders for Alice
+  await createOrder(alice.id, {
+    client_name: 'Rina Melati',
+    task_name: 'Algoritma Struktur Data',
+    categoryId: catAlgo.id,
+    price: 250000,
+    is_done: false,
+    is_paid: false,
+    notes: 'Bayar nyicil',
+    assigned_date: '2026-01-01',
+    deadline_date: '2026-01-03',
+  });
+  await createOrder(alice.id, {
+    client_name: 'Andi Wijaya',
+    task_name: 'Basis Data 3',
+    categoryId: catDatabase.id,
+    price: 300000,
+    is_done: false,
+    is_paid: true,
+    notes: 'Deadline 2 minggu',
+    assigned_date: '2026-01-02',
+    deadline_date: '2026-01-08',
+  });
+  await createOrder(alice.id, {
+    client_name: 'Siti Aisyah',
+    task_name: 'Format RPLF',
+    categoryId: catRPL.id,
+    price: 200000,
+    is_done: true,
+    is_paid: false,
+    notes: 'Utang 50%',
+    assigned_date: '2026-01-03',
+    deadline_date: '2026-01-09',
+  });
+  await createOrder(alice.id, {
+    client_name: 'Budi Santoso',
+    task_name: 'Literasi Digital LD-15',
+    categoryId: catLiterasi.id,
+    price: 150000,
+    is_done: true,
+    is_paid: true,
+    notes: 'Selesai tepat waktu',
+    assigned_date: '2026-01-04',
+    deadline_date: '2026-01-10',
+  });
+
+  // Bob has his own categories and orders (demonstrating multi-user isolation)
+  const catBob = await createCategory(bob.id, {
+    name: 'Matematika',
+    description: 'Tugas hitung-hitungan',
+    notes: '',
+  });
+  await createOrder(bob.id, {
+    client_name: 'Charlie',
+    task_name: 'Kalkulus 1',
+    categoryId: catBob.id,
+    price: 100000,
+    is_done: false,
+    is_paid: false,
+    notes: '',
+    assigned_date: '2026-01-05',
+    deadline_date: '2026-01-12',
+  });
+
+  console.log('Seeding completed successfully!');
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error(err);
   process.exit(1);
 });

@@ -1,8 +1,17 @@
 // app/orders/new/page.js
 
+import { requireAuth } from '../../../lib/auth.js';
 import OrderForm from '../../../components/OrderForm';
 
-export default function NewOrderPage() {
+/**
+ * New order page. Presents a blank order form for the authenticated user to
+ * create a new task. Authentication is enforced at the server layer
+ * before rendering the form. The OrderForm component handles the
+ * client-side submission and navigation.
+ */
+export default async function NewOrderPage() {
+  // Ensure the user is logged in; otherwise they will be redirected
+  await requireAuth();
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">

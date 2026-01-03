@@ -1,41 +1,38 @@
 // app/categories/[id]/page.js
 
 import { notFound } from 'next/navigation';
-import {
-  findCategory,
-  getAllOrders,
-  computeStats,
-} from '../../../lib/db.js';
+import { requireAuth } from '../../../lib/auth.js';
+import { findCategory, getAllOrdersForUser, computeStats } from '../../../lib/db.js';
 import OrderTable from '../../../components/OrderTable';
 
+/**
+ * Category detail page shows orders filtered by a specific category. It
+ * retrieves the category by ID for the authenticated user and
+ * precomputes the initial order list and stats. The OrderTable is
+ * passed a `categoryId` so subsequent filtering requests remain scoped
+ * to this category.
+ */
 export default async function CategoryDetailPage({ params }) {
+  const user = await requireAuth();
   const id = Number(params.id);
-  const category = await findCategory(id);
+  const category = await findCategory(user.id, id);
   if (!category) {
     notFound();
   }
-
-  const allOrders = await getAllOrders();
-  const orders = allOrders.filter((o) => Number(o.categoryId) === id);
+  const allOrders = await getAllOrdersForUser(user.id);
+  const orders = allOrders.filter(o => o.categoryId === id);
   const stats = computeStats(orders);
-
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          {category.name}
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900">{category.name}</h1>
         <p className="mt-1 text-sm text-gray-600">
           {category.description || 'Kategori joki tugas'}
         </p>
         {category.notes && (
-          <p className="mt-2 text-sm text-gray-600">
-            Catatan: {category.notes}
-          </p>
+          <p className="mt-2 text-sm text-gray-600">Catatan: {category.notes}</p>
         )}
       </div>
-
-      {/* summary & list order khusus kategori ini */}
       <OrderTable
         initialOrders={orders}
         initialStats={stats}
