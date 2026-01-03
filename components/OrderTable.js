@@ -1,232 +1,253 @@
 // components/OrderTable.js
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import StatusBadge from './StatusBadge';
 
-/**
- * OrderTable displays a list of orders with search and filter
- * capabilities. It consumes initial data passed from the server
- * component and interacts with the REST API to fetch updated data
- * when filters change.
- */
+function formatDate(value) {
+  if (!value) return '-';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
 export default function OrderTable({ initialOrders, initialStats }) {
   const [orders, setOrders] = useState(initialOrders);
   const [stats, setStats] = useState(initialStats);
+
   const [search, setSearch] = useState('');
-  const [doneFilter, setDoneFilter] = useState('all');
-  const [paidFilter, setPaidFilter] = useState('all');
-  const [loading, setLoading] = useState(false);
+  const [filterDone, setFilterDone] = useState('all');
+  const [filterPaid, setFilterPaid] = useState('all');
+  const [sortBy, setSortBy] = useState('assigned_date');
+  const [sortDir, setSortDir] = useState('desc');
 
+  // panggil API setiap filter/sort berubah
   useEffect(() => {
-    const fetchFilteredOrders = async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams();
-        if (search) params.append('search', search);
-        if (doneFilter !== 'all') params.append('is_done', doneFilter);
-        if (paidFilter !== 'all') params.append('is_paid', paidFilter);
-        const response = await fetch(`/api/orders?${params}`);
-        if (response.ok) {
-          const data = await response.json();
-          setOrders(data.orders);
-          setStats(data.stats);
-        }
-      } catch (err) {
-        console.error('Error fetching orders:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFilteredOrders();
-  }, [search, doneFilter, paidFilter]);
+    const controller = new AbortController();
 
-  const formatPrice = price => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+    async function fetchData() {
+      const params = new URLSearchParams();
 
-  const formatDate = date => {
-    return new Date(date).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
+      if (search) params.set('search', search);
+      if (filterDone !== 'all')
+        params.set('is_done', filterDone === 'done' ? 'true' : 'false');
+      if (filterPaid !== 'all')
+        params.set('is_paid', filterPaid === 'paid' ? 'true' : 'false');
 
-  const handleDelete = async id => {
-    if (confirm('Apakah Anda yakin ingin menghapus order ini?')) {
-      try {
-        const response = await fetch(`/api/orders/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-          // Refresh orders after deletion
-          const params = new URLSearchParams();
-          if (search) params.append('search', search);
-          const resp = await fetch(`/api/orders?${params}`);
-          const data = await resp.json();
-          setOrders(data.orders);
-          setStats(data.stats);
-        }
-      } catch (err) {
-        console.error('Error deleting order:', err);
-      }
+      params.set('sortBy', sortBy);
+      params.set('sortDir', sortDir);
+
+      const res = await fetch(`/api/orders?${params.toString()}`, {
+        signal: controller.signal,
+      });
+      if (!res.ok) return;
+
+      const data = await res.json();
+      setOrders(data.orders);
+      setStats(data.stats);
     }
-  };
+
+    fetchData().catch(console.error);
+    return () => controller.abort();
+  }, [search, filterDone, filterPaid, sortBy, sortDir]);
+
+  const hasData = useMemo(() => orders && orders.length > 0, [orders]);
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow">
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="rounded-2xl bg-white p-4 shadow-sm">
           <h3 className="text-sm font-medium text-gray-500">Total Pendapatan</h3>
-          <p className="text-2xl font-bold text-gray-900">
-            {formatPrice(stats.totalIncome)}
+          <p className="mt-2 text-2xl font-bold text-gray-900">
+            Rp {stats.totalIncome.toLocaleString('id-ID')}
           </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="rounded-2xl bg-white p-4 shadow-sm">
           <h3 className="text-sm font-medium text-gray-500">Sudah Dibayar</h3>
-          <p className="text-2xl font-bold text-green-600">
-            {formatPrice(stats.totalPaid)}
+          <p className="mt-2 text-2xl font-bold text-emerald-600">
+            Rp {stats.totalPaid.toLocaleString('id-ID')}
           </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="rounded-2xl bg-white p-4 shadow-sm">
           <h3 className="text-sm font-medium text-gray-500">Belum Dibayar</h3>
-          <p className="text-2xl font-bold text-red-600">
-            {formatPrice(stats.totalUnpaid)}
+          <p className="mt-2 text-2xl font-bold text-red-600">
+            Rp {stats.totalUnpaid.toLocaleString('id-ID')}
           </p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
-          <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="p-4 border-b border-gray-200 space-y-4 md:space-y-0 md:flex md:items-end md:justify-between">
-          <div className="md:w-1/3">
-            <label className="label">Pencarian</label>
+      {/* Filter + Sort panel */}
+      <div className="rounded-2xl bg-white p-4 shadow-sm space-y-4">
+        <div className="grid gap-4 md:grid-cols-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Pencarian
+            </label>
             <input
               type="text"
-              name="search"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="input"
               placeholder="Cari nama client atau tugas"
+              className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="md:w-1/3">
-            <label className="label">Filter Selesai</label>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Filter Selesai
+            </label>
             <select
-              name="doneFilter"
-              value={doneFilter}
-              onChange={e => setDoneFilter(e.target.value)}
-              className="input"
+              className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
+              value={filterDone}
+              onChange={(e) => setFilterDone(e.target.value)}
             >
               <option value="all">Semua</option>
-              <option value="true">Selesai</option>
-              <option value="false">Belum</option>
+              <option value="done">Selesai</option>
+              <option value="not_done">Belum Selesai</option>
             </select>
           </div>
-          <div className="md:w-1/3">
-            <label className="label">Filter Pembayaran</label>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Filter Pembayaran
+            </label>
             <select
-              name="paidFilter"
-              value={paidFilter}
-              onChange={e => setPaidFilter(e.target.value)}
-              className="input"
+              className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
+              value={filterPaid}
+              onChange={(e) => setFilterPaid(e.target.value)}
             >
               <option value="all">Semua</option>
-              <option value="true">Lunas</option>
-              <option value="false">Belum</option>
+              <option value="paid">Lunas</option>
+              <option value="not_paid">Belum Lunas</option>
             </select>
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Urut Berdasarkan
+            </label>
+            <select
+              className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="assigned_date">Tanggal Disuruh</option>
+              <option value="deadline_date">Deadline</option>
+              <option value="price">Harga</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Arah Sort
+            </label>
+            <select
+              className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
+              value={sortDir}
+              onChange={(e) => setSortDir(e.target.value)}
+            >
+              <option value="desc">Turun (terbaru / terbesar dulu)</option>
+              <option value="asc">Naik (terlama / terkecil dulu)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabel Orders */}
+      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                Nama Client
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                Tugas
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                Kategori
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                Tgl Disuruh
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                Deadline
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
+                Harga
+              </th>
+              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500">
+                Status
+              </th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500">
+                Catatan
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
+                Aksi
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
+            {!hasData && (
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nama Client
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tugas
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Kategori
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Harga
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Catatan
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Aksi
-                </th>
+                <td
+                  colSpan={9}
+                  className="px-4 py-6 text-center text-sm text-gray-500"
+                >
+                  Belum ada order.
+                </td>
               </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {loading ? (
-                <tr>
-                  <td className="px-6 py-4 text-center" colSpan={7}>
-                    Loading...
-                  </td>
-                </tr>
-              ) : orders.length === 0 ? (
-                <tr>
-                  <td className="px-6 py-4 text-center" colSpan={7}>
-                    Tidak ada order yang ditemukan.
-                  </td>
-                </tr>
-              ) : (
-                orders.map(order => (
-                  <tr key={order.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {order.client_name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {order.task_name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {order.subject_or_category || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatPrice(order.price)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 space-x-2">
-                      <StatusBadge type="done" status={Boolean(order.is_done)} />
-                      <StatusBadge type="paid" status={Boolean(order.is_paid)} />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {order.note || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500 space-x-2">
-                      <Link
-                        href={`/orders/${order.id}`}
-                        className="btn btn-secondary text-xs"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(order.id)}
-                        className="btn btn-danger text-xs"
-                      >
-                        Hapus
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+            )}
+
+            {orders.map((order) => (
+              <tr key={order.id}>
+                <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
+                  {order.client_name}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-700">
+                  {order.task_name}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-500">
+                  {order.category_name || '-'}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-500">
+                  {formatDate(order.assigned_date)}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-500">
+                  {formatDate(order.deadline_date)}
+                </td>
+                <td className="whitespace-nowrap px-4 py-3 text-right text-sm font-medium text-gray-900">
+                  Rp {Number(order.price || 0).toLocaleString('id-ID')}
+                </td>
+                <td className="px-4 py-3 text-center text-xs">
+                  <div className="space-y-1">
+                    <StatusBadge type="done" status={order.is_done} />
+                    <StatusBadge type="paid" status={order.is_paid} />
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-500">
+                  {order.notes || '-'}
+                </td>
+                <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
+                  <Link
+                    href={`/orders/${order.id}`}
+                    className="text-primary-600 hover:text-primary-800"
+                  >
+                    Edit
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
