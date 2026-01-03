@@ -12,12 +12,12 @@ export default function Navbar() {
 
         {/* Nav links - SELALU terlihat, nggak pakai hidden md:flex */}
         <nav className="flex items-center gap-4 text-sm font-medium overflow-x-auto">
-          <Link
+/*          <Link
             href="/"
             className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
           >
             Kategori
-          </Link>
+          </Link>*/
           <Link
             href="/orders"
             className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
