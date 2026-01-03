@@ -1,39 +1,37 @@
 // components/Navbar.js
-
 import Link from 'next/link';
 
 export default function Navbar() {
   return (
-    <nav className="bg-white shadow-md">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-8">
-            <Link href="/" className="text-xl font-bold text-primary-600">
-              Jokiwi
-            </Link>
-            <div className="hidden md:flex space-x-4">
-              <Link
-                href="/"
-                className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/orders"
-                className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                All Orders
-              </Link>
-              <Link
-                href="/orders/new"
-                className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                New Order
-              </Link>
-            </div>
-          </div>
-        </div>
+    <header className="border-b bg-white">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+        {/* Brand */}
+        <Link href="/" className="text-lg font-bold text-primary-600">
+          Jokiwi
+        </Link>
+
+        {/* Nav links - SELALU terlihat, nggak pakai hidden md:flex */}
+        <nav className="flex items-center gap-4 text-sm font-medium overflow-x-auto">
+          <Link
+            href="/"
+            className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
+          >
+            Kategori
+          </Link>
+          <Link
+            href="/orders"
+            className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
+          >
+            All Orders
+          </Link>
+          <Link
+            href="/orders/new"
+            className="text-primary-600 hover:text-primary-800 whitespace-nowrap"
+          >
+            New Order
+          </Link>
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 }

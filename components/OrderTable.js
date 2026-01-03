@@ -21,8 +21,7 @@ export default function OrderTable({ initialOrders, initialStats }) {
   const [stats, setStats] = useState(initialStats);
 
   const [search, setSearch] = useState('');
-  const [filterDone, setFilterDone] = useState('all');
-  const [filterPaid, setFilterPaid] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all'); // <== SATU filter
   const [sortBy, setSortBy] = useState('assigned_date');
   const [sortDir, setSortDir] = useState('desc');
 
@@ -34,10 +33,17 @@ export default function OrderTable({ initialOrders, initialStats }) {
       const params = new URLSearchParams();
 
       if (search) params.set('search', search);
-      if (filterDone !== 'all')
-        params.set('is_done', filterDone === 'done' ? 'true' : 'false');
-      if (filterPaid !== 'all')
-        params.set('is_paid', filterPaid === 'paid' ? 'true' : 'false');
+
+      // mapping filterStatus ke is_done / is_paid
+      if (filterStatus === 'done') {
+        params.set('is_done', 'true');
+      } else if (filterStatus === 'not_done') {
+        params.set('is_done', 'false');
+      } else if (filterStatus === 'paid') {
+        params.set('is_paid', 'true');
+      } else if (filterStatus === 'not_paid') {
+        params.set('is_paid', 'false');
+      }
 
       params.set('sortBy', sortBy);
       params.set('sortDir', sortDir);
@@ -54,7 +60,7 @@ export default function OrderTable({ initialOrders, initialStats }) {
 
     fetchData().catch(console.error);
     return () => controller.abort();
-  }, [search, filterDone, filterPaid, sortBy, sortDir]);
+  }, [search, filterStatus, sortBy, sortDir]);
 
   const hasData = useMemo(() => orders && orders.length > 0, [orders]);
 
@@ -63,19 +69,25 @@ export default function OrderTable({ initialOrders, initialStats }) {
       {/* Summary cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-gray-500">Total Pendapatan</h3>
+          <h3 className="text-sm font-medium text-gray-500">
+            Total Pendapatan
+          </h3>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             Rp {stats.totalIncome.toLocaleString('id-ID')}
           </p>
         </div>
         <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-gray-500">Sudah Dibayar</h3>
+          <h3 className="text-sm font-medium text-gray-500">
+            Sudah Dibayar
+          </h3>
           <p className="mt-2 text-2xl font-bold text-emerald-600">
             Rp {stats.totalPaid.toLocaleString('id-ID')}
           </p>
         </div>
         <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-gray-500">Belum Dibayar</h3>
+          <h3 className="text-sm font-medium text-gray-500">
+            Belum Dibayar
+          </h3>
           <p className="mt-2 text-2xl font-bold text-red-600">
             Rp {stats.totalUnpaid.toLocaleString('id-ID')}
           </p>
@@ -100,36 +112,21 @@ export default function OrderTable({ initialOrders, initialStats }) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Filter Selesai
+              Filter Status
             </label>
             <select
               className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-              value={filterDone}
-              onChange={(e) => setFilterDone(e.target.value)}
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
             >
               <option value="all">Semua</option>
               <option value="done">Selesai</option>
               <option value="not_done">Belum Selesai</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Filter Pembayaran
-            </label>
-            <select
-              className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-              value={filterPaid}
-              onChange={(e) => setFilterPaid(e.target.value)}
-            >
-              <option value="all">Semua</option>
               <option value="paid">Lunas</option>
               <option value="not_paid">Belum Lunas</option>
             </select>
           </div>
-        </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Urut Berdasarkan
@@ -144,7 +141,9 @@ export default function OrderTable({ initialOrders, initialStats }) {
               <option value="price">Harga</option>
             </select>
           </div>
+        </div>
 
+        <div className="grid gap-4 md:grid-cols-3">
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Arah Sort
