@@ -21,11 +21,12 @@ export default function OrderTable({ initialOrders, initialStats }) {
   const [stats, setStats] = useState(initialStats);
 
   const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // <== SATU filter
+  const [filterStatus, setFilterStatus] = useState('all');
   const [sortBy, setSortBy] = useState('assigned_date');
   const [sortDir, setSortDir] = useState('desc');
 
-  // panggil API setiap filter/sort berubah
+  const hasData = useMemo(() => orders && orders.length > 0, [orders]);
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -34,7 +35,6 @@ export default function OrderTable({ initialOrders, initialStats }) {
 
       if (search) params.set('search', search);
 
-      // mapping filterStatus ke is_done / is_paid
       if (filterStatus === 'done') {
         params.set('is_done', 'true');
       } else if (filterStatus === 'not_done') {
@@ -62,7 +62,20 @@ export default function OrderTable({ initialOrders, initialStats }) {
     return () => controller.abort();
   }, [search, filterStatus, sortBy, sortDir]);
 
-  const hasData = useMemo(() => orders && orders.length > 0, [orders]);
+  async function handleDelete(id) {
+    const ok = window.confirm('Yakin ingin menghapus order ini?');
+    if (!ok) return;
+
+    const res = await fetch(`/api/orders/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || 'Gagal menghapus order');
+      return;
+    }
+
+    setOrders((prev) => prev.filter((o) => o.id !== id));
+    // stats biarin update pas user ganti filter, biar simple
+  }
 
   return (
     <div className="space-y-6">
@@ -161,7 +174,7 @@ export default function OrderTable({ initialOrders, initialStats }) {
       </div>
 
       {/* Tabel Orders */}
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -235,13 +248,22 @@ export default function OrderTable({ initialOrders, initialStats }) {
                 <td className="px-4 py-3 text-sm text-gray-500">
                   {order.notes || '-'}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
-                  <Link
-                    href={`/orders/${order.id}`}
-                    className="text-primary-600 hover:text-primary-800"
-                  >
-                    Edit
-                  </Link>
+                <td className="whitespace-nowrap px-4 py-3 text-right text-xs">
+                  <div className="flex justify-end gap-3">
+                    <Link
+                      href={`/orders/${order.id}`}
+                      className="text-primary-600 hover:text-primary-800"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(order.id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      Hapus
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

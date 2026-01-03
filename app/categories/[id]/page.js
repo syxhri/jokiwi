@@ -29,40 +29,15 @@ export default async function CategoryDetailPage({ params }) {
           <p className="mt-1 text-sm text-gray-600">
             {category.description || 'Kategori joki tugas'}
           </p>
+          {category.notes && (
+            <p className="mt-2 text-sm text-gray-600">
+              Catatan: {category.notes}
+            </p>
+          )}
         </div>
       </div>
 
-      <section className="rounded-2xl bg-white p-4 shadow-sm">
-        <h2 className="text-base font-semibold text-gray-900">
-          Ringkasan Kategori
-        </h2>
-        <dl className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div>
-            <dt className="text-sm text-gray-500">Total Pendapatan</dt>
-            <dd className="text-xl font-semibold text-gray-900">
-              Rp {stats.totalIncome.toLocaleString('id-ID')}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-gray-500">Sudah Dibayar</dt>
-            <dd className="text-xl font-semibold text-emerald-600">
-              Rp {stats.totalPaid.toLocaleString('id-ID')}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-gray-500">Belum Dibayar</dt>
-            <dd className="text-xl font-semibold text-red-600">
-              Rp {stats.totalUnpaid.toLocaleString('id-ID')}
-            </dd>
-          </div>
-        </dl>
-
-        {category.notes && (
-          <p className="mt-4 text-sm text-gray-600">Catatan: {category.notes}</p>
-        )}
-      </section>
-
-      {/* Pakai OrderTable dengan data kategori ini */}
+      {/* OrderTable yang sudah ada summary di atas tabel */}
       <OrderTable initialOrders={orders} initialStats={stats} />
     </div>
   );

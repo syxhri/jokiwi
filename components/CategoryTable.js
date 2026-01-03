@@ -2,8 +2,30 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function CategoryTable({ categoriesWithStats }) {
+  const [items, setItems] = useState(categoriesWithStats);
+
+  async function handleDelete(id) {
+    const ok = window.confirm(
+      'Yakin ingin menghapus kategori ini? Pastikan tidak ada order yang memakai kategori ini.',
+    );
+    if (!ok) return;
+
+    const res = await fetch(`/api/categories/${id}`, {
+      method: 'DELETE',
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || 'Gagal menghapus kategori');
+      return;
+    }
+
+    setItems((prev) => prev.filter((c) => c.id !== id));
+  }
+
   return (
     <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
       <table className="min-w-full divide-y divide-gray-200">
@@ -33,7 +55,7 @@ export default function CategoryTable({ categoriesWithStats }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-          {categoriesWithStats.length === 0 && (
+          {items.length === 0 && (
             <tr>
               <td
                 colSpan={7}
@@ -44,7 +66,7 @@ export default function CategoryTable({ categoriesWithStats }) {
             </tr>
           )}
 
-          {categoriesWithStats.map((cat) => (
+          {items.map((cat) => (
             <tr key={cat.id}>
               <td className="px-4 py-3 text-sm font-medium text-gray-900">
                 <Link
@@ -69,13 +91,22 @@ export default function CategoryTable({ categoriesWithStats }) {
               <td className="px-4 py-3 text-right text-sm text-gray-700">
                 Rp {cat.stats.totalUnpaid.toLocaleString('id-ID')}
               </td>
-              <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
-                <Link
-                  href={`/categories/${cat.id}`}
-                  className="text-primary-600 hover:text-primary-800"
-                >
-                  Kelola
-                </Link>
+              <td className="whitespace-nowrap px-4 py-3 text-right text-xs">
+                <div className="flex justify-end gap-3">
+                  <Link
+                    href={`/categories/${cat.id}/edit`}
+                    className="text-primary-600 hover:text-primary-800"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(cat.id)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    Hapus
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
