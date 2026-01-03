@@ -16,7 +16,11 @@ function formatDate(value) {
   });
 }
 
-export default function OrderTable({ initialOrders, initialStats }) {
+export default function OrderTable({
+  initialOrders,
+  initialStats,
+  categoryId, // <== optional
+}) {
   const [orders, setOrders] = useState(initialOrders);
   const [stats, setStats] = useState(initialStats);
 
@@ -48,6 +52,11 @@ export default function OrderTable({ initialOrders, initialStats }) {
       params.set('sortBy', sortBy);
       params.set('sortDir', sortDir);
 
+      // penting: kirim categoryId kalau ada
+      if (categoryId) {
+        params.set('categoryId', String(categoryId));
+      }
+
       const res = await fetch(`/api/orders?${params.toString()}`, {
         signal: controller.signal,
       });
@@ -60,7 +69,7 @@ export default function OrderTable({ initialOrders, initialStats }) {
 
     fetchData().catch(console.error);
     return () => controller.abort();
-  }, [search, filterStatus, sortBy, sortDir]);
+  }, [search, filterStatus, sortBy, sortDir, categoryId]);
 
   async function handleDelete(id) {
     const ok = window.confirm('Yakin ingin menghapus order ini?');
@@ -74,7 +83,7 @@ export default function OrderTable({ initialOrders, initialStats }) {
     }
 
     setOrders((prev) => prev.filter((o) => o.id !== id));
-    // stats biarin update pas user ganti filter, biar simple
+    // stats otomatis ikut ke-update saat filter/sort berubah; cukup segini dulu
   }
 
   return (
@@ -187,22 +196,22 @@ export default function OrderTable({ initialOrders, initialStats }) {
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
                 Kategori
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
                 Tgl Disuruh
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
                 Deadline
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
                 Harga
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
                 Status
               </th>
-              <th className="px-4 py-3 text-xs font-semibold text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
                 Catatan
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
                 Aksi
               </th>
             </tr>
@@ -221,7 +230,7 @@ export default function OrderTable({ initialOrders, initialStats }) {
 
             {orders.map((order) => (
               <tr key={order.id}>
-                <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">
                   {order.client_name}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
@@ -230,16 +239,16 @@ export default function OrderTable({ initialOrders, initialStats }) {
                 <td className="px-4 py-3 text-sm text-gray-500">
                   {order.category_name || '-'}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-500">
+                <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
                   {formatDate(order.assigned_date)}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-500">
+                <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
                   {formatDate(order.deadline_date)}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-right text-sm font-medium text-gray-900">
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">
                   Rp {Number(order.price || 0).toLocaleString('id-ID')}
                 </td>
-                <td className="px-4 py-3 text-center text-xs">
+                <td className="px-4 py-3 text-xs">
                   <div className="space-y-1">
                     <StatusBadge type="done" status={order.is_done} />
                     <StatusBadge type="paid" status={order.is_paid} />
@@ -248,8 +257,8 @@ export default function OrderTable({ initialOrders, initialStats }) {
                 <td className="px-4 py-3 text-sm text-gray-500">
                   {order.notes || '-'}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-right text-xs">
-                  <div className="flex justify-end gap-3">
+                <td className="px-4 py-3 text-xs">
+                  <div className="flex gap-3">
                     <Link
                       href={`/orders/${order.id}`}
                       className="text-primary-600 hover:text-primary-800"

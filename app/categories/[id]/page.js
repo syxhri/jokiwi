@@ -16,29 +16,31 @@ export default async function CategoryDetailPage({ params }) {
   }
 
   const allOrders = await getAllOrders();
-  const orders = allOrders.filter((o) => o.categoryId === id);
+  const orders = allOrders.filter((o) => Number(o.categoryId) === id);
   const stats = computeStats(orders);
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            {category.name}
-          </h1>
-          <p className="mt-1 text-sm text-gray-600">
-            {category.description || 'Kategori joki tugas'}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">
+          {category.name}
+        </h1>
+        <p className="mt-1 text-sm text-gray-600">
+          {category.description || 'Kategori joki tugas'}
+        </p>
+        {category.notes && (
+          <p className="mt-2 text-sm text-gray-600">
+            Catatan: {category.notes}
           </p>
-          {category.notes && (
-            <p className="mt-2 text-sm text-gray-600">
-              Catatan: {category.notes}
-            </p>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* OrderTable yang sudah ada summary di atas tabel */}
-      <OrderTable initialOrders={orders} initialStats={stats} />
+      {/* summary & list order khusus kategori ini */}
+      <OrderTable
+        initialOrders={orders}
+        initialStats={stats}
+        categoryId={id}
+      />
     </div>
   );
 }

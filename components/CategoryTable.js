@@ -27,7 +27,7 @@ export default function CategoryTable({ categoriesWithStats }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
@@ -37,19 +37,13 @@ export default function CategoryTable({ categoriesWithStats }) {
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
               Catatan
             </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
+            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
               Total Orders
             </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
+            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
               Pendapatan
             </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
-              Sudah Dibayar
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
-              Belum Dibayar
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
+            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
               Aksi
             </th>
           </tr>
@@ -58,7 +52,7 @@ export default function CategoryTable({ categoriesWithStats }) {
           {items.length === 0 && (
             <tr>
               <td
-                colSpan={7}
+                colSpan={5}
                 className="px-4 py-6 text-center text-sm text-gray-500"
               >
                 Belum ada kategori. Tambahkan kategori terlebih dahulu.
@@ -79,20 +73,14 @@ export default function CategoryTable({ categoriesWithStats }) {
               <td className="px-4 py-3 text-sm text-gray-500">
                 {cat.notes || '-'}
               </td>
-              <td className="px-4 py-3 text-right text-sm text-gray-700">
+              <td className="px-4 py-3 text-sm text-gray-700">
                 {cat.stats.totalOrders}
               </td>
-              <td className="px-4 py-3 text-right text-sm text-gray-700">
+              <td className="px-4 py-3 text-sm text-gray-700">
                 Rp {cat.stats.totalIncome.toLocaleString('id-ID')}
               </td>
-              <td className="px-4 py-3 text-right text-sm text-gray-700">
-                Rp {cat.stats.totalPaid.toLocaleString('id-ID')}
-              </td>
-              <td className="px-4 py-3 text-right text-sm text-gray-700">
-                Rp {cat.stats.totalUnpaid.toLocaleString('id-ID')}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-right text-xs">
-                <div className="flex justify-end gap-3">
+              <td className="px-4 py-3 text-xs">
+                <div className="flex gap-3">
                   <Link
                     href={`/categories/${cat.id}/edit`}
                     className="text-primary-600 hover:text-primary-800"
