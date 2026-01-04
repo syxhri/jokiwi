@@ -84,7 +84,7 @@ export default function OrderForm({ order = null }) {
         body: JSON.stringify(payload),
       });
       if (res.ok) {
-        router.push('/orders');
+        payload.categoryId ? router.push(`/categories/${payload.categoryId}`) : router.push('/orders');
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
