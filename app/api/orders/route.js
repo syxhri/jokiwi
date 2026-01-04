@@ -2,6 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { AUTH_COOKIE_NAME, verifyToken } from '../../../lib/auth.js';
 import {
   filterOrders,
   computeStats,
@@ -24,11 +25,14 @@ import {
 export async function GET(request) {
   try {
     const cookieStore = cookies();
-    const idStr = cookieStore.get('userId')?.value;
-    if (!idStr) {
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+    if (!token) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+    let userId;
+    try {
+      userId = verifyToken(token).userId;
+    } catch {
       return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
     }
-    const userId = Number(idStr);
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
     const isDone = searchParams.get('is_done');
@@ -64,11 +68,14 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const cookieStore = cookies();
-    const idStr = cookieStore.get('userId')?.value;
-    if (!idStr) {
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+    if (!token) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+    let userId;
+    try {
+      userId = verifyToken(token).userId;
+    } catch {
       return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
     }
-    const userId = Number(idStr);
     const data = await request.json();
     const {
       client_name,

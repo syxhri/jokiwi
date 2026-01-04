@@ -2,6 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { createUser, findUserByUsername } from '../../../../lib/db.js';
+import { AUTH_COOKIE_NAME, signToken } from '../../../../lib/auth.js';
 
 // Handle user registration. Expects JSON { username, password, name }
 // in the request body. Usernames must be unique. On success, the
@@ -26,11 +27,15 @@ export async function POST(request) {
     }
     const user = await createUser({ username, password, name: name || '' });
     const response = NextResponse.json({ message: 'Registration successful' });
+    const token = signToken(user.id);
     response.cookies.set({
-      name: 'userId',
-      value: String(user.id),
+      name: AUTH_COOKIE_NAME,
+      value: token,
       httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
       path: '/',
+      maxAge: 60 * 60 * 24 * 7,
     });
     return response;
   } catch (err) {

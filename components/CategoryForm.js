@@ -1,9 +1,9 @@
 // components/CategoryForm.js
 
-'use client';
+"use client";
 
-import { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 /**
  * Form for creating or editing a category. Accepts an optional
@@ -19,43 +19,45 @@ import { useRouter } from 'next/navigation';
 export default function CategoryForm({ category = null }) {
   const router = useRouter();
   const [form, setForm] = useState({
-    name: category?.name || '',
-    description: category?.description || '',
-    notes: category?.notes || '',
+    name: category?.name || "",
+    description: category?.description || "",
+    notes: category?.notes || "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // Snapshot of initial state to detect unsaved changes
   const initialSnapshot = useMemo(() => JSON.stringify(form), []);
   const isDirty = JSON.stringify(form) !== initialSnapshot;
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
     try {
-      const url = category ? `/api/categories/${category.id}` : '/api/categories';
-      const method = category ? 'PUT' : 'POST';
+      const url = category
+        ? `/api/categories/${category.id}`
+        : "/api/categories";
+      const method = category ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
       if (res.ok) {
-        router.push('/');
+        router.push("/");
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
-        setError(data?.error || 'Gagal menyimpan kategori');
+        setError(data?.error || "Gagal menyimpan kategori");
       }
     } catch {
-      setError('Gagal menyimpan kategori');
+      setError("Gagal menyimpan kategori");
     } finally {
       setLoading(false);
     }
@@ -63,21 +65,28 @@ export default function CategoryForm({ category = null }) {
 
   function handleBack() {
     if (isDirty) {
-      const ok = window.confirm('Perubahan belum disimpan. Yakin ingin kembali?');
+      const ok = window.confirm(
+        "Perubahan belum disimpan. Yakin ingin kembali?"
+      );
       if (!ok) return;
     }
-    router.push('/');
+    router.push("/");
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-lg shadow p-6 space-y-6"
+    >
       {error && (
         <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
           {error}
         </div>
       )}
       <div>
-        <label className="label">Nama Kategori *</label>
+        <label className="label">
+          Nama Kategori <span className="text-red-500">*</span>
+        </label>
         <input
           type="text"
           name="name"
@@ -115,12 +124,8 @@ export default function CategoryForm({ category = null }) {
         >
           Kembali
         </button>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={loading}
-        >
-          {loading ? 'Menyimpan…' : 'Simpan'}
+        <button type="submit" className="btn btn-primary" disabled={loading}>
+          {loading ? "Menyimpan…" : "Simpan"}
         </button>
       </div>
     </form>

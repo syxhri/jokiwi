@@ -12,9 +12,9 @@ import { useRouter, usePathname } from "next/navigation";
  * links to the login and register pages. The bar is horizontally
  * scrollable on narrow screens to ensure all links remain accessible.
  */
-export default function Navbar() {
-  const [user, setUser] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(true);
+export default function Navbar({ initialUser = null }) {
+  const [user, setUser] = useState(initialUser);
+  const [loadingUser, setLoadingUser] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -57,14 +57,14 @@ export default function Navbar() {
 
   return (
     <header className="border-b bg-white">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
         {/* Logo */}
         <Link href="/" className="text-lg font-bold text-primary-600 whitespace-nowrap">
-          {user ? user.username : "Jokiwi"}
+          {user ? `${user.name || user.username} - Jokiwi` : "Jokiwi"}
         </Link>
 
         {/* Links */}
-        <nav className="flex items-center gap-4 text-sm font-medium overflow-x-auto">
+        <nav className="flex flex-1 items-center justify-center gap-4 text-sm font-medium overflow-x-auto">
           {/*<Link href="/" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
             Kategori
           </Link>*/}
@@ -74,11 +74,16 @@ export default function Navbar() {
           <Link href="/orders/new" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
             New Order
           </Link>
+          {user ? (
+            <Link href="/profile" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
+              Profile
+            </Link>
+          ) : null}
         </nav>
 
         {/* Auth Controls */}
         <div className="flex items-center gap-3 text-sm whitespace-nowrap">
-          {loadingUser ? null : user ? (
+          {user ? (
             <>
               <span className="hidden sm:inline text-gray-700">
                 Hi, {user.name || user.username}
@@ -86,6 +91,7 @@ export default function Navbar() {
               <button
                 onClick={handleLogout}
                 className="text-red-600 hover:text-red-800"
+                disabled={loadingUser}
               >
                 Logout
               </button>

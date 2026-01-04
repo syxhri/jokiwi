@@ -2,6 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { AUTH_COOKIE_NAME, verifyToken } from '../../../../lib/auth.js';
 import {
   findCategory,
   updateCategory,
@@ -13,8 +14,15 @@ function parseIds(params) {
   const id = Number(params.id);
   if (Number.isNaN(id)) return { id: null, userId: null };
   const cookieStore = cookies();
-  const uid = cookieStore.get('userId')?.value;
-  const userId = uid ? Number(uid) : null;
+  const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+  let userId = null;
+  if (token) {
+    try {
+      userId = verifyToken(token).userId;
+    } catch {
+      userId = null;
+    }
+  }
   return { id, userId };
 }
 

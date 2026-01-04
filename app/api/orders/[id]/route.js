@@ -2,6 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { AUTH_COOKIE_NAME, verifyToken } from '../../../../lib/auth.js';
 import {
   findOrder,
   updateOrder,
@@ -14,8 +15,15 @@ import {
  */
 function parseIds(params) {
   const id = Number(params.id);
-  const uid = cookies().get('userId')?.value;
-  const userId = uid ? Number(uid) : null;
+  const token = cookies().get(AUTH_COOKIE_NAME)?.value;
+  let userId = null;
+  if (token) {
+    try {
+      userId = verifyToken(token).userId;
+    } catch {
+      userId = null;
+    }
+  }
   return { id: Number.isNaN(id) ? null : id, userId };
 }
 
