@@ -56,8 +56,8 @@ export default function Navbar() {
         {/* Links */}
         <nav className="flex items-center gap-4 text-sm font-medium overflow-x-auto">
           {/*<Link href="/" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
-            Kategori*/}
-          </Link>
+            Kategori
+          </Link>*/}
           <Link href="/orders" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
             All Orders
           </Link>
