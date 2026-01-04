@@ -10,6 +10,11 @@ import CategoryForm from '../../../../components/CategoryForm';
  * renders a form for editing it. If the category is not found or
  * belongs to another user the page results in a 404.
  */
+export const metadata = {
+  title: 'Jokiwi - Edit Kategori',
+  description: 'Ubah detail kategori',
+};
+
 export default async function EditCategoryPage({ params }) {
   const user = await requireAuth();
   const id = Number(params.id);

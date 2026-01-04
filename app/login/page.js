@@ -13,6 +13,11 @@ import Link from 'next/link';
  * the home page. Any error response from the server is surfaced to
  * the user. A link to the registration page is also provided.
  */
+export const metadata = {
+  title: 'Jokiwi - Login',
+  description: 'Login ke akun Jokiwi mu',
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: '', password: '' });

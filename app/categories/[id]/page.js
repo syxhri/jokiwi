@@ -12,6 +12,11 @@ import OrderTable from '../../../components/OrderTable';
  * passed a `categoryId` so subsequent filtering requests remain scoped
  * to this category.
  */
+export const metadata = {
+  title: 'Jokiwi - Kategori',
+  description: 'Daftar kategori jokian',
+};
+
 export default async function CategoryDetailPage({ params }) {
   const user = await requireAuth();
   const id = Number(params.id);

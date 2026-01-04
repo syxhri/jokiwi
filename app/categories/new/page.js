@@ -6,6 +6,11 @@ import CategoryForm from '../../../components/CategoryForm';
 /**
  * Page for creating a new category. This page enforces authentication.
  */
+export const metadata = {
+  title: 'Jokiwi - Tambah Kategori',
+  description: 'Tambah kategori baru untuk jokian mu',
+};
+
 export default async function NewCategoryPage() {
   await requireAuth();
   return (

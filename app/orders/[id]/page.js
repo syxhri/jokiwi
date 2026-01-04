@@ -11,6 +11,11 @@ import OrderForm from '../../../components/OrderForm';
  * belongs to another user, the page results in a 404. The user is
  * authenticated via requireAuth() prior to data retrieval.
  */
+export const metadata = {
+  title: 'Jokiwi - Edit Orderan',
+  description: 'Ubah detail orderan joki mu',
+};
+
 export default async function EditOrderPage({ params }) {
   const user = await requireAuth();
   const id = Number(params.id);

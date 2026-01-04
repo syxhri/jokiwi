@@ -61,7 +61,7 @@ export default function Navbar() {
           <Link href="/orders" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
             All Orders
           </Link>
-          <Link href="/orders/new" className="text-primary-600 hover:text-primary-800 whitespace-nowrap">
+          <Link href="/orders/new" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
             New Order
           </Link>
         </nav>

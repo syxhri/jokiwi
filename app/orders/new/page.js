@@ -9,6 +9,11 @@ import OrderForm from '../../../components/OrderForm';
  * before rendering the form. The OrderForm component handles the
  * client-side submission and navigation.
  */
+export const metadata = {
+  title: 'Jokiwi - Tambah Orderan',
+  description: 'Tambah orderan joki baru',
+};
+
 export default async function NewOrderPage() {
   // Ensure the user is logged in; otherwise they will be redirected
   await requireAuth();
