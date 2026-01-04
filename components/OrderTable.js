@@ -117,6 +117,20 @@ export default function OrderTable({ initialOrders, initialStats, categoryId }) 
             Rp {stats.totalUnpaid.toLocaleString('id-ID')}
           </p>
         </div>
+          <h3 className="text-sm font-medium text-gray-500">Total Orderan</h3>
+          <p className="mt-2 text-2xl font-bold text-blue-600">
+            {stats.totalOrders} Orderan
+          </p>
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <Link
+          href="/orders/new"
+          className="btn btn-primary"
+        >
+          Tambah Orderan
+        </Link>
       </div>
 
       {/* Filter + Sort panel */}

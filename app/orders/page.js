@@ -21,14 +21,6 @@ export default async function OrdersPage() {
         <h1 className="text-3xl font-bold text-gray-900">Semua Order</h1>
         <p className="text-gray-600">Kelola dan filter semua order yang Anda miliki</p>
       </div>
-      <div className="flex justify-end">
-        <a
-          href="/orders/new"
-          className="btn btn-primary"
-        >
-          Tambah Orderan
-        </a>
-      </div>
       <OrderTable initialOrders={orders} initialStats={stats} />
     </div>
   );
