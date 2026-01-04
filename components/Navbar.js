@@ -21,7 +21,8 @@ export default function Navbar() {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await fetch('/api/user');
+        setLoadingUser(true);
+        const res = await fetch('/api/user', { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
@@ -30,9 +31,13 @@ export default function Navbar() {
         }
       } catch {
         setUser(null);
+      } finally {
+        setLoadingUser(false);
       }
     }
-    fetchUser().catch(() => {});
+    fetchUser().catch(() => {
+      setLoadingUser(false);
+    });
   }, [pathname]);
 
   async function handleLogout() {
@@ -59,7 +64,7 @@ export default function Navbar() {
         </Link>
 
         {/* Links */}
-        <nav className="flex items-center gap-4 text-sm font-medium">
+        <nav className="flex items-center gap-4 text-sm font-medium overflow-x-auto">
           {/*<Link href="/" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
             Kategori
           </Link>*/}
@@ -73,9 +78,11 @@ export default function Navbar() {
 
         {/* Auth Controls */}
         <div className="flex items-center gap-3 text-sm whitespace-nowrap">
-          {user ? (
+          {loadingUser ? null : user ? (
             <>
-              <span className="hidden sm:inline text-gray-700">Hi, {user.name || user.username}</span>
+              <span className="hidden sm:inline text-gray-700">
+                Hi, {user.name || user.username}
+              </span>
               <button
                 onClick={handleLogout}
                 className="text-red-600 hover:text-red-800"
