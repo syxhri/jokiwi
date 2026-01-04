@@ -4,7 +4,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from "next/navigation";
 
 /**
  * A responsive navigation bar that adapts based on authentication state.
@@ -14,7 +14,9 @@ import { useRouter } from 'next/navigation';
  */
 export default function Navbar() {
   const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     async function fetchUser() {
@@ -31,7 +33,7 @@ export default function Navbar() {
       }
     }
     fetchUser().catch(() => {});
-  }, []);
+  }, [pathname]);
 
   async function handleLogout() {
     try {
@@ -41,6 +43,7 @@ export default function Navbar() {
       if (res.ok) {
         setUser(null);
         router.push('/login');
+        router.refresh?.();
       }
     } catch {
       // ignore
