@@ -21,11 +21,7 @@ export default function RootLayout({ children }) {
           <main className="container mx-auto px-4 py-8">{children}</main>
           <footer className="border-t border-gray-200 py-6 text-center text-gray-600">
             <p>
-              Jokiwi Made with 💩 by
-              <Link
-                  href="https://github.com/syxhri"
-                  className="text-primary-600 hover:text-primary-800 whitespace-nowrap"
-              > @syxhri</Link>
+              Jokiwi Made with 💩 by <Link href="https://github.com/syxhri" className="text-primary-600 hover:text-primary-800 whitespace-nowrap">@syxhri</Link>
             </p>
           </footer>
         </div>
