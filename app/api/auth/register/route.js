@@ -1,7 +1,7 @@
 // app/api/auth/register/route.js
 
 import { NextResponse } from 'next/server';
-import { createUser, findUserByUsername } from '../../../../../lib/db.js';
+import { createUser, findUserByUsername } from '../../../../lib/db.js';
 
 // Handle user registration. Expects JSON { username, password, name }
 // in the request body. Usernames must be unique. On success, the

@@ -1,116 +1,101 @@
-"use client";
+// components/Navbar.js
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+'use client';
 
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+/**
+ * A responsive navigation bar that adapts based on authentication state.
+ * When a user is logged in it shows a logout button; otherwise it offers
+ * links to the login and register pages. The bar is horizontally
+ * scrollable on narrow screens to ensure all links remain accessible.
+ */
 export default function Navbar() {
   const [user, setUser] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    async function fetchUser() {
       try {
-        const res = await fetch("/api/user", { cache: "no-store" });
-        if (!res.ok) {
-          setUser(null);
-        } else {
+        const res = await fetch('/api/user');
+        if (res.ok) {
           const data = await res.json();
           setUser(data.user);
+        } else {
+          setUser(null);
         }
-      } catch (e) {
+      } catch {
         setUser(null);
-      } finally {
-        setLoadingUser(false);
       }
-    };
-
-    fetchUser();
+    }
+    fetchUser().catch(() => {});
   }, []);
 
-  const handleLogout = async () => {
+  async function handleLogout() {
     try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-      });
-      router.push("/login");
-      router.refresh?.();
-    } catch (e) {
-      console.error(e);
+      const res = await fetch('/api/auth/logout', { method: 'POST' });
+      if (res.ok) {
+        setUser(null);
+        router.push('/login');
+      }
+    } catch {
+      // ignore
     }
-  };
+  }
 
   return (
-    <nav className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        {/* Brand */}
-        <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="rounded-xl bg-sky-100 px-2 py-1 text-xs font-semibold text-sky-700">
-              Jokiwi
-            </span>
-            <span className="text-sm font-semibold text-slate-800 md:text-base">
-              Joki Tugas App
-            </span>
-          </Link>
-        </div>
+    <header className="border-b bg-white">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+        {/* Logo */}
+        <Link href="/" className="text-lg font-bold text-primary-600 whitespace-nowrap">
+          Jokiwi
+        </Link>
 
         {/* Links */}
-        <div className="flex items-center gap-4 text-sm">
-          <Link
-            href="/"
-            className="hidden text-slate-600 hover:text-sky-600 sm:inline-block"
-          >
-            Kategori
+        <nav className="flex items-center gap-4 text-sm font-medium overflow-x-auto">
+          {/*<Link href="/" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
+            Kategori*/}
           </Link>
-          <Link
-            href="/orders"
-            className="text-slate-600 hover:text-sky-600"
-          >
+          <Link href="/orders" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
             All Orders
           </Link>
-          <Link
-            href="/orders/new"
-            className="hidden text-slate-600 hover:text-sky-600 sm:inline-block"
-          >
+          <Link href="/orders/new" className="text-primary-600 hover:text-primary-800 whitespace-nowrap">
             New Order
           </Link>
+        </nav>
 
-          {/* Auth section */}
-          {loadingUser ? null : user ? (
-            <div className="flex items-center gap-3">
-              <span className="hidden text-xs text-slate-500 sm:inline-block">
-                Login sebagai{" "}
-                <span className="font-semibold text-slate-700">
-                  {user.name || user.username}
-                </span>
-              </span>
+        {/* Auth Controls */}
+        <div className="flex items-center gap-3 text-sm whitespace-nowrap">
+          {user ? (
+            <>
+              <span className="hidden sm:inline text-gray-700">Hi, {user.name || user.username}</span>
               <button
                 onClick={handleLogout}
-                className="rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 hover:border-sky-300 hover:text-sky-700"
+                className="text-red-600 hover:text-red-800"
               >
                 Logout
               </button>
-            </div>
+            </>
           ) : (
-            <div className="flex items-center gap-2 text-xs sm:text-sm">
+            <>
               <Link
                 href="/login"
-                className="rounded-full border border-slate-200 px-3 py-1 font-medium text-slate-600 hover:border-sky-300 hover:text-sky-700"
+                className="text-gray-700 hover:text-gray-900"
               >
                 Login
               </Link>
               <Link
                 href="/register"
-                className="rounded-full bg-sky-600 px-3 py-1 font-medium text-white hover:bg-sky-700"
+                className="text-primary-600 hover:text-primary-800"
               >
                 Register
               </Link>
-            </div>
+            </>
           )}
         </div>
       </div>
-    </nav>
+    </header>
   );
 }

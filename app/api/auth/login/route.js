@@ -1,7 +1,7 @@
 // app/api/auth/login/route.js
 
 import { NextResponse } from 'next/server';
-import { findUserByUsername } from '../../../../../lib/db.js';
+import { findUserByUsername } from '../../../../lib/db.js';
 
 // Handle user login. Expects JSON { username, password } in the request
 // body. If the credentials match an existing user, a HTTP-only cookie
