@@ -13,11 +13,6 @@ import Link from 'next/link';
  * the home page. Any server error is displayed above the form. A
  * link back to login is provided for users who already have an account.
  */
-export const metadata = {
-  title: 'Jokiwi - Register',
-  description: 'Buat akun Jokiwi mu',
-};
-
 export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: '', password: '', name: '' });
