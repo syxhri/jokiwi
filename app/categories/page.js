@@ -57,7 +57,7 @@ export default async function CategoriesPage() {
         </div>
           <h3 className="text-sm font-medium text-gray-500">Total Orderan</h3>
           <p className="mt-2 text-2xl font-bold text-blue-600">
-            {stats.totalOrders} Orderan
+            {globalStats.totalOrders} Orderan
           </p>
         </div>
       </div>
