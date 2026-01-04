@@ -1,7 +1,7 @@
 // app/layout.js
 
 import { Inter } from 'next/font/google';
-import '../styles/globals.css';
+import './globals.css';
 import Navbar from '../components/Navbar';
 import Link from 'next/link';
 
