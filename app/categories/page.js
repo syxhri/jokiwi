@@ -54,7 +54,7 @@ export default async function CategoriesPage() {
             Rp {globalStats.totalUnpaid.toLocaleString('id-ID')}
           </p>
         </div>
-        </div>
+        <div>
           <h3 className="text-sm font-medium text-gray-500">Total Orderan</h3>
           <p className="mt-2 text-2xl font-bold text-blue-600">
             {globalStats.totalOrders} Orderan
