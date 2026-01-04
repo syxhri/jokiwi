@@ -35,6 +35,8 @@ export default function Navbar() {
 
   async function handleLogout() {
     try {
+      const ok = window.confirm('Yakin mau logout?');
+      if (!ok) return;
       const res = await fetch('/api/auth/logout', { method: 'POST' });
       if (res.ok) {
         setUser(null);
