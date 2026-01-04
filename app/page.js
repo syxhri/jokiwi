@@ -14,5 +14,5 @@ export default function Home() {
   // redirect ensures that unauthenticated users will hit the auth
   // middleware in the categories route rather than seeing a blank
   // dashboard.
-  redirect('/');
+  redirect('/categories');
 }
