@@ -1,7 +1,7 @@
 // scripts/seed.js
 
 /**
- * Reset and seed the lowdb JSON database with sample users,
+ * Reset and seed the PostgreSQL database with sample users,
  * categories and orders. This script utilises the data layer
  * functions provided by lib/db.js. To run it execute
  * `npm run seed` after installing dependencies. Seed data is
@@ -12,7 +12,7 @@
  */
 
 import {
-  getDb,
+  getPool,
   createUser,
   createCategory,
   createOrder,
@@ -20,13 +20,11 @@ import {
 
 async function main() {
   console.log('Resetting and seeding database...');
-  const db = await getDb();
-  // Clear existing data
-  db.data.users = [];
-  db.data.categories = [];
-  db.data.orders = [];
-  db.data.meta = { nextUserId: 1, nextCategoryId: 1, nextOrderId: 1 };
-  await db.write();
+  // Clear existing data from PostgreSQL and reset sequences
+  const pool = getPool();
+  // TRUNCATE will remove all rows and reset serial sequences. CASCADE ensures
+  // dependent rows are removed in the correct order.
+  await pool.query('TRUNCATE orders, categories, users RESTART IDENTITY CASCADE');
 
   // Create sample users
   const alice = await createUser({ username: 'alice', password: 'password', name: 'Alice' });
