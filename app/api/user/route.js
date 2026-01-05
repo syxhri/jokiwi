@@ -1,9 +1,10 @@
+export const runtime = "nodejs";
 // app/api/user/route.js
 
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { findUserById } from '../../../lib/db.js';
-import { AUTH_COOKIE_NAME, verifyToken } from '../../../lib/auth.js';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { findUserById } from "../../../lib/db.js";
+import { AUTH_COOKIE_NAME, verifyToken } from "../../../lib/auth.js";
 
 // Returns the currently authenticated user based on the userId cookie.
 // If no user is logged in, responds with 401 and a null user object.
@@ -25,9 +26,11 @@ export async function GET() {
     }
     // omit sensitive fields
     const { passwordHash, qrisPayload, ...safeUser } = user;
-    return NextResponse.json({ user: { ...safeUser, hasQris: Boolean(qrisPayload) } });
+    return NextResponse.json({
+      user: { ...safeUser, hasQris: Boolean(qrisPayload) },
+    });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: 'Failed to load user' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to load user" }, { status: 500 });
   }
 }

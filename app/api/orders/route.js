@@ -1,13 +1,10 @@
+export const runtime = "nodejs";
 // app/api/orders/route.js
 
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { AUTH_COOKIE_NAME, verifyToken } from '../../../lib/auth.js';
-import {
-  filterOrders,
-  computeStats,
-  createOrder,
-} from '../../../lib/db.js';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { AUTH_COOKIE_NAME, verifyToken } from "../../../lib/auth.js";
+import { filterOrders, computeStats, createOrder } from "../../../lib/db.js";
 
 /**
  * GET /api/orders
@@ -26,20 +23,21 @@ export async function GET(request) {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
-    if (!token) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+    if (!token)
+      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     let userId;
     try {
       userId = verifyToken(token).userId;
     } catch {
-      return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     }
     const { searchParams } = new URL(request.url);
-    const search = searchParams.get('search') || '';
-    const isDone = searchParams.get('is_done');
-    const isPaid = searchParams.get('is_paid');
-    const categoryId = searchParams.get('categoryId');
-    const sortBy = searchParams.get('sortBy') || 'assigned_date';
-    const sortDir = searchParams.get('sortDir') || 'desc';
+    const search = searchParams.get("search") || "";
+    const isDone = searchParams.get("is_done");
+    const isPaid = searchParams.get("is_paid");
+    const categoryId = searchParams.get("categoryId");
+    const sortBy = searchParams.get("sortBy") || "assigned_date";
+    const sortDir = searchParams.get("sortDir") || "desc";
     const orders = await filterOrders({
       userId,
       search,
@@ -52,8 +50,11 @@ export async function GET(request) {
     const stats = computeStats(orders);
     return NextResponse.json({ orders, stats });
   } catch (err) {
-    console.error('Failed to fetch orders:', err);
-    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
+    console.error("Failed to fetch orders:", err);
+    return NextResponse.json(
+      { error: "Failed to fetch orders" },
+      { status: 500 }
+    );
   }
 }
 
@@ -69,12 +70,13 @@ export async function POST(request) {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
-    if (!token) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+    if (!token)
+      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     let userId;
     try {
       userId = verifyToken(token).userId;
     } catch {
-      return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     }
     const data = await request.json();
     const {
@@ -89,7 +91,10 @@ export async function POST(request) {
       deadline_date,
     } = data || {};
     if (!client_name || !task_name || price === undefined) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
     const newOrder = await createOrder(userId, {
       client_name,
@@ -104,7 +109,10 @@ export async function POST(request) {
     });
     return NextResponse.json(newOrder, { status: 201 });
   } catch (err) {
-    console.error('Failed to create order:', err);
-    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+    console.error("Failed to create order:", err);
+    return NextResponse.json(
+      { error: "Failed to create order" },
+      { status: 500 }
+    );
   }
 }
