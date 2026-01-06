@@ -6,19 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import StatusBadge from "./StatusBadge";
 
-/**
- * OrderTable renders a filterable and sortable list of orders. It
- * accepts an optional `categoryId` prop to restrict queries to a
- * specific category. The table displays all fields for each order
- * along with action buttons for editing or deleting a row. Summary
- * statistics are shown above the table and update dynamically as
- * filters change. Only paid orders are counted toward total income.
- *
- * @param {object} props
- * @param {Array} props.initialOrders
- * @param {object} props.initialStats
- * @param {number|undefined} [props.categoryId]
- */
 export default function OrderTable({
   initialOrders,
   initialStats,
@@ -59,7 +46,6 @@ export default function OrderTable({
     async function fetchData() {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
-      // translate filter status into is_done or is_paid
       if (filterStatus === "done") {
         params.set("is_done", "true");
       } else if (filterStatus === "not_done") {
@@ -71,9 +57,8 @@ export default function OrderTable({
       }
       params.set("sortBy", sortBy);
       params.set("sortDir", sortDir);
-      if (categoryId) {
-        params.set("categoryId", String(categoryId));
-      }
+      if (categoryId) params.set("categoryId", String(categoryId));
+
       try {
         const res = await fetch(`/api/orders?${params.toString()}`, {
           signal: controller.signal,
@@ -84,9 +69,10 @@ export default function OrderTable({
           setStats(data.stats);
         }
       } catch {
-        // ignore abort errors
+        // ignore
       }
     }
+
     fetchData().catch(() => {});
     return () => controller.abort();
   }, [search, filterStatus, sortBy, sortDir, categoryId]);
@@ -101,9 +87,7 @@ export default function OrderTable({
         alert(data.error || "Gagal menghapus order");
         return;
       }
-      // Remove from local state
       setOrders((prev) => prev.filter((o) => o.id !== id));
-      // Stats will update automatically on next filter change
     } catch {
       alert("Gagal menghapus order");
     }
@@ -260,7 +244,8 @@ export default function OrderTable({
       {/* Table */}
       <div className="mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full table-fixed text-sm">
+          {/* HAPUS table-fixed supaya layout fleksibel */}
+          <table className="min-w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
                 <th className="w-40 px-4 py-3 text-left text-xs font-semibold text-gray-500">
@@ -284,7 +269,8 @@ export default function OrderTable({
                 <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                {/* Catatan dikasih min-width supaya agak lebar */}
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 min-w-[220px]">
                   Catatan
                 </th>
                 <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-500">
@@ -292,7 +278,7 @@ export default function OrderTable({
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 bg-white">
               {!hasData && (
                 <tr>
                   <td
@@ -305,36 +291,36 @@ export default function OrderTable({
               )}
               {orders.map((order) => (
                 <tr key={order.id}>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900 align-top">
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900">
                     {order.client_name}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700 align-top">
+                  <td className="px-4 py-3 text-sm text-gray-700">
                     {order.task_name}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500 align-top">
+                  <td className="px-4 py-3 text-sm text-gray-500">
                     {order.category_name || "-"}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap align-top">
+                  <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
                     {formatDate(order.assigned_date)}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap align-top">
+                  <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
                     {formatDate(order.deadline_date)}
                   </td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right align-top">
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">
                     Rp {Number(order.price || 0).toLocaleString("id-ID")}
                   </td>
-                  <td className="px-4 py-3 text-xs align-top">
+                  <td className="px-4 py-3 text-xs">
                     <div className="space-y-1">
                       <StatusBadge type="done" status={order.is_done} />
                       <StatusBadge type="paid" status={order.is_paid} />
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500 align-top">
+                  <td className="px-4 py-3 text-sm text-gray-500">
                     <p className="whitespace-pre-line break-words">
                       {order.notes || "-"}
                     </p>
                   </td>
-                  <td className="px-4 py-3 text-xs text-right align-top">
+                  <td className="px-4 py-3 text-xs text-right">
                     <div className="flex items-center justify-end gap-3 whitespace-nowrap">
                       <Link
                         href={`/orders/${order.id}`}
