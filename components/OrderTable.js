@@ -263,7 +263,7 @@ export default function OrderTable({
                 <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
                   Deadline
                 </th>
-                <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-500">
+                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
                   Harga
                 </th>
                 <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
@@ -273,7 +273,7 @@ export default function OrderTable({
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 min-w-[220px]">
                   Catatan
                 </th>
-                <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-500">
+                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
                   Aksi
                 </th>
               </tr>
@@ -306,7 +306,7 @@ export default function OrderTable({
                   <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
                     {formatDate(order.deadline_date)}
                   </td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900 text-left">
                     Rp {Number(order.price || 0).toLocaleString("id-ID")}
                   </td>
                   <td className="px-4 py-3 text-xs">
@@ -320,7 +320,7 @@ export default function OrderTable({
                       {order.notes || "-"}
                     </p>
                   </td>
-                  <td className="px-4 py-3 text-xs text-right">
+                  <td className="px-4 py-3 text-xs text-left">
                     <div className="flex items-center justify-end gap-3 whitespace-nowrap">
                       <Link
                         href={`/orders/${order.id}`}
