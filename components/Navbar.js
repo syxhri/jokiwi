@@ -57,14 +57,14 @@ export default function Navbar({ initialUser = null }) {
 
   return (
     <header className="border-b bg-white">
-      <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
+      <div className="mx-auto flex flex-wrap max-w-5xl items-center justify-between gap-3 px-4 py-3">
         {/* Logo */}
         <Link href="/" className="text-lg font-bold text-primary-600 whitespace-nowrap">
           {user ? `${user.name || user.username} - Jokiwi` : "Jokiwi"}
         </Link>
 
         {/* Links */}
-        <nav className="flex flex-1 items-center justify-center gap-4 text-sm font-medium overflow-x-auto">
+        <nav className="flex flex-1 flex-wrap items-center justify-center gap-4 text-sm font-medium overflow-x-auto">
           {/*<Link href="/" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
             Kategori
           </Link>*/}
