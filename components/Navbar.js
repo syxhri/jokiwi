@@ -60,7 +60,7 @@ export default function Navbar({ initialUser = null }) {
       <div className="mx-auto flex flex-wrap max-w-5xl items-center justify-between gap-3 px-4 py-3">
         {/* Logo */}
         <Link href="/" className="text-lg font-bold text-primary-600 whitespace-nowrap">
-          {user ? `${user.name || user.username} - Jokiwi` : "Jokiwi"}
+          Jokiwi
         </Link>
 
         {/* Links */}

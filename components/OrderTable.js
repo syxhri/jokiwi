@@ -334,7 +334,7 @@ export default function OrderTable({
                     <StatusBadge type="paid" status={order.is_paid} />
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-500">
+                <td className="px-6 py-3 text-sm text-gray-500">
                   {order.notes || "-"}
                 </td>
                 <td className="px-4 py-3 text-xs">
