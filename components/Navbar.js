@@ -4,46 +4,43 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname } from 'next/navigation';
 
-/**
- * A responsive navigation bar that adapts based on authentication state.
- * When a user is logged in it shows a logout button; otherwise it offers
- * links to the login and register pages. The bar is horizontally
- * scrollable on narrow screens to ensure all links remain accessible.
- */
-export default function Navbar({ initialUser = null }) {
-  const [user, setUser] = useState(initialUser);
-  const [loadingUser, setLoadingUser] = useState(false);
+export default function Navbar() {
+  const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
+    let ignore = false;
+
     async function fetchUser() {
       try {
-        setLoadingUser(true);
-        const res = await fetch('/api/user', { cache: "no-store" });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        } else {
-          setUser(null);
+        const res = await fetch('/api/user');
+        if (!res.ok) {
+          if (!ignore) setUser(null);
+          return;
         }
+        const data = await res.json();
+        if (!ignore) setUser(data.user ?? null);
       } catch {
-        setUser(null);
+        if (!ignore) setUser(null);
       } finally {
-        setLoadingUser(false);
+        if (!ignore) setLoadingUser(false);
       }
     }
-    fetchUser().catch(() => {
-      setLoadingUser(false);
-    });
+
+    fetchUser();
+    return () => {
+      ignore = true;
+    };
   }, [pathname]);
 
   async function handleLogout() {
+    if (!window.confirm('Yakin mau logout?')) return;
+
     try {
-      const ok = window.confirm('Yakin mau logout?');
-      if (!ok) return;
       const res = await fetch('/api/auth/logout', { method: 'POST' });
       if (res.ok) {
         setUser(null);
@@ -57,57 +54,48 @@ export default function Navbar({ initialUser = null }) {
 
   return (
     <header className="border-b bg-white">
-      <div className="mx-auto flex flex-wrap max-w-5xl items-center justify-between gap-3 px-4 py-3">
-        {/* Logo */}
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+        {/* Brand - selalu "Jokiwi" biar pendek dan nggak bikin navbar turun di HP */}
         <Link href="/" className="text-lg font-bold text-primary-600 whitespace-nowrap">
           Jokiwi
         </Link>
 
-        {/* Links */}
-        <nav className="flex flex-1 flex-wrap items-center justify-center gap-4 text-sm font-medium overflow-x-auto">
-          {/*<Link href="/" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
-            Kategori
-          </Link>*/}
+        {/* Main nav links */}
+        <nav className="flex items-center gap-4 text-sm font-medium overflow-x-auto">
           <Link href="/orders" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
             All Orders
           </Link>
           <Link href="/orders/new" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
             New Order
           </Link>
-          {user ? (
+          {user && (
             <Link href="/profile" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
               Profile
             </Link>
-          ) : null}
+          )}
         </nav>
 
-        {/* Auth Controls */}
+        {/* Auth controls */}
         <div className="flex items-center gap-3 text-sm whitespace-nowrap">
           {user ? (
             <>
-              <span className="hidden sm:inline text-gray-700">
-                Hi, {user.name || user.username}
+              {/* dulu hidden di layar kecil, sekarang nggak supaya kelihatan juga di HP */}
+              <span className="text-gray-700">
+                Hi,&nbsp;{user.name || user.username}
               </span>
               <button
                 onClick={handleLogout}
                 className="text-red-600 hover:text-red-800"
-                disabled={loadingUser}
               >
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link
-                href="/login"
-                className="text-gray-700 hover:text-gray-900"
-              >
+              <Link href="/login" className="text-gray-700 hover:text-gray-900">
                 Login
               </Link>
-              <Link
-                href="/register"
-                className="text-primary-600 hover:text-primary-800"
-              >
+              <Link href="/register" className="text-primary-600 hover:text-primary-800">
                 Register
               </Link>
             </>

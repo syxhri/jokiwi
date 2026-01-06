@@ -194,12 +194,6 @@ export default function OrderTable({
             {stats.totalOrders} Orderan
           </p>
         </div>
-        {/*<div>
-          <h3 className="text-sm font-medium text-gray-500">Total Orderan</h3>
-          <p className="mt-2 text-2xl font-bold text-blue-600">
-            {stats.totalOrders} Orderan
-          </p>
-        </div>*/}
       </div>
 
       <div className="flex justify-end">
@@ -209,7 +203,7 @@ export default function OrderTable({
       </div>
 
       {/* Filter + Sort panel */}
-      <div className="rounded-2xl bg-white p-4 shadow-sm space-y-4">
+      <div className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
         <div className="grid gap-4 md:grid-cols-3">
           <div>
             <label className="label">Pencarian</label>
@@ -264,117 +258,121 @@ export default function OrderTable({
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                Nama Client
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                Tugas
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                Kategori
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
-                Tgl Disuruh
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
-                Deadline
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                Harga
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                Status
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                Catatan
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                Aksi
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {!hasData && (
+      <div className="mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-fixed text-sm">
+            <thead className="bg-gray-50">
               <tr>
-                <td
-                  colSpan={9}
-                  className="px-4 py-6 text-center text-sm text-gray-500"
-                >
-                  Belum ada order.
-                </td>
+                <th className="w-40 px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                  Nama Client
+                </th>
+                <th className="w-40 px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                  Tugas
+                </th>
+                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                  Kategori
+                </th>
+                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
+                  Tgl Disuruh
+                </th>
+                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
+                  Deadline
+                </th>
+                <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-500">
+                  Harga
+                </th>
+                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                  Catatan
+                </th>
+                <th className="w-32 px-4 py-3 text-right text-xs font-semibold text-gray-500">
+                  Aksi
+                </th>
               </tr>
-            )}
-            {orders.map((order) => (
-              <tr key={order.id}>
-                <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                  {order.client_name}
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
-                  {order.task_name}
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-500">
-                  {order.category_name || "-"}
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
-                  {formatDate(order.assigned_date)}
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
-                  {formatDate(order.deadline_date)}
-                </td>
-                <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                  Rp {Number(order.price || 0).toLocaleString("id-ID")}
-                </td>
-                <td className="px-4 py-3 text-xs">
-                  <div className="space-y-1">
-                    <StatusBadge type="done" status={order.is_done} />
-                    <StatusBadge type="paid" status={order.is_paid} />
-                  </div>
-                </td>
-                <td className="px-6 py-3 text-sm text-gray-500">
-                  {order.notes || "-"}
-                </td>
-                <td className="px-4 py-3 text-xs">
-                  <div className="flex items-center gap-3 whitespace-nowrap">
-                    <Link
-                      href={`/orders/${order.id}`}
-                      className="text-primary-600 hover:text-primary-800"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => handleMakeQris(order)}
-                      className="text-emerald-600 hover:text-emerald-800"
-                    >
-                      Buat QRIS
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(order.id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {!hasData && (
+                <tr>
+                  <td
+                    colSpan={9}
+                    className="px-4 py-6 text-center text-sm text-gray-500"
+                  >
+                    Belum ada order.
+                  </td>
+                </tr>
+              )}
+              {orders.map((order) => (
+                <tr key={order.id}>
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900 align-top">
+                    {order.client_name}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700 align-top">
+                    {order.task_name}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-500 align-top">
+                    {order.category_name || "-"}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap align-top">
+                    {formatDate(order.assigned_date)}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap align-top">
+                    {formatDate(order.deadline_date)}
+                  </td>
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right align-top">
+                    Rp {Number(order.price || 0).toLocaleString("id-ID")}
+                  </td>
+                  <td className="px-4 py-3 text-xs align-top">
+                    <div className="space-y-1">
+                      <StatusBadge type="done" status={order.is_done} />
+                      <StatusBadge type="paid" status={order.is_paid} />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-500 align-top">
+                    <p className="whitespace-pre-line break-words">
+                      {order.notes || "-"}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-right align-top">
+                    <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                      <Link
+                        href={`/orders/${order.id}`}
+                        className="text-primary-600 hover:text-primary-800"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => handleMakeQris(order)}
+                        className="text-emerald-600 hover:text-emerald-800"
+                      >
+                        Buat QRIS
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(order.id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* QRIS Modal */}
       {qrisModal.open && (
         <div
-          className="fixed inset-0 top-0 left-0 z-[9999] h-screen w-screen flex items-center justify-center"
+          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center bg-black/40 px-4"
           onClick={closeQrisModal}
         >
           <div
-            className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-3xl"
+            className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-3">
