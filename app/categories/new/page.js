@@ -1,11 +1,6 @@
-// app/categories/new/page.js
-
 import { requireAuth } from "../../../lib/auth.js";
 import CategoryForm from "../../../components/CategoryForm";
 
-/**
- * Page for creating a new category. This page enforces authentication.
- */
 export const metadata = {
   title: "Jokiwi - Tambah Kategori",
   description: "Tambah kategori baru untuk jokian mu",

@@ -1,97 +1,81 @@
-// components/OrderForm.js
+"use client";
 
-'use client';
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
-import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-
-/**
- * Form for creating or editing an order. When an `order` prop is
- * provided the form fields are prefilled and submission will update
- * the existing order. Otherwise a new order is created. The form
- * fetches categories on mount so users can assign the order to a
- * category. Unsaved changes trigger a confirmation prompt when
- * navigating away via the back button. After a successful save the
- * user is redirected to the orders page.
- *
- * @param {object} props
- * @param {object|null} props.order
- */
 export default function OrderForm({ order = null }) {
   const router = useRouter();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
-    client_name: order?.client_name || '',
-    task_name: order?.task_name || '',
-    categoryId: order?.categoryId || '',
-    price: order?.price?.toString() || '',
-    notes: order?.notes || '',
+    client_name: order?.client_name || "",
+    task_name: order?.task_name || "",
+    categoryId: order?.categoryId || "",
+    price: order?.price?.toString() || "",
+    notes: order?.notes || "",
     is_done: Boolean(order?.is_done) || false,
     is_paid: Boolean(order?.is_paid) || false,
     assigned_date:
       order?.assigned_date || new Date().toISOString().slice(0, 10),
-    deadline_date: order?.deadline_date || '',
+    deadline_date: order?.deadline_date || "",
   });
 
-  // Save initial state for dirty check
   const initialSnapshot = useMemo(() => JSON.stringify(form), []);
   const isDirty = JSON.stringify(form) !== initialSnapshot;
 
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch('/api/categories');
+        const res = await fetch("/api/categories");
         if (res.ok) {
           const data = await res.json();
           setCategories(data);
         }
-      } catch {
-        // ignore
-      }
+      } catch {}
     }
     fetchCategories().catch(() => {});
   }, []);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
     try {
-      const url = order ? `/api/orders/${order.id}` : '/api/orders';
-      const method = order ? 'PUT' : 'POST';
+      const url = order ? `/api/orders/${order.id}` : "/api/orders";
+      const method = order ? "PUT" : "POST";
       const payload = {
         ...form,
         price: Number(form.price) || 0,
       };
-      // If categoryId is empty string, remove it to indicate no category
       if (!payload.categoryId) {
         delete payload.categoryId;
       }
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (res.ok) {
-        payload.categoryId ? router.push(`/categories/${payload.categoryId}`) : router.push('/orders');
+        payload.categoryId
+          ? router.push(`/categories/${payload.categoryId}`)
+          : router.push("/orders");
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
-        setError(data?.error || 'Gagal menyimpan order');
+        setError(data?.error || "Gagal menyimpan order");
       }
     } catch {
-      setError('Gagal menyimpan order');
+      setError("Gagal menyimpan order");
     } finally {
       setLoading(false);
     }
@@ -99,14 +83,19 @@ export default function OrderForm({ order = null }) {
 
   function handleBack() {
     if (isDirty) {
-      const ok = window.confirm('Perubahan belum disimpan. Yakin ingin kembali?');
+      const ok = window.confirm(
+        "Perubahan belum disimpan. Yakin ingin kembali?"
+      );
       if (!ok) return;
     }
-    router.push('/orders');
+    router.push("/orders");
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-lg shadow-md p-6 space-y-6"
+    >
       {error && (
         <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
           {error}
@@ -147,7 +136,7 @@ export default function OrderForm({ order = null }) {
             className="input"
           >
             <option value="">Tanpa kategori</option>
-            {categories.map(cat => (
+            {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
@@ -233,12 +222,8 @@ export default function OrderForm({ order = null }) {
         >
           Kembali
         </button>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={loading}
-        >
-          {loading ? 'Menyimpan…' : 'Simpan'}
+        <button type="submit" className="btn btn-primary" disabled={loading}>
+          {loading ? "Menyimpan…" : "Simpan"}
         </button>
       </div>
     </form>

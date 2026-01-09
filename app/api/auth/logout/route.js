@@ -1,11 +1,7 @@
 export const runtime = "nodejs";
-// app/api/auth/logout/route.js
 
 import { NextResponse } from "next/server";
 import { AUTH_COOKIE_NAME } from "../../../../lib/auth.js";
-
-// Handle user logout. Removes the userId cookie by setting it
-// with a maxAge of 0. Returns a simple JSON message.
 
 export async function POST() {
   const response = NextResponse.json({ message: "Logged out" });

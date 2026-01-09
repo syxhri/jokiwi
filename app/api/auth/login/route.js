@@ -1,16 +1,8 @@
-// app/api/auth/login/route.js
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { findUserByUsername, verifyUserPassword } from "../../../../lib/db.js";
 import { AUTH_COOKIE_NAME, signToken } from "../../../../lib/auth.js";
-
-// Handle user login. Expects JSON { username, password } in the request
-// body. If the credentials match an existing user, a HTTP-only cookie
-// named `userId` is set on the response. The cookie is scoped to the
-// entire application (path '/') and will be used by protected routes
-// to identify the current user. On failure, an appropriate error code
-// and message are returned.
 
 export async function POST(request) {
   try {

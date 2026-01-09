@@ -1,21 +1,8 @@
-// components/CategoryForm.js
-
 "use client";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-/**
- * Form for creating or editing a category. Accepts an optional
- * category object; when present the form fields are prefilled and
- * submission will update the existing category. On success the user
- * is redirected back to the categories list. A back button allows
- * the user to navigate away; if unsaved changes exist a
- * confirmation prompt is displayed.
- *
- * @param {object} props
- * @param {object|null} props.category
- */
 export default function CategoryForm({ category = null }) {
   const router = useRouter();
   const [form, setForm] = useState({
@@ -26,7 +13,6 @@ export default function CategoryForm({ category = null }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Snapshot of initial state to detect unsaved changes
   const initialSnapshot = useMemo(() => JSON.stringify(form), []);
   const isDirty = JSON.stringify(form) !== initialSnapshot;
 

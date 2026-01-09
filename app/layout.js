@@ -1,5 +1,3 @@
-// app/layout.js
-
 import Link from "next/link";
 import { Inter } from "next/font/google";
 import "../styles/globals.css";

@@ -1,5 +1,3 @@
-// components/OrderTable.js
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -68,9 +66,7 @@ export default function OrderTable({
           setOrders(data.orders);
           setStats(data.stats);
         }
-      } catch {
-        // ignore
-      }
+      } catch {}
     }
 
     fetchData().catch(() => {});
@@ -244,7 +240,6 @@ export default function OrderTable({
       {/* Table */}
       <div className="mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          {/* HAPUS table-fixed supaya layout fleksibel */}
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
@@ -269,7 +264,6 @@ export default function OrderTable({
                 <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
                   Status
                 </th>
-                {/* Catatan dikasih min-width supaya agak lebar */}
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 min-w-[220px]">
                   Catatan
                 </th>

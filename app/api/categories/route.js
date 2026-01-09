@@ -1,13 +1,9 @@
 export const runtime = "nodejs";
-// app/api/categories/route.js
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME, verifyToken } from "../../../lib/auth.js";
 import { getAllCategoriesForUser, createCategory } from "../../../lib/db.js";
-
-// GET /api/categories
-// Returns a list of categories belonging to the authenticated user.
 
 export async function GET() {
   try {
@@ -31,9 +27,6 @@ export async function GET() {
     );
   }
 }
-
-// POST /api/categories
-// Creates a new category for the authenticated user.
 
 export async function POST(request) {
   try {

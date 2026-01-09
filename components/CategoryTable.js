@@ -1,40 +1,26 @@
-// components/CategoryTable.js
+"use client";
 
-'use client';
+import Link from "next/link";
+import { useState } from "react";
 
-import Link from 'next/link';
-import { useState } from 'react';
-
-/**
- * CategoryTable lists all categories belonging to a user. Each row shows
- * the category name, notes, total number of orders and the total
- * income (only paid orders are counted). Actions for editing and
- * deleting categories are provided on each row. Deletion prompts
- * the user for confirmation and then calls the REST API. Deleted
- * rows are removed from the local state without requiring a full
- * page refresh.
- *
- * @param {object} props
- * @param {Array} props.categoriesWithStats List of categories with stats
- */
 export default function CategoryTable({ categoriesWithStats }) {
   const [items, setItems] = useState(categoriesWithStats);
 
   async function handleDelete(id) {
     const ok = window.confirm(
-      'Yakin ingin menghapus kategori ini? Pastikan tidak ada order yang memakai kategori ini.',
+      "Yakin ingin menghapus kategori ini? Pastikan tidak ada order yang memakai kategori ini."
     );
     if (!ok) return;
     try {
-      const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/categories/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || 'Gagal menghapus kategori');
+        alert(data.error || "Gagal menghapus kategori");
         return;
       }
-      setItems(items.filter(c => c.id !== id));
+      setItems(items.filter((c) => c.id !== id));
     } catch (err) {
-      alert('Gagal menghapus kategori');
+      alert("Gagal menghapus kategori");
     }
   }
 
@@ -71,7 +57,7 @@ export default function CategoryTable({ categoriesWithStats }) {
               </td>
             </tr>
           )}
-          {items.map(cat => (
+          {items.map((cat) => (
             <tr key={cat.id}>
               <td className="px-4 py-3 text-sm font-medium text-gray-900">
                 <Link
@@ -82,13 +68,13 @@ export default function CategoryTable({ categoriesWithStats }) {
                 </Link>
               </td>
               <td className="px-4 py-3 text-sm text-gray-500">
-                {cat.notes || '-'}
+                {cat.notes || "-"}
               </td>
               <td className="px-4 py-3 text-sm text-gray-700">
                 {cat.stats.totalOrders}
               </td>
               <td className="px-4 py-3 text-sm text-gray-700">
-                Rp {cat.stats.totalIncome.toLocaleString('id-ID')}
+                Rp {cat.stats.totalIncome.toLocaleString("id-ID")}
               </td>
               <td className="px-4 py-3 text-xs">
                 <div className="flex gap-3">

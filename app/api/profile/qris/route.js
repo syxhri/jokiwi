@@ -1,5 +1,4 @@
 export const runtime = "nodejs";
-// app/api/profile/qris/route.js
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";

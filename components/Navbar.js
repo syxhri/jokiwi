@@ -1,10 +1,8 @@
-// components/Navbar.js
+"use client";
 
-'use client';
-
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -17,7 +15,7 @@ export default function Navbar() {
 
     async function fetchUser() {
       try {
-        const res = await fetch('/api/user');
+        const res = await fetch("/api/user");
         if (!res.ok) {
           if (!ignore) setUser(null);
           return;
@@ -38,38 +36,48 @@ export default function Navbar() {
   }, [pathname]);
 
   async function handleLogout() {
-    if (!window.confirm('Yakin mau logout?')) return;
+    if (!window.confirm("Yakin mau logout?")) return;
 
     try {
-      const res = await fetch('/api/auth/logout', { method: 'POST' });
+      const res = await fetch("/api/auth/logout", { method: "POST" });
       if (res.ok) {
         setUser(null);
-        router.push('/login');
+        router.push("/login");
         router.refresh?.();
       }
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
 
   return (
     <header className="border-b bg-white">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-        {/* Brand - selalu "Jokiwi" biar pendek dan nggak bikin navbar turun di HP */}
-        <Link href="/" className="text-lg font-bold text-primary-600 whitespace-nowrap">
+        {/* Brand */}
+        <Link
+          href="/"
+          className="text-lg font-bold text-primary-600 whitespace-nowrap"
+        >
           Jokiwi
         </Link>
 
         {/* Main nav links */}
         <nav className="flex items-center gap-4 text-sm font-medium overflow-x-auto">
-          <Link href="/orders" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
+          <Link
+            href="/orders"
+            className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
+          >
             All Orders
           </Link>
-          <Link href="/orders/new" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
+          <Link
+            href="/orders/new"
+            className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
+          >
             New Order
           </Link>
           {user && (
-            <Link href="/profile" className="text-gray-700 hover:text-gray-900 whitespace-nowrap">
+            <Link
+              href="/profile"
+              className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
+            >
               Profile
             </Link>
           )}
@@ -79,7 +87,6 @@ export default function Navbar() {
         <div className="flex items-center gap-3 text-sm whitespace-nowrap">
           {user ? (
             <>
-              {/* dulu hidden di layar kecil, sekarang nggak supaya kelihatan juga di HP */}
               <span className="text-gray-700">
                 Hi,&nbsp;{user.name || user.username}
               </span>
@@ -95,7 +102,10 @@ export default function Navbar() {
               <Link href="/login" className="text-gray-700 hover:text-gray-900">
                 Login
               </Link>
-              <Link href="/register" className="text-primary-600 hover:text-primary-800">
+              <Link
+                href="/register"
+                className="text-primary-600 hover:text-primary-800"
+              >
                 Register
               </Link>
             </>
