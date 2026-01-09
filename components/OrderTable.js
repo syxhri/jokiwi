@@ -373,13 +373,20 @@ export default function OrderTable({
                   <p className="text-sm text-red-600">{qrisModal.error}</p>
                 )}
 
-              {qrisModal.loading && (
-                <p className="text-sm text-gray-600">Membuat QRIS...</p>
-              )}
+              {qrisModal.loading &&
+                (!qrisModal.error ||
+                  (qrisModal.error &&
+                    qrisModal.error !=
+                      "Silakan upload QRIS kamu terlebih dahulu")) && (
+                  <p className="text-sm text-gray-600">Membuat QRIS...</p>
+                )}
 
-              {!qrisModal.loading && qrisModal.error && (
-                <p className="text-sm text-red-600">{qrisModal.error}</p>
-              )}
+              {!qrisModal.loading &&
+                qrisModal.error &&
+                qrisModal.error !=
+                  "Silakan upload QRIS kamu terlebih dahulu" && (
+                  <p className="text-sm text-red-600">{qrisModal.error}</p>
+                )}
 
               {!qrisModal.loading && !qrisModal.error && qrisModal.dataUrl && (
                 <div className="space-y-3">
