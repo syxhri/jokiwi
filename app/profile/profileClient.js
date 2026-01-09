@@ -119,9 +119,9 @@ export default function ProfileClient({ user }) {
 
         <div className="h-px bg-gray-100" />
 
+        {status && <p className="text-xs text-gray-600">{status}</p>}
         {hasQris ? (
           <>
-            {status && <p className="text-xs text-gray-600">{status}</p>}
             <span
               onClick={() => handleDeleteQRIS()}
               className="text-xs text-red-600 hover:text-red-800"
