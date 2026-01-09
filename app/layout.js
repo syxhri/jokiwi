@@ -23,11 +23,11 @@ export default async function RootLayout({ children }) {
           <Navbar initialUser={initialUser} />
           <main className="container mx-auto px-4 py-8">{children}</main>
           <footer className="border-t border-gray-200 py-6 text-center text-gray-600">
-            <p>
+            <p className="text-xs">
               Made with 🤖 By{" "}
               <Link
                 href="https://github.com/syxhri/"
-                className="text-xs text-primary-600 hover:text-primary-800 whitespace-nowrap"
+                className="text-primary-600 hover:text-primary-800 whitespace-nowrap"
               >
                 @syxhri
               </Link>

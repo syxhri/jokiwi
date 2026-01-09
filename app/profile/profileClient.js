@@ -136,7 +136,7 @@ export default function ProfileClient({ user }) {
                   Lihat payload yang tersimpan
                 </summary>
                 <div className="mt-2 max-h-40 overflow-auto break-all rounded-lg border border-gray-100 bg-gray-50 p-2">
-                  {payloadPreview}
+                  <code>{payloadPreview}</code>
                 </div>
               </details>
             )}
