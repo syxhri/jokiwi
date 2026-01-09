@@ -13,7 +13,7 @@ export default async function NewCategoryPage() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Kategori Baru</h1>
         <p className="mt-1 text-sm text-gray-600">
-          Tambahkan kategori baru untuk mengelompokkan order joki tugas Anda.
+          Tambahkan kategori baru untuk mengelompokkan orderan joki mu.
         </p>
       </div>
       <CategoryForm />

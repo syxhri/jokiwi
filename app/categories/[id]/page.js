@@ -7,15 +7,29 @@ import {
 } from "../../../lib/db.js";
 import OrderTable from "../../../components/OrderTable";
 
-export const metadata = {
-  title: "Jokiwi - Kategori",
-  description: "Daftar kategori jokian",
-};
-
-export default async function CategoryDetailPage({ params }) {
+async function getData(params) {
   const user = await requireAuth();
   const id = Number(params.id);
   const category = await findCategory(user.id, id);
+  return { user, id, category };
+}
+
+export async function generateMetadata({ params }) {
+  const { user, id, category } = await getData(params);
+  if (!category) {
+    return {
+      title: "Kategori tidak ditemukan",
+    };
+  }
+
+  return {
+    title: `Jokiwi - ${category.name}`,
+    ...(category.description ? { description: category.description } : {}),
+  };
+}
+
+export default async function CategoryDetailPage({ params }) {
+  const { user, id, category } = await getData(params);
   if (!category) {
     notFound();
   }

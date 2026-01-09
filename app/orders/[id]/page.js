@@ -5,7 +5,7 @@ import OrderForm from "../../../components/OrderForm";
 
 export const metadata = {
   title: "Jokiwi - Edit Orderan",
-  description: "Ubah detail orderan joki mu",
+  description: "Ubah detail orderan",
 };
 
 export default async function EditOrderPage({ params }) {
@@ -18,9 +18,9 @@ export default async function EditOrderPage({ params }) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Edit Order</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Edit Orderan</h1>
         <p className="text-gray-600">
-          Edit detail order untuk {order.client_name}
+          Edit detail orderan untuk {order.client_name}
         </p>
       </div>
       <OrderForm order={order} />

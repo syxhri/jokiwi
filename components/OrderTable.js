@@ -74,18 +74,18 @@ export default function OrderTable({
   }, [search, filterStatus, sortBy, sortDir, categoryId]);
 
   async function handleDelete(id) {
-    const ok = window.confirm("Yakin ingin menghapus order ini?");
+    const ok = window.confirm("Yakin ingin menghapus orderan ini?");
     if (!ok) return;
     try {
       const res = await fetch(`/api/orders/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || "Gagal menghapus order");
+        alert(data.error || "Gagal menghapus orderan");
         return;
       }
       setOrders((prev) => prev.filter((o) => o.id !== id));
     } catch {
-      alert("Gagal menghapus order");
+      alert("Gagal menghapus orderan");
     }
   }
 
@@ -104,7 +104,7 @@ export default function OrderTable({
         setQrisModal((prev) => ({
           ...prev,
           loading: false,
-          error: data.error || "Gagal buat QRIS",
+          error: data.error || "Gagal membuat QRIS",
         }));
         return;
       }
@@ -118,7 +118,7 @@ export default function OrderTable({
       setQrisModal((prev) => ({
         ...prev,
         loading: false,
-        error: "Gagal buat QRIS",
+        error: "Gagal membuat QRIS",
       }));
     }
   }
@@ -210,7 +210,7 @@ export default function OrderTable({
             </select>
           </div>
           <div>
-            <label className="label">Urut Berdasarkan</label>
+            <label className="label">Urutkan Berdasarkan</label>
             <select
               className="input"
               value={sortBy}
@@ -230,8 +230,8 @@ export default function OrderTable({
               value={sortDir}
               onChange={(e) => setSortDir(e.target.value)}
             >
-              <option value="desc">Turun (terbaru / terbesar dulu)</option>
-              <option value="asc">Naik (terlama / terkecil dulu)</option>
+              <option value="asc">Asc (terlama / terkecil dulu)</option>
+              <option value="desc">Desc (terbaru / terbesar dulu)</option>
             </select>
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function OrderTable({
                     colSpan={9}
                     className="px-4 py-6 text-center text-sm text-gray-500"
                   >
-                    Belum ada order.
+                    Belum ada orderan.
                   </td>
                 </tr>
               )}

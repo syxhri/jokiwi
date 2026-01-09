@@ -21,7 +21,7 @@ export async function POST(request) {
     const qrisPayload = String(body.qrisPayload || "").trim();
     if (!qrisPayload) {
       return NextResponse.json(
-        { error: "qrisPayload wajib diisi" },
+        { error: "qrisPayload is required" },
         { status: 400 }
       );
     }

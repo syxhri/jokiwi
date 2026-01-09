@@ -72,10 +72,10 @@ export default function OrderForm({ order = null }) {
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
-        setError(data?.error || "Gagal menyimpan order");
+        setError(data?.error || "Gagal menyimpan orderan");
       }
     } catch {
-      setError("Gagal menyimpan order");
+      setError("Gagal menyimpan orderan");
     } finally {
       setLoading(false);
     }
@@ -83,9 +83,7 @@ export default function OrderForm({ order = null }) {
 
   function handleBack() {
     if (isDirty) {
-      const ok = window.confirm(
-        "Perubahan belum disimpan. Yakin ingin kembali?"
-      );
+      const ok = window.confirm("Perubahan belum disimpan. Yakin mau kembali?");
       if (!ok) return;
     }
     router.push("/orders");
@@ -103,7 +101,9 @@ export default function OrderForm({ order = null }) {
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="label">Nama Client *</label>
+          <label className="label">
+            Nama Client <span className="text-red-500">*</span>
+          </label>
           <input
             type="text"
             name="client_name"
@@ -114,7 +114,9 @@ export default function OrderForm({ order = null }) {
           />
         </div>
         <div>
-          <label className="label">Nama Tugas *</label>
+          <label className="label">
+            Nama Tugas <span className="text-red-500">*</span>
+          </label>
           <input
             type="text"
             name="task_name"
@@ -144,7 +146,9 @@ export default function OrderForm({ order = null }) {
           </select>
         </div>
         <div>
-          <label className="label">Harga (Rp) *</label>
+          <label className="label">
+            Harga (Rp) <span className="text-red-500">*</span>
+          </label>
           <input
             type="number"
             name="price"

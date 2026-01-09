@@ -7,6 +7,11 @@ import {
 import CategoryTable from "../../components/CategoryTable";
 import Link from "next/link.js";
 
+export const metadata = {
+  title: "Jokiwi - List Kategori",
+  description: "List semua kategori jokian",
+};
+
 export default async function CategoriesPage() {
   const user = await requireAuth();
   const [categories, orders] = await Promise.all([

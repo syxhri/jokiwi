@@ -4,9 +4,11 @@ import { useRef, useState } from "react";
 import jsQR from "jsqr";
 
 export default function ProfileClient({ user }) {
-  const [status, setStatus] = useState("");
-  const [hasQris, setHasQris] = useState(Boolean(user.hasQris));
-  const [payloadPreview, setPayloadPreview] = useState("");
+  const [hasQris, setHasQris] = useState(Boolean(user.qrisPayload));
+  const [status, setStatus] = useState(hasQris ? "QRIS Tersimpan ✅" : "");
+  const [payloadPreview, setPayloadPreview] = useState(
+    hasQris ? user.qrisPayload : ""
+  );
   const [busy, setBusy] = useState(false);
   const canvasRef = useRef(null);
 

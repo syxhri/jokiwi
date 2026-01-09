@@ -8,7 +8,7 @@ export default function CategoryTable({ categoriesWithStats }) {
 
   async function handleDelete(id) {
     const ok = window.confirm(
-      "Yakin ingin menghapus kategori ini? Pastikan tidak ada order yang memakai kategori ini."
+      "Yakin mau menghapus kategori ini? Pastikan tidak ada orderan dengan kategori ini."
     );
     if (!ok) return;
     try {
@@ -36,7 +36,7 @@ export default function CategoryTable({ categoriesWithStats }) {
               Catatan
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
-              Total Orders
+              Total Orderan
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
               Pendapatan

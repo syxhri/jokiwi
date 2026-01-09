@@ -65,20 +65,20 @@ export default function Navbar() {
             href="/orders"
             className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
           >
-            All Orders
+            Orders
           </Link>
           <Link
             href="/orders/new"
             className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
           >
-            New Order
+            + Order
           </Link>
           {user && (
             <Link
               href="/profile"
               className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
             >
-              Profile
+              Profil
             </Link>
           )}
         </nav>
@@ -88,7 +88,7 @@ export default function Navbar() {
           {user ? (
             <>
               <span className="text-gray-700">
-                Hi,&nbsp;{user.name || user.username}
+                Hai,&nbsp;{user.name || user.username}
               </span>
               <button
                 onClick={handleLogout}

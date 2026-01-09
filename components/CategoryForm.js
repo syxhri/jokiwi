@@ -51,9 +51,7 @@ export default function CategoryForm({ category = null }) {
 
   function handleBack() {
     if (isDirty) {
-      const ok = window.confirm(
-        "Perubahan belum disimpan. Yakin ingin kembali?"
-      );
+      const ok = window.confirm("Perubahan belum disimpan. Yakin mau kembali?");
       if (!ok) return;
     }
     router.push("/");
