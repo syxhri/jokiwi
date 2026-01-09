@@ -27,7 +27,7 @@ export default async function RootLayout({ children }) {
               Made with 🤖 By{" "}
               <Link
                 href="https://github.com/syxhri/"
-                className="text-primary-600 hover:text-primary-800 whitespace-nowrap"
+                className="text-xs text-primary-600 hover:text-primary-800 whitespace-nowrap"
               >
                 @syxhri
               </Link>
