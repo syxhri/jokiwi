@@ -32,7 +32,7 @@ export function middleware(req) {
   const token = req.cookies.get("token")?.value;
 
   if (isAuthPath(pathname) && token) {
-    return NextResponse.next(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   if (!isAuthPath(pathname) && !token) {
