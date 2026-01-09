@@ -82,9 +82,9 @@ export default function ProfileClient({ user }) {
     <div className="mx-auto max-w-3xl px-4 py-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-xl font-semibold">Profil</h1>
-        <span className="text-xs text-gray-500">
+        {/*<span className="text-xs text-gray-500">
           {hasQris ? "QRIS tersimpan" : "Belum ada QRIS"}
-        </span>
+        </span>*/}
       </div>
 
       <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm space-y-4">
@@ -99,36 +99,40 @@ export default function ProfileClient({ user }) {
 
         <div className="h-px bg-gray-100" />
 
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-gray-800">
-            Upload QRIS (statis)
-          </p>
-          <p className="text-xs text-gray-500">
-            Upload gambar QRIS kamu. Sistem akan membaca QR menjadi teks, lalu
-            teks itu dipakai untuk generate QRIS dinamis per order.
-          </p>
+        {hasQris ? (
+          <>
+            {status && <p className="text-xs text-gray-600">{status}</p>}
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={onFileChange}
-            disabled={busy}
-            className="text-sm"
-          />
+            {payloadPreview && (
+              <details className="text-xs text-gray-500">
+                <summary className="cursor-pointer">
+                  Lihat payload yang terbaca
+                </summary>
+                <div className="mt-2 max-h-40 overflow-auto break-all rounded-lg border border-gray-100 bg-gray-50 p-2">
+                  {payloadPreview}
+                </div>
+              </details>
+            )}
+          </>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-gray-800">
+              Upload QRIS Statis
+            </p>
+            <p className="text-xs text-gray-500">
+              Upload gambar QRIS kamu. Sistem akan membaca QR menjadi teks, lalu
+              teks itu dipakai untuk generate QRIS dinamis per order.
+            </p>
 
-          {status && <p className="text-xs text-gray-600">{status}</p>}
-
-          {payloadPreview && (
-            <details className="text-xs text-gray-500">
-              <summary className="cursor-pointer">
-                Lihat payload yang terbaca
-              </summary>
-              <div className="mt-2 max-h-40 overflow-auto break-all rounded-lg border border-gray-100 bg-gray-50 p-2">
-                {payloadPreview}
-              </div>
-            </details>
-          )}
-        </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={onFileChange}
+              disabled={busy}
+              className="text-sm"
+            />
+          </div>
+        )}
 
         <canvas ref={canvasRef} className="hidden" />
       </div>
