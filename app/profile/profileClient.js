@@ -80,6 +80,24 @@ export default function ProfileClient({ user }) {
     }
   }
 
+  async function handleDeleteQRIS() {
+    const ok = window.confirm("Yakin mau menghapus QRIS yang tersimpan?");
+    if (!ok) return;
+    try {
+      const res = await fetch("/api/profile/qris", { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Gagal menghapus QRIS");
+        return;
+      }
+      setHasQris(false);
+      setStatus("Belum ada QRIS");
+      setPayloadPreview("");
+    } catch {
+      alert("Gagal menghapus QRIS");
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
       <div className="flex items-center justify-between gap-3">
@@ -104,11 +122,18 @@ export default function ProfileClient({ user }) {
         {hasQris ? (
           <>
             {status && <p className="text-xs text-gray-600">{status}</p>}
+            <button
+              type="button"
+              onClick={() => handleDeleteQRIS(order.id)}
+              className="text-red-600 hover:text-red-800"
+            >
+              Hapus QRIS
+            </button>
 
             {payloadPreview && (
               <details className="text-xs text-gray-500">
                 <summary className="cursor-pointer">
-                  Lihat payload yang terbaca
+                  Lihat payload yang tersimpan
                 </summary>
                 <div className="mt-2 max-h-40 overflow-auto break-all rounded-lg border border-gray-100 bg-gray-50 p-2">
                   {payloadPreview}

@@ -74,7 +74,7 @@ export default function OrderTable({
   }, [search, filterStatus, sortBy, sortDir, categoryId]);
 
   async function handleDelete(id) {
-    const ok = window.confirm("Yakin ingin menghapus orderan ini?");
+    const ok = window.confirm("Yakin mau menghapus orderan ini?");
     if (!ok) return;
     try {
       const res = await fetch(`/api/orders/${id}`, { method: "DELETE" });
