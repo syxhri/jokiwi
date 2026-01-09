@@ -84,6 +84,7 @@ export default function ProfileClient({ user }) {
     const ok = window.confirm("Yakin mau menghapus QRIS yang tersimpan?");
     if (!ok) return;
     try {
+      setStatus("Menghapus QRIS...");
       const res = await fetch("/api/profile/qris", { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) {
