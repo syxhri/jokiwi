@@ -67,12 +67,12 @@ export default function Navbar() {
           >
             Semua Orderan
           </Link>
-          <Link
+          {/*<Link
             href="/orders/new"
             className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
           >
-            Order Baru
-          </Link>
+            Tambah Orderan
+          </Link>*/}
           {user && (
             <Link
               href="/profile"

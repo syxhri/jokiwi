@@ -122,13 +122,12 @@ export default function ProfileClient({ user }) {
         {hasQris ? (
           <>
             {status && <p className="text-xs text-gray-600">{status}</p>}
-            <button
-              type="button"
-              onClick={() => handleDeleteQRIS(order.id)}
-              className="text-red-600 hover:text-red-800"
+            <span
+              onClick={() => handleDeleteQRIS()}
+              className="text-xs text-red-600 hover:text-red-800"
             >
               Hapus QRIS
-            </button>
+            </span>
 
             {payloadPreview && (
               <details className="text-xs text-gray-500">
