@@ -65,13 +65,13 @@ export default function Navbar() {
             href="/orders"
             className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
           >
-            Orders
+            Semua Orderan
           </Link>
           <Link
             href="/orders/new"
             className="text-gray-700 hover:text-gray-900 whitespace-nowrap"
           >
-            + Order
+            Order Baru
           </Link>
           {user && (
             <Link
@@ -87,9 +87,9 @@ export default function Navbar() {
         <div className="flex items-center gap-3 text-sm whitespace-nowrap">
           {user ? (
             <>
-              <span className="text-gray-700">
+              {/*<span className="text-gray-700">
                 Hai,&nbsp;{user.name || user.username}
-              </span>
+              </span>*/}
               <button
                 onClick={handleLogout}
                 className="text-red-600 hover:text-red-800"
