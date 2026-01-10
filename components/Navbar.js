@@ -103,7 +103,7 @@ export default function Navbar() {
               <span className="hidden sm:inline-flex">
                 <LogoIcon className="h-8 w-8" />
               </span>
-              <span className="mt-4 truncate text-lg font-bold text-primary-600">
+              <span className="truncate text-lg font-bold text-primary-600">
                 {brandLabel}
               </span>
             </Link>
@@ -216,7 +216,7 @@ export default function Navbar() {
           <aside className="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-xl md:hidden">
             <div className="flex items-center border-b px-4 py-3">
               <LogoIcon className="h-8 w-8 flex-shrink-0" />
-              <span className="ml-2 truncate text-base font-semibold text-primary-600">
+              <span className="mt-2 ml-2 truncate text-base font-semibold text-primary-600">
                 {brandLabel}
               </span>
               <button
