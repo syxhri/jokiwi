@@ -116,8 +116,6 @@
 //   );
 // }
 
-// components/Navbar.js
-
 "use client";
 
 import Link from "next/link";
@@ -134,7 +132,6 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Ambil user tiap ganti halaman
   useEffect(() => {
     async function fetchUser() {
       try {
@@ -167,9 +164,7 @@ export default function Navbar() {
       setDrawerOpen(false);
       router.push("/login");
       router.refresh?.();
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
 
   const brandLabel = user ? `${user.name || user.username} - Jokiwi` : "Jokiwi";
@@ -183,33 +178,38 @@ export default function Navbar() {
 
   return (
     <>
-      {/* TOP BAR */}
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-          {/* Left: burger + brand */}
           <div className="flex items-center gap-2">
-            {/* Burger (mobile only) */}
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white p-1.5 text-gray-600 hover:bg-gray-50 md:hidden"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 md:hidden"
               aria-label="Buka menu"
             >
-              <span className="block h-[2px] w-4 bg-current" />
-              <span className="mt-[3px] block h-[2px] w-4 bg-current" />
-              <span className="mt-[3px] block h-[2px] w-4 bg-current" />
+              <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                <path
+                  d="M4 7h16M4 12h16M4 17h16"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              </svg>
             </button>
 
-            {/* Brand */}
             <Link
               href="/"
-              className="max-w-[50vw] truncate text-lg font-bold text-primary-600"
+              className="flex max-w-[55vw] items-center gap-2 truncate"
             >
-              {brandLabel}
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-600 text-sm font-bold text-white">
+                J
+              </span>
+              <span className="truncate text-lg font-bold text-primary-600">
+                {brandLabel}
+              </span>
             </Link>
           </div>
 
-          {/* Center: nav links (desktop) */}
           <nav className="hidden items-center gap-4 text-sm font-medium md:flex">
             <Link
               href="/orders"
@@ -217,7 +217,7 @@ export default function Navbar() {
                 "/orders"
               )} hover:text-gray-900 whitespace-nowrap`}
             >
-              All Orders
+              Semua Orderan
             </Link>
             <Link
               href="/orders/new"
@@ -225,7 +225,7 @@ export default function Navbar() {
                 "/orders/new"
               )} hover:text-gray-900 whitespace-nowrap`}
             >
-              New Order
+              Orderan Baru
             </Link>
             <Link
               href="/profile"
@@ -233,21 +233,19 @@ export default function Navbar() {
                 "/profile"
               )} hover:text-gray-900 whitespace-nowrap`}
             >
-              Profile
+              Profil
             </Link>
           </nav>
 
-          {/* Right: auth / account */}
           <div className="relative flex items-center gap-3 text-sm whitespace-nowrap">
             {user ? (
               <>
-                {/* Tombol akun ala SIAKAD */}
                 <button
                   type="button"
                   onClick={() => setAccountOpen((o) => !o)}
-                  className="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-gray-700 hover:bg-gray-200"
+                  className="flex items-center gap-2 rounded-full bg-transparent px-1.5 py-0.5 hover:bg-gray-100"
                 >
-                  <span className="hidden sm:inline text-xs font-medium">
+                  <span className="hidden sm:inline max-w-[120px] truncate text-xs font-medium text-gray-700">
                     {user.name || user.username}
                   </span>
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold text-white">
@@ -255,18 +253,17 @@ export default function Navbar() {
                   </span>
                 </button>
 
-                {/* Dropdown account */}
                 {accountOpen && (
                   <div className="absolute right-0 top-11 z-30 w-40 rounded-xl border border-gray-100 bg-white py-1 shadow-xl">
                     <div className="px-4 py-2 text-xs font-semibold text-gray-500">
-                      Account
+                      Akun
                     </div>
                     <Link
                       href="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       onClick={() => setAccountOpen(false)}
                     >
-                      Profile
+                      Profil
                     </Link>
                     <button
                       type="button"
@@ -298,15 +295,12 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* MOBILE DRAWER */}
       {drawerOpen && (
         <>
-          {/* overlay */}
           <div
             className="fixed inset-0 z-30 bg-black/30 md:hidden"
             onClick={() => setDrawerOpen(false)}
           />
-          {/* drawer */}
           <aside className="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-xl md:hidden">
             <div className="flex items-center justify-between border-b px-4 py-3">
               <span className="max-w-[70%] truncate text-sm font-semibold text-primary-600">
@@ -315,11 +309,17 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="inline-flex items-center justify-center rounded-full border border-gray-200 bg-white p-1.5 text-gray-600 hover:bg-gray-50"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
                 aria-label="Tutup menu"
               >
-                <span className="block h-[2px] w-4 rotate-45 bg-current" />
-                <span className="block h-[2px] w-4 -rotate-45 bg-current" />
+                <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                  <path
+                    d="M6 6l12 12M18 6L6 18"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  />
+                </svg>
               </button>
             </div>
 
@@ -333,7 +333,7 @@ export default function Navbar() {
                 }`}
                 onClick={() => setDrawerOpen(false)}
               >
-                All Orders
+                Semua Orderan
               </Link>
               <Link
                 href="/orders/new"
@@ -344,7 +344,7 @@ export default function Navbar() {
                 }`}
                 onClick={() => setDrawerOpen(false)}
               >
-                New Order
+                Orderan Baru
               </Link>
               <Link
                 href="/profile"
@@ -355,7 +355,7 @@ export default function Navbar() {
                 }`}
                 onClick={() => setDrawerOpen(false)}
               >
-                Profile
+                Profil
               </Link>
 
               <hr className="my-2 border-gray-200" />
@@ -363,7 +363,7 @@ export default function Navbar() {
               {user ? (
                 <>
                   <div className="px-3 pb-1 text-xs font-semibold text-gray-500">
-                    Account
+                    Akun
                   </div>
                   <button
                     type="button"
