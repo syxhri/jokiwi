@@ -3,10 +3,10 @@
 import Image from "next/image";
 
 const LOGO_SOURCES = {
-  normal: "/logo-jokiwi.svg",
-  white: "/logo-jokiwi-white.svg",
-  flat: "/logo-jokiwi-flat.svg",
-  flatWhite: "/logo-jokiwi-flat-white.svg",
+  normal: "/images/logo-jokiwi.svg",
+  white: "/images/logo-jokiwi-white.svg",
+  flat: "/images/logo-jokiwi-flat.svg",
+  flatWhite: "/images/logo-jokiwi-flat-white.svg",
 };
 
 export default function JokiwiLogo({

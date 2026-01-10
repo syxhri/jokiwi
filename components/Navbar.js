@@ -236,30 +236,31 @@ export default function Navbar() {
               </button>
             </div>
 
-            <nav className="flex flex-col gap-1 px-4 py-3 text-sm font-medium">
-              <Link
-                href="/orders"
-                className={`rounded-lg px-3 py-2 ${
-                  isActive("/orders") === "text-primary-600"
-                    ? "bg-primary-50 text-primary-700"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
-                onClick={() => setDrawerOpen(false)}
-              >
-                Semua Orderan
-              </Link>
-              <Link
-                href="/orders/new"
-                className={`rounded-lg px-3 py-2 ${
-                  isActive("/orders/new") === "text-primary-600"
-                    ? "bg-primary-50 text-primary-700"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
-                onClick={() => setDrawerOpen(false)}
-              >
-                Orderan Baru
-              </Link>
-              {user && (
+            {user && (
+              <nav className="flex flex-col gap-1 px-4 py-3 text-sm font-medium">
+                <Link
+                  href="/orders"
+                  className={`rounded-lg px-3 py-2 ${
+                    isActive("/orders") === "text-primary-600"
+                      ? "bg-primary-50 text-primary-700"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  Semua Orderan
+                </Link>
+                <Link
+                  href="/orders/new"
+                  className={`rounded-lg px-3 py-2 ${
+                    isActive("/orders/new") === "text-primary-600"
+                      ? "bg-primary-50 text-primary-700"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  Orderan Baru
+                </Link>
+              
                 <Link
                   href="/profile"
                   className={`rounded-lg px-3 py-2 ${
