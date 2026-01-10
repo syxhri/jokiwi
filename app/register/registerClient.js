@@ -59,19 +59,65 @@ export default function RegisterPage() {
             value={form.username}
             onChange={handleChange}
             className="input"
+            autoComplete="username"
             required
           />
         </div>
-        <div>
+        <div className="space-y-1">
           <label className="label">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            className="input"
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              className="input pr-10"
+              autoComplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+              aria-label={
+                showPassword ? "Sembunyikan password" : "Tampilkan password"
+              }
+            >
+              {showPassword ? (
+                // hide password icon
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-5 0-9.27-3.11-11-8 0-1.13.22-2.21.63-3.2" />
+                  <path d="M3 3l18 18" />
+                  <path d="M10.58 10.58A3 3 0 0 0 13.41 13.4" />
+                  <path d="M9.88 4.24A9.87 9.87 0 0 1 12 4c5 0 9.27 3.11 11 8a10.89 10.89 0 0 1-1.65 3.35" />
+                </svg>
+              ) : (
+                // show password icon
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
         <div>
           <label className="label">Nama</label>
@@ -82,6 +128,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             className="input"
             placeholder="Opsional"
+            autoComplete="name"
           />
         </div>
         <div className="flex justify-end">
