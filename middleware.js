@@ -38,7 +38,7 @@ export function middleware(req) {
   if (!isAuthPath(pathname) && !token) {
     const loginUrl = new URL("/login", req.url);
 
-    loginUrl.searchParams("next", pathname);
+    loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
