@@ -235,10 +235,10 @@ export default function Navbar() {
                 </svg>
               </button>
             </div>
+            <nav className="flex flex-col gap-1 px-4 py-3 text-sm font-medium">
 
             {user && (
               <>
-                <nav className="flex flex-col gap-1 px-4 py-3 text-sm font-medium">
                   <Link
                     href="/orders"
                     className={`rounded-lg px-3 py-2 ${
