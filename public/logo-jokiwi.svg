@@ -1,0 +1,34 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background kotak rounded -->
+  <defs>
+    <linearGradient id="jokiwiGrad2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#jokiwiGrad2)" />
+
+  <!-- Huruf J (tanpa garis horizontal, hook ke kiri) -->
+  <path
+    d="M38 16
+       v21
+       c0 7 -4.5 11.5 -11 11.5
+       c-3.5 0 -6.3 -1 -8.3 -2.7"
+    fill="none"
+    stroke="#FFFFFF"
+    stroke-width="3.4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Elemen kecil 'tugas' di kanan atas: bullet + garis pendek -->
+  <circle cx="40" cy="23" r="1.7" fill="#BFDBFE" />
+  <line
+    x1="43" y1="23"
+    x2="50" y2="23"
+    stroke="#BFDBFE"
+    stroke-width="2"
+    stroke-linecap="round"
+  />
+</svg>

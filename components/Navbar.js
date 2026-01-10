@@ -122,6 +122,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
+import LogoIcon from "./LogoIcon";
+
 export default function Navbar() {
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
@@ -201,9 +203,7 @@ export default function Navbar() {
               href="/"
               className="flex max-w-[55vw] items-center gap-2 truncate"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-600 text-sm font-bold text-white">
-                J
-              </span>
+              <LogoIcon className="h-8 w-8" aria-hidden="true" />
               <span className="truncate text-lg font-bold text-primary-600">
                 {brandLabel}
               </span>
@@ -303,6 +303,7 @@ export default function Navbar() {
           />
           <aside className="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-xl md:hidden">
             <div className="flex items-center justify-between border-b px-4 py-3">
+              <LogoIcon className="h-8 w-8" />
               <span className="max-w-[70%] truncate text-sm font-semibold text-primary-600">
                 {brandLabel}
               </span>

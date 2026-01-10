@@ -9,7 +9,12 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Jokiwi - Joki with Izee",
-  description: "Kelola jokian mu dengan mudah di sini",
+  description: "Catat dan kelola jokian mu dengan mudah di sini",
+  icons: {
+    icon: "/logo-jokiwi.svg",
+    shortcut: "/logo-jokiwi.svg",
+    apple: "/logo-jokiwi.svg",
+  },
 };
 
 export default async function RootLayout({ children }) {
