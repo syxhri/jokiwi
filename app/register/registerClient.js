@@ -7,6 +7,7 @@ import Link from "next/link";
 export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "", name: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -72,7 +73,7 @@ export default function RegisterPage() {
               value={form.password}
               onChange={handleChange}
               className="input pr-10"
-              autoComplete="current-password"
+              autoComplete="new-password"
               required
             />
             <button
