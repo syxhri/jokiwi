@@ -11,9 +11,9 @@ export const metadata = {
   title: "Jokiwi - Joki with Izee",
   description: "Catat dan kelola jokian mu dengan mudah di sini",
   icons: {
-    icon: "/logo-jokiwi.svg",
-    shortcut: "/logo-jokiwi.svg",
-    apple: "/logo-jokiwi.svg",
+    icon: "/images/logo-jokiwi-white.svg",
+    shortcut: "/images/logo-jokiwi-white.svg",
+    apple: "/images/logo-jokiwi-white.svg",
   },
 };
 

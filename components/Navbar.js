@@ -196,8 +196,12 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/register"
-                  className="text-primary-600 hover:text-primary-800"
+                  className={`${isActive("/register")} hover:text-gray-900`}
                 >
+                // <Link
+                  // href="/register"
+                  // className="text-primary-600 hover:text-primary-800"
+                // >
                   Register
                 </Link>
               </>
