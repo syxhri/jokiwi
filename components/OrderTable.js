@@ -87,8 +87,11 @@ export default function OrderTable({
         alert(data.error || "Gagal menghapus orderan");
         return;
       }
-      setOrders((prev) => prev.filter((o) => o.orderCode !== id));
-      setStats(computeStats(orders));
+      setOrders((prev) => {
+        const next = prev.filter((o) => o.orderCode !== id);
+        setStats(computeStats(next));
+        return next;
+      });
     } catch {
       alert("Gagal menghapus orderan");
     }
@@ -246,13 +249,10 @@ export default function OrderTable({
 
       {/* Table */}
       {!hasData ? (
-        <>
           <p className="px-4 py-6 text-center text-sm text-gray-500">
             Belum ada orderan.
           </p>
-        </>
       ) : (
-      <>
         <div className="mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
@@ -349,7 +349,6 @@ export default function OrderTable({
             </table>
           </div>
         </div>
-      </>
       )}
 
       {/* QRIS Modal */}

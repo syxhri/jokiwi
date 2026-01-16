@@ -27,14 +27,10 @@ export default function CategoryTable({ categoriesWithStats }) {
   return (
     <>
       {items.length === 0 ? (
-        <>
         <p className="px-4 py-6 text-center text-sm text-gray-500">
           Belum ada kategori.
         </p>
-        <>
       ) : (
-        {/*<div className="overflow-x-auto rounded-2xl bg-white shadow-sm">*/}
-        <>
         <div className="mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -98,7 +94,6 @@ export default function CategoryTable({ categoriesWithStats }) {
             </tbody>
           </table>
         </div>
-        <>
       )}
     </>
   );
