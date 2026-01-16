@@ -14,7 +14,7 @@ export default async function NewOrderPage({ params }) {
         <h1 className="text-3xl font-bold text-gray-900">Buat Orderan Baru</h1>
         <p className="text-gray-600">Isi detail orderan joki tugas</p>
       </div>
-      <OrderForm category=params?.category />
+      <OrderForm category={ params?.category } />
     </div>
   );
 }
