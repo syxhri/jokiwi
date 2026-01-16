@@ -10,7 +10,7 @@ export const metadata = {
 
 export default async function EditOrderPage({ params }) {
   const user = await requireAuth();
-  const id = Number(params.id);
+  const id = params.id;
   const order = await findOrder(user.id, id);
   if (!order) {
     notFound();

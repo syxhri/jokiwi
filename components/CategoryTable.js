@@ -18,7 +18,7 @@ export default function CategoryTable({ categoriesWithStats }) {
         alert(data.error || "Gagal menghapus kategori");
         return;
       }
-      setItems(items.filter((c) => c.id !== id));
+      setItems(items.filter((c) => c.categoryCode !== id));
     } catch (err) {
       alert("Gagal menghapus kategori");
     }
@@ -61,7 +61,7 @@ export default function CategoryTable({ categoriesWithStats }) {
             <tr key={cat.id}>
               <td className="px-4 py-3 text-sm font-medium text-gray-900">
                 <Link
-                  href={`/categories/${cat.id}`}
+                  href={`/categories/${cat.categoryCode}`}
                   className="text-primary-600 hover:text-primary-800"
                 >
                   {cat.name}
@@ -79,14 +79,14 @@ export default function CategoryTable({ categoriesWithStats }) {
               <td className="px-4 py-3 text-xs">
                 <div className="flex gap-3">
                   <Link
-                    href={`/categories/${cat.id}/edit`}
+                    href={`/categories/${cat.categoryCode}/edit`}
                     className="text-primary-600 hover:text-primary-800"
                   >
                     Edit
                   </Link>
                   <button
                     type="button"
-                    onClick={() => handleDelete(cat.id)}
+                    onClick={() => handleDelete(cat.categoryCode)}
                     className="text-red-600 hover:text-red-800"
                   >
                     Hapus

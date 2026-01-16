@@ -8,8 +8,7 @@ import {
 } from "../../../../lib/db.js";
 
 function parseIds(params) {
-  const id = Number(params.id);
-  if (Number.isNaN(id)) return { id: null, userId: null };
+  const id = params.id;
   const cookieStore = cookies();
   const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
   let userId = null;

@@ -5,7 +5,7 @@ import CategoryForm from "../../../../components/CategoryForm";
 
 async function getData(params) {
   const user = await requireAuth();
-  const id = Number(params.id);
+  const id = params.id;
   const category = await findCategory(user.id, id);
   return { user, id, category };
 }

@@ -84,7 +84,7 @@ export default function OrderTable({
         alert(data.error || "Gagal menghapus orderan");
         return;
       }
-      setOrders((prev) => prev.filter((o) => o.id !== id));
+      setOrders((prev) => prev.filter((o) => o.orderCode !== id));
     } catch {
       alert("Gagal menghapus orderan");
     }

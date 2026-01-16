@@ -17,8 +17,8 @@ export async function GET(_req, { params }) {
       return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     }
 
-    const orderId = Number(params.id);
-    if (!Number.isFinite(orderId)) {
+    const orderId = params.id;
+    if (!orderId.startsWith("OD")) {
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }
 

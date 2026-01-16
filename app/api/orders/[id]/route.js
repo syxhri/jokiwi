@@ -4,7 +4,7 @@ import { AUTH_COOKIE_NAME, verifyToken } from "../../../../lib/auth.js";
 import { findOrder, updateOrder, deleteOrder } from "../../../../lib/db.js";
 
 function parseIds(params) {
-  const id = Number(params.id);
+  const id = params.id;
   const token = cookies().get(AUTH_COOKIE_NAME)?.value;
   let userId = null;
   if (token) {
@@ -14,7 +14,7 @@ function parseIds(params) {
       userId = null;
     }
   }
-  return { id: Number.isNaN(id) ? null : id, userId };
+  return { id, userId };
 }
 
 export async function GET(_req, { params }) {
