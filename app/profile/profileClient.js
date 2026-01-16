@@ -130,7 +130,7 @@ export default function ProfileClient({ user }) {
               Hapus QRIS
             </span>
 
-            {payloadPreview && (
+            {state == "QRIS berhasil disimpan ✅" && payloadPreview && (
               <details className="text-xs text-gray-500">
                 <summary className="cursor-pointer">
                   Lihat payload yang tersimpan

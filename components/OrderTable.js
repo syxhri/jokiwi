@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import StatusBadge from "./StatusBadge";
 import QRISLogo from "./QRISLogo";
+import { computeStats } from "../lib/db.js";
 
 export default function OrderTable({
   initialOrders,
@@ -86,6 +87,7 @@ export default function OrderTable({
         return;
       }
       setOrders((prev) => prev.filter((o) => o.orderCode !== id));
+      setStats(computeStats(orders));
     } catch {
       alert("Gagal menghapus orderan");
     }
@@ -242,112 +244,112 @@ export default function OrderTable({
       </div>
 
       {/* Table */}
-      <div className="mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="w-40 px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                  Nama Client
-                </th>
-                <th className="w-40 px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                  Tugas
-                </th>
-                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                  Kategori
-                </th>
-                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
-                  Tgl Disuruh
-                </th>
-                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
-                  Deadline
-                </th>
-                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                  Harga
-                </th>
-                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 min-w-[220px]">
-                  Catatan
-                </th>
-                <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
-                  Aksi
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
-              {!hasData && (
+      {!hasData ? (
+        <>
+          <p className="px-4 py-6 text-center text-sm text-gray-500">
+            Belum ada orderan.
+          </p>
+        </>
+      ) : (
+      <>
+        <div className="mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="bg-gray-50">
                 <tr>
-                  <td
-                    colSpan={9}
-                    className="px-4 py-6 text-center text-sm text-gray-500"
-                  >
-                    Belum ada orderan.
-                  </td>
+                  <th className="w-40 px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                    Nama Client
+                  </th>
+                  <th className="w-40 px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                    Tugas
+                  </th>
+                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                    Kategori
+                  </th>
+                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
+                    Tgl Disuruh
+                  </th>
+                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
+                    Deadline
+                  </th>
+                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                    Harga
+                  </th>
+                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 min-w-[220px]">
+                    Catatan
+                  </th>
+                  <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                    Aksi
+                  </th>
                 </tr>
-              )}
-              {orders.map((order) => (
-                <tr key={order.id}>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                    {order.client_name}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">
-                    {order.task_name}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">
-                    {order.category_name || "-"}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
-                    {formatDate(order.assigned_date)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
-                    {formatDate(order.deadline_date)}
-                  </td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900 text-left">
-                    Rp {Number(order.price || 0).toLocaleString("id-ID")}
-                  </td>
-                  <td className="px-4 py-3 text-xs">
-                    <div className="space-y-1">
-                      <StatusBadge type="done" status={order.is_done} />
-                      <StatusBadge type="paid" status={order.is_paid} />
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">
-                    <p className="whitespace-pre-line break-words">
-                      {order.notes || "-"}
-                    </p>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-left">
-                    <div className="flex items-center justify-end gap-3 whitespace-nowrap">
-                      <Link
-                        href={`/orders/${order.orderCode}`}
-                        className="text-primary-600 hover:text-primary-800"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => handleMakeQris(order)}
-                        className="text-emerald-600 hover:text-emerald-800"
-                      >
-                        Buat QRIS
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(order.orderCode)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Hapus
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {orders.map((order) => (
+                  <tr key={order.id}>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                      {order.client_name}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-700">
+                      {order.task_name}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500">
+                      {order.category_name || "-"}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
+                      {formatDate(order.assigned_date)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
+                      {formatDate(order.deadline_date)}
+                    </td>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 text-left">
+                      Rp {Number(order.price || 0).toLocaleString("id-ID")}
+                    </td>
+                    <td className="px-4 py-3 text-xs">
+                      <div className="space-y-1">
+                        <StatusBadge type="done" status={order.is_done} />
+                        <StatusBadge type="paid" status={order.is_paid} />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500">
+                      <p className="whitespace-pre-line break-words">
+                        {order.notes || "-"}
+                      </p>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-left">
+                      <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                        <Link
+                          href={`/orders/${order.orderCode}`}
+                          className="text-primary-600 hover:text-primary-800"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleMakeQris(order)}
+                          className="text-emerald-600 hover:text-emerald-800"
+                        >
+                          Buat QRIS
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(order.orderCode)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      </>
+      )}
 
       {/* QRIS Modal */}
       {qrisModal.open && (
