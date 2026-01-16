@@ -23,7 +23,7 @@ export default async function EditOrderPage({ params }) {
           Edit detail orderan untuk {order.client_name}
         </p>
       </div>
-      <OrderForm order={order} />
+      <OrderForm data={ order } />
     </div>
   );
 }

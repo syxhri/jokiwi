@@ -325,7 +325,7 @@ export default function OrderTable({
                           type="button"
                           onClick={() => handleMakeQris(order)}
                         >
-                          <QRISLogo className="h-[200] w-[200]" />
+                          Buat QRIS
                         </button>
                         <button
                           type="button"
