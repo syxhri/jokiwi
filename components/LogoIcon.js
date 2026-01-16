@@ -16,7 +16,7 @@ export default function JokiwiLogo({
   alt = "Logo Jokiwi",
   ...rest
 }) {
-  const src = LOGO_SOURCES[variant] ?? LOGO_SOURCES.gradient;
+  const src = LOGO_SOURCES[variant] ?? LOGO_SOURCES.white;
 
   return (
     <Image

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import StatusBadge from "./StatusBadge";
+import QRISLogo from "./QRISLogo";
 
 export default function OrderTable({
   initialOrders,
@@ -348,7 +349,7 @@ export default function OrderTable({
       {/* QRIS Modal */}
       {qrisModal.open && (
         <div
-          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center bg-black/40 px-4"
+          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center shadow-3xl px-4"
           onClick={closeQrisModal}
         >
           <div
@@ -356,7 +357,8 @@ export default function OrderTable({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-semibold text-gray-900">QRIS</h3>
+              // <h3 className="text-sm font-semibold text-gray-900">QRIS</h3>
+              <QRISLogo className="h-8 w-8" />
               <button
                 type="button"
                 onClick={closeQrisModal}
@@ -377,8 +379,7 @@ export default function OrderTable({
 
               {!qrisModal.loading && !qrisModal.error && qrisModal.dataUrl && (
                 <div className="space-y-3">
-                  {/* <div className="rounded-xl border border-gray-100 bg-gray-50 p-3"> */}
-                  <div className="rounded-xl shadow-3xl p-3">
+                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
                     <img
                       src={qrisModal.dataUrl}
                       alt="QRIS"
