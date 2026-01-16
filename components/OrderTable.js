@@ -357,7 +357,7 @@ export default function OrderTable({
           >
             <div className="flex items-center justify-between gap-3">
               {/* <h3 className="text-sm font-semibold text-gray-900">QRIS</h3> */}
-              <QRISLogo className="h-30 w-30 mt-4" />
+              <QRISLogo className="h-30 w-30 mt-2" />
               <button
                 type="button"
                 onClick={closeQrisModal}
