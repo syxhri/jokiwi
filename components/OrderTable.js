@@ -43,37 +43,31 @@ export default function OrderTable({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [qrisModal.open]);
 
+  async function fetchOrders(signal) {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+
+    if (filterStatus === "done") params.set("is_done", "true");
+    else if (filterStatus === "not_done") params.set("is_done", "false");
+    else if (filterStatus === "paid") params.set("is_paid", "true");
+    else if (filterStatus === "not_paid") params.set("is_paid", "false");
+
+    params.set("sortBy", sortBy);
+    params.set("sortDir", sortDir);
+    if (categoryCode) params.set("categoryCode", String(categoryCode));
+
+    const res = await fetch(`/api/orders?${params.toString()}`, { signal });
+    if (!res.ok) return;
+
+    const data = await res.json();
+    setOrders(data.orders);
+    setStats(data.stats);
+  }
+
   useEffect(() => {
     const controller = new AbortController();
-    async function fetchData() {
-      const params = new URLSearchParams();
-      if (search) params.set("search", search);
-      if (filterStatus === "done") {
-        params.set("is_done", "true");
-      } else if (filterStatus === "not_done") {
-        params.set("is_done", "false");
-      } else if (filterStatus === "paid") {
-        params.set("is_paid", "true");
-      } else if (filterStatus === "not_paid") {
-        params.set("is_paid", "false");
-      }
-      params.set("sortBy", sortBy);
-      params.set("sortDir", sortDir);
-      if (categoryCode) params.set("categoryCode", String(categoryCode));
 
-      try {
-        const res = await fetch(`/api/orders?${params.toString()}`, {
-          signal: controller.signal,
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setOrders(data.orders);
-          setStats(data.stats);
-        }
-      } catch {}
-    }
-
-    fetchData().catch(() => {});
+    fetchOrders(controller.signal).catch(() => {});
     return () => controller.abort();
   }, [search, filterStatus, sortBy, sortDir, categoryCode]);
 
@@ -87,11 +81,8 @@ export default function OrderTable({
         alert(data.error || "Gagal menghapus orderan");
         return;
       }
-      setOrders((prev) => {
-        const next = prev.filter((o) => o.orderCode !== id);
-        setStats(computeStats(next));
-        return next;
-      });
+      
+      await fetchOrders();
     } catch {
       alert("Gagal menghapus orderan");
     }
