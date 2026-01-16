@@ -73,7 +73,7 @@ export default async function CategoriesPage() {
           </p>
         </div>*/}
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-start">
         <a href="/categories/new" className="btn btn-primary">
           Tambah Kategori
         </a>

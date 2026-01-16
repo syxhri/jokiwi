@@ -128,7 +128,7 @@ export default function ProfileClient({ user }) {
               onClick={() => handleDeleteQRIS()}
               className="text-xs text-red-600 hover:text-red-800"
             >
-              Hapus <QRISLogo className="h-8 w-8" />
+              Hapus QRIS
             </span>
 
             {status == "QRIS berhasil disimpan ✅" && payloadPreview && (
@@ -145,11 +145,11 @@ export default function ProfileClient({ user }) {
         ) : (
           <div className="space-y-2">
             <p className="text-sm font-semibold text-gray-800">
-              Upload <QRISLogo className="h-8 w-8" />
+              Upload QRIS
             </p>
             <p className="text-xs text-gray-500">
-              Upload gambar <QRISLogo className="h-8 w-8" /> kamu. Sistem akan membaca QR menjadi teks, lalu
-              teks itu dipakai untuk generate <QRISLogo className="h-8 w-8" /> dinamis per order.
+              Upload gambar QRIS kamu. Sistem akan membaca QR menjadi teks, lalu
+              teks itu dipakai untuk generate QRIS dinamis per order.
             </p>
 
             <input

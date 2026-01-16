@@ -176,7 +176,7 @@ export default function OrderTable({
         </div>
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex justify-start">
         <Link href="/orders/new" className="btn btn-primary">
           Tambah Orderan
         </Link>
