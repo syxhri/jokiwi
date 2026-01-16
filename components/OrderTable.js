@@ -320,7 +320,6 @@ export default function OrderTable({
                         <button
                           type="button"
                           onClick={() => handleMakeQris(order)}
-                          className="text-emerald-600 hover:text-emerald-800"
                         >
                           <QRISLogo className="h-10 w-10" />
                         </button>
