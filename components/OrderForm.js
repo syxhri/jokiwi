@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function OrderForm({ order = null, category = null }) {
+export default function OrderForm({ data }) {
+  const { order, category } = data;
   const router = useRouter();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);

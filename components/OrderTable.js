@@ -325,7 +325,7 @@ export default function OrderTable({
                           type="button"
                           onClick={() => handleMakeQris(order)}
                         >
-                          <QRISLogo className="h-40 w-40" />
+                          <QRISLogo className="h-[200] w-[200]" />
                         </button>
                         <button
                           type="button"
@@ -356,7 +356,7 @@ export default function OrderTable({
           >
             <div className="flex items-center justify-between gap-3">
               {/* <h3 className="text-sm font-semibold text-gray-900">QRIS</h3> */}
-              <QRISLogo className="h-30 w-30" />
+              <QRISLogo className="h-30 w-30 mt-4" />
               <button
                 type="button"
                 onClick={closeQrisModal}
