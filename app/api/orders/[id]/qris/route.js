@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME, verifyToken } from "../../../../../lib/auth.js";
-import { findOrder, findUserById } from "../../../../../lib/db.js";
+import { findOrder, findUserByCode } from "../../../../../lib/db.js";
 import { defGen } from "../../../../../lib/qris.js";
 
 export async function GET(_req, { params }) {
@@ -27,7 +27,7 @@ export async function GET(_req, { params }) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    const user = await findUserById(userId);
+    const user = await findUserByCode(userId);
     const qris = user?.qrisPayload;
     if (!qris) {
       return NextResponse.json(

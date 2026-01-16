@@ -20,7 +20,7 @@ export default function OrderTable({
   const [qrisModal, setQrisModal] = useState({
     open: false,
     loading: false,
-    orderId: null,
+    orderCode: null,
     dataUrl: "",
     error: "",
   });
@@ -94,12 +94,12 @@ export default function OrderTable({
     setQrisModal({
       open: true,
       loading: true,
-      orderId: order.id,
+      orderCode: order.orderCode,
       dataUrl: "",
       error: "",
     });
     try {
-      const res = await fetch(`/api/orders/${order.id}/qris`);
+      const res = await fetch(`/api/orders/${order.orderCode}/qris`);
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setQrisModal((prev) => ({
@@ -128,7 +128,7 @@ export default function OrderTable({
     setQrisModal({
       open: false,
       loading: false,
-      orderId: null,
+      orderCode: null,
       dataUrl: "",
       error: "",
     });
@@ -318,7 +318,7 @@ export default function OrderTable({
                   <td className="px-4 py-3 text-xs text-left">
                     <div className="flex items-center justify-end gap-3 whitespace-nowrap">
                       <Link
-                        href={`/orders/${order.id}`}
+                        href={`/orders/${order.orderCode}`}
                         className="text-primary-600 hover:text-primary-800"
                       >
                         Edit
@@ -332,7 +332,7 @@ export default function OrderTable({
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleDelete(order.id)}
+                        onClick={() => handleDelete(order.orderCode)}
                         className="text-red-600 hover:text-red-800"
                       >
                         Hapus
@@ -389,7 +389,7 @@ export default function OrderTable({
                   <div className="flex justify-center">
                     <a
                       href={qrisModal.dataUrl}
-                      download={`qris-order-${qrisModal.orderId}.png`}
+                      download={`qris-${categoryId ? categoryId : "order"}-${qrisModal.orderCode}.png`}
                       className="btn btn-primary w-full text-center"
                     >
                       Download

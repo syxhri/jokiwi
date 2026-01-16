@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { findUserById } from "../../../lib/db.js";
+import { findUserByCode } from "../../../lib/db.js";
 import { AUTH_COOKIE_NAME, verifyToken } from "../../../lib/auth.js";
 
 export async function GET() {
@@ -16,7 +16,7 @@ export async function GET() {
     } catch {
       return NextResponse.json({ user: null }, { status: 401 });
     }
-    const user = await findUserById(userId);
+    const user = await findUserByCode(userId);
     if (!user) {
       return NextResponse.json({ user: null }, { status: 401 });
     }
