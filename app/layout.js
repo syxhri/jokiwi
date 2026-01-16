@@ -8,7 +8,7 @@ import { getCurrentUser } from "../lib/auth.js";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Jokiwi - Joki with Izee",
+  title: "Jokiwi - Joki Izzily",
   description: "Catat dan kelola jokian mu dengan mudah di sini",
   icons: {
     icon: "/images/logo-jokiwi-white.svg",
