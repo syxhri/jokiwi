@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import StatusBadge from "./StatusBadge";
 import QRISLogo from "./QRISLogo";
 import { computeStats } from "../lib/db.js";
@@ -331,7 +332,7 @@ export default function OrderTable({
                           onClick={() => handleMakeQris(order)}
                           className="text-emerald-600 hover:text-emerald-800"
                         >
-                          Buat QRIS
+                          Buat <QRISLogo className="h-8 w-8" />
                         </button>
                         <button
                           type="button"
@@ -363,7 +364,7 @@ export default function OrderTable({
           >
             <div className="flex items-center justify-between gap-3">
               {/* <h3 className="text-sm font-semibold text-gray-900">QRIS</h3> */}
-              <QRISLogo className="h-10 w-10" />
+              <QRISLogo className="h-15 w-15" />
               <button
                 type="button"
                 onClick={closeQrisModal}
@@ -385,11 +386,16 @@ export default function OrderTable({
               {!qrisModal.loading && !qrisModal.error && qrisModal.dataUrl && (
                 <div className="space-y-3">
                   <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
-                    <img
-                      src={qrisModal.dataUrl}
-                      alt="QRIS"
-                      className="mx-auto h-56 w-56 object-contain"
-                    />
+                    <div className="relative inline-block">
+                      <Image
+                        src={qrisModal.dataUrl}
+                        alt="QRIS"
+                        className="mx-auto h-56 w-56 object-contain"
+                      />
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <QRISLogo className="h-40 w-40 object-contain" />
+                      </div>
+                    </div>
                   </div>
                   <div className="flex justify-center">
                     <a
