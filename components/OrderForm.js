@@ -47,6 +47,7 @@ export default function OrderForm({ data }) {
           setForm((prev) => ({
             ...prev,
             categoryId: data.id,
+            categoryCode: category,
           }));
         }
       } catch {}

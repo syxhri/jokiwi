@@ -324,6 +324,7 @@ export default function OrderTable({
                         <button
                           type="button"
                           onClick={() => handleMakeQris(order)}
+                          className="text-emerald-600 hover:text-emerald-800"
                         >
                           Buat QRIS
                         </button>
@@ -381,7 +382,7 @@ export default function OrderTable({
                     <Image
                       src={qrisModal.dataUrl}
                       alt="QRIS"
-                      className="mx-auto h-56 w-56 object-contain rounded"
+                      className="mx-auto h-56 w-56 object-contain rounded-xl"
                     />
                   </div>
                   <div className="flex justify-center">
