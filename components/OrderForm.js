@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function OrderForm({ order = null }) {
+export default function OrderForm({ order = null, category = null }) {
   const router = useRouter();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ export default function OrderForm({ order = null }) {
       order?.assigned_date || new Date().toISOString().slice(0, 10),
     deadline_date: order?.deadline_date || "",
   });
-
+  
   const initialSnapshot = useMemo(() => JSON.stringify(form), []);
   const isDirty = JSON.stringify(form) !== initialSnapshot;
 
@@ -37,6 +37,20 @@ export default function OrderForm({ order = null }) {
       } catch {}
     }
     fetchCategories().catch(() => {});
+    async function fetchCategory() {
+      if (!category) return;
+      try {
+        const res = await fetch(`/api/categories/${category}`);
+        if (res.ok) {
+          const data = await res.json();
+          setForm((prev) => ({
+            ...prev,
+            categoryId: data.id,
+          }));
+        }
+      } catch {}
+    }
+    fetchCategory().catch(() => {});
   }, []);
 
   const handleChange = (e) => {
@@ -100,7 +114,7 @@ export default function OrderForm({ order = null }) {
           {error}
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="label">
             Nama Client <span className="text-red-500">*</span>
@@ -129,7 +143,7 @@ export default function OrderForm({ order = null }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="label">Kategori / Mata Kuliah</label>
           <select
@@ -151,7 +165,7 @@ export default function OrderForm({ order = null }) {
             Harga (Rp) <span className="text-red-500">*</span>
           </label>
           <input
-            type="number"
+            type="currency"
             name="price"
             value={form.price}
             onChange={handleChange}
@@ -162,7 +176,7 @@ export default function OrderForm({ order = null }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="label">Tanggal Disuruh</label>
           <input

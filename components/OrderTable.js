@@ -177,7 +177,11 @@ export default function OrderTable({
       </div>
 
       <div className="flex justify-start">
-        <Link href="/orders/new" className="btn btn-primary">
+        <Link href={{
+          pathname: "/orders/new",
+          query: { category: categoryCode },
+        }}
+          className="btn btn-primary">
           Tambah Orderan
         </Link>
       </div>

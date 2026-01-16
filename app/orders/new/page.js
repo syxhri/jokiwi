@@ -6,7 +6,7 @@ export const metadata = {
   description: "Tambah orderan joki",
 };
 
-export default async function NewOrderPage() {
+export default async function NewOrderPage({ params }) {
   await requireAuth();
   return (
     <div className="max-w-4xl mx-auto">
@@ -14,7 +14,7 @@ export default async function NewOrderPage() {
         <h1 className="text-3xl font-bold text-gray-900">Buat Orderan Baru</h1>
         <p className="text-gray-600">Isi detail orderan joki tugas</p>
       </div>
-      <OrderForm />
+      <OrderForm category=params?.category />
     </div>
   );
 }
