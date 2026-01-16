@@ -34,7 +34,7 @@ export default async function CategoryDetailPage({ params }) {
     notFound();
   }
   const allOrders = await getAllOrdersForUser(user.id);
-  const orders = allOrders.filter((o) => o.categoryId === id);
+  const orders = allOrders.filter((o) => o.categoryCode === id);
   const stats = computeStats(orders);
   return (
     <div className="space-y-8">
