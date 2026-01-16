@@ -8,7 +8,7 @@ import QRISLogo from "./QRISLogo";
 export default function OrderTable({
   initialOrders,
   initialStats,
-  categoryId,
+  categoryCode,
 }) {
   const [orders, setOrders] = useState(initialOrders);
   const [stats, setStats] = useState(initialStats);
@@ -57,7 +57,7 @@ export default function OrderTable({
       }
       params.set("sortBy", sortBy);
       params.set("sortDir", sortDir);
-      if (categoryId) params.set("categoryId", String(categoryId));
+      if (categoryCode) params.set("categoryCode", String(categoryCode));
 
       try {
         const res = await fetch(`/api/orders?${params.toString()}`, {
@@ -73,7 +73,7 @@ export default function OrderTable({
 
     fetchData().catch(() => {});
     return () => controller.abort();
-  }, [search, filterStatus, sortBy, sortDir, categoryId]);
+  }, [search, filterStatus, sortBy, sortDir, categoryCode]);
 
   async function handleDelete(id) {
     const ok = window.confirm("Yakin mau menghapus orderan ini?");

@@ -13,6 +13,7 @@ export default function OrderForm({ order = null }) {
     client_name: order?.client_name || "",
     task_name: order?.task_name || "",
     categoryId: order?.categoryId || "",
+    categoryCode: order?.categoryCode || "",
     price: order?.price?.toString() || "",
     notes: order?.notes || "",
     is_done: Boolean(order?.is_done) || false,
@@ -51,7 +52,7 @@ export default function OrderForm({ order = null }) {
     setError("");
     setLoading(true);
     try {
-      const url = order ? `/api/orders/${order.id}` : "/api/orders";
+      const url = order ? `/api/orders/${order.orderCode}` : "/api/orders";
       const method = order ? "PUT" : "POST";
       const payload = {
         ...form,
@@ -66,8 +67,8 @@ export default function OrderForm({ order = null }) {
         body: JSON.stringify(payload),
       });
       if (res.ok) {
-        payload.categoryId
-          ? router.push(`/categories/${payload.categoryId}`)
+        payload.categoryCode
+          ? router.push(`/categories/${payload.categoryCode}`)
           : router.push("/orders");
         router.refresh();
       } else {

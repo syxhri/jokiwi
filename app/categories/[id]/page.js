@@ -49,7 +49,7 @@ export default async function CategoryDetailPage({ params }) {
           </p>
         )}
       </div>
-      <OrderTable initialOrders={orders} initialStats={stats} categoryId={id} />
+      <OrderTable initialOrders={orders} initialStats={stats} categoryCode={id} />
     </div>
   );
 }
