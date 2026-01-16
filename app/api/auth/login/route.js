@@ -23,7 +23,7 @@ export async function POST(request) {
       );
     }
     const response = NextResponse.json({ message: "Login successful" });
-    const token = signToken(user.id);
+    const token = signToken(user.userCode);
     response.cookies.set({
       name: AUTH_COOKIE_NAME,
       value: token,

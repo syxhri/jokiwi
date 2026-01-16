@@ -23,7 +23,7 @@ export async function POST(request) {
     }
     const user = await createUser({ username, password, name: name || "" });
     const response = NextResponse.json({ message: "Registration successful" });
-    const token = signToken(user.id);
+    const token = signToken(user.userCode);
     response.cookies.set({
       name: AUTH_COOKIE_NAME,
       value: token,
