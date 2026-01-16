@@ -20,6 +20,7 @@ export default function OrderTable({
   const [qrisModal, setQrisModal] = useState({
     open: false,
     loading: false,
+    categoryCode: null,
     orderCode: null,
     dataUrl: "",
     error: "",
@@ -94,6 +95,7 @@ export default function OrderTable({
     setQrisModal({
       open: true,
       loading: true,
+      categoryCode: order.categoryCode,
       orderCode: order.orderCode,
       dataUrl: "",
       error: "",
@@ -128,6 +130,7 @@ export default function OrderTable({
     setQrisModal({
       open: false,
       loading: false,
+      categoryCode: null,
       orderCode: null,
       dataUrl: "",
       error: "",
@@ -389,7 +392,7 @@ export default function OrderTable({
                   <div className="flex justify-center">
                     <a
                       href={qrisModal.dataUrl}
-                      download={`qris-${categoryId ? categoryId : "order"}-${qrisModal.orderCode}.png`}
+                      download={`qris-${qrisModal.categoryCode || "order"}-${qrisModal.orderCode}.png`}
                       className="btn btn-primary w-full text-center"
                     >
                       Download
