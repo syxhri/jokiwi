@@ -176,7 +176,7 @@ export default function OrderTable({
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-center">
         <Link href="/orders/new" className="btn btn-primary">
           Tambah Orderan
         </Link>
@@ -321,7 +321,7 @@ export default function OrderTable({
                           type="button"
                           onClick={() => handleMakeQris(order)}
                         >
-                          <QRISLogo className="h-10 w-10" />
+                          <QRISLogo className="h-40 w-40" />
                         </button>
                         <button
                           type="button"
@@ -352,7 +352,7 @@ export default function OrderTable({
           >
             <div className="flex items-center justify-between gap-3">
               {/* <h3 className="text-sm font-semibold text-gray-900">QRIS</h3> */}
-              <QRISLogo className="h-25 w-25" />
+              <QRISLogo className="h-30 w-30" />
               <button
                 type="button"
                 onClick={closeQrisModal}
