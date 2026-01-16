@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import StatusBadge from "./StatusBadge";
 import QRISLogo from "./QRISLogo";
-import { computeStats } from "../lib/db.js";
 
 export default function OrderTable({
   initialOrders,
