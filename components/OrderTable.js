@@ -322,7 +322,7 @@ export default function OrderTable({
                           onClick={() => handleMakeQris(order)}
                           className="text-emerald-600 hover:text-emerald-800"
                         >
-                          Buat <QRISLogo className="h-8 w-8" />
+                          <QRISLogo className="h-10 w-10" />
                         </button>
                         <button
                           type="button"
@@ -353,7 +353,7 @@ export default function OrderTable({
           >
             <div className="flex items-center justify-between gap-3">
               {/* <h3 className="text-sm font-semibold text-gray-900">QRIS</h3> */}
-              <QRISLogo className="h-15 w-15" />
+              <QRISLogo className="h-25 w-25" />
               <button
                 type="button"
                 onClick={closeQrisModal}
@@ -375,16 +375,11 @@ export default function OrderTable({
               {!qrisModal.loading && !qrisModal.error && qrisModal.dataUrl && (
                 <div className="space-y-3">
                   <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
-                    <div className="relative inline-block">
-                      <Image
-                        src={qrisModal.dataUrl}
-                        alt="QRIS"
-                        className="mx-auto h-56 w-56 object-contain"
-                      />
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <QRISLogo className="h-40 w-40 object-contain" />
-                      </div>
-                    </div>
+                    <Image
+                      src={qrisModal.dataUrl}
+                      alt="QRIS"
+                      className="mx-auto h-56 w-56 object-contain rounded"
+                    />
                   </div>
                   <div className="flex justify-center">
                     <a

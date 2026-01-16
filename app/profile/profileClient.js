@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import jsQR from "jsqr";
+import Image from "next/image";
+import QRISLogo from "../../components/QRISLogo";
 
 export default function ProfileClient({ user }) {
   const [hasQris, setHasQris] = useState(Boolean(user.qrisPayload));
