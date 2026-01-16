@@ -377,7 +377,8 @@ export default function OrderTable({
 
               {!qrisModal.loading && !qrisModal.error && qrisModal.dataUrl && (
                 <div className="space-y-3">
-                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+                  {/* <div className="rounded-xl border border-gray-100 bg-gray-50 p-3"> */}
+                  <div className="rounded-xl shadow-3xl p-3">
                     <img
                       src={qrisModal.dataUrl}
                       alt="QRIS"
