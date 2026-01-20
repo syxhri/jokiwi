@@ -27,7 +27,7 @@ async function getBrowser() {
 
 export async function GET(req, { params }) {
   const { user, error, status } = await requireBotUser(req);
-  if (error) {
+  if (!user && error && status >= 400) {
     return NextResponse.json({ error }, { status });
   }
 
