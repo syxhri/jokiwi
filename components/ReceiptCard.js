@@ -79,7 +79,7 @@ const ReceiptCard = forwardRef(function ReceiptCard({ order }, ref) {
         )}
       </div>
 
-      <div className="mt-4 border-t border-dashed border-gray-300 pt-2 text-xs text-gray-500">
+      <div className="mt-4 border-t border-dashed border-gray-300 pt-3 text-xs text-gray-500">
         <p>
           {new Date().toLocaleString("id-ID", {
             day: "2-digit",
