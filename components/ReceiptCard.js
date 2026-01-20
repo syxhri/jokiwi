@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 
-const ReceiptCard = forwardRef(function ReceiptCard({ order, ..props }, ref) {
+const ReceiptCard = forwardRef(function ReceiptCard({ order, ...props }, ref) {
   function formatDate(value) {
     if (!value) return "-";
     const d = new Date(value);
