@@ -588,7 +588,11 @@ export default function OrderTable({
               </div>
         
               {/* Isi struk yang akan dirender jadi PNG/PDF */}
-              <ReceiptCard order={receiptModal.order} ref={receiptRef} />
+              <ReceiptCard
+                order={receiptModal.order}
+                ref={receiptRef}
+                data-receipt-root
+              />
         
               <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
                 <button

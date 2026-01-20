@@ -69,18 +69,42 @@ export async function GET(req, { params }) {
   });
 
   await page.goto(receiptUrl, { waitUntil: "networkidle0" });
+  await page.waitForSelector("[data-receipt-root]");
+
+  await page.evaluate(() => {
+    const receipt = document.querySelector("[data-receipt-root]");
+    if (!receipt) return;
+  
+    const cloned = receipt.cloneNode(true);
+  
+    document.body.innerHTML = "";
+    document.body.style.margin = "0";
+  
+    const wrapper = document.createElement("div");
+    wrapper.style.minHeight = "100vh";
+    wrapper.style.display = "flex";
+    wrapper.style.alignItems = "center";
+    wrapper.style.justContent = "center";
+    wrapper.style.justifyContent = "center";
+    wrapper.style.background = "#f3f4f6";
+  
+    wrapper.appendChild(cloned);
+    document.body.appendChild(wrapper);
+  });
 
   let buf;
   if (format === "pdf") {
     buf = await page.pdf({
       printBackground: true,
-      width: "600px",
-      height: "800px",
+      width: "1000px",
+      height: "1000px",
+      margin: { top: "32px", right: "32px", bottom: "32px", left: "32px" },
     });
   } else {
-    buf = await page.screenshot({
+    const receiptHandle = await page.$("[data-receipt-root]");
+    buf = await receiptHandle.screenshot({
       type: "png",
-      fullPage: false,
+      omitBackground: false,
     });
   }
 

@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 
-const ReceiptCard = forwardRef(function ReceiptCard({ order }, ref) {
+const ReceiptCard = forwardRef(function ReceiptCard({ order, ..props }, ref) {
   function formatDate(value) {
     if (!value) return "-";
     const d = new Date(value);
@@ -15,6 +15,7 @@ const ReceiptCard = forwardRef(function ReceiptCard({ order }, ref) {
   return (
     <div
       ref={ref}
+      {...props}
       className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800"
     >
       <div className="flex items-center justify-between gap-3 border-b border-dashed border-gray-300 pb-3">
@@ -79,8 +80,8 @@ const ReceiptCard = forwardRef(function ReceiptCard({ order }, ref) {
         )}
       </div>
 
-      <div className="mt-4 border-y border-dashed border-gray-300 py-2 text-xs text-gray-500 text-center">
-        <p>
+      <div className="mt-4 border-t border-dashed border-gray-300 py-3">
+        <p className="text-center text-xs text-gray-500 leading-[1.4]">
           {new Date().toLocaleString("id-ID", {
             day: "2-digit",
             month: "short",
@@ -92,9 +93,11 @@ const ReceiptCard = forwardRef(function ReceiptCard({ order }, ref) {
         </p>
       </div>
 
-      <div className="mt-4 pt-1 text-[11px] text-gray-500">
-        <p>Terima kasih sudah menggunakan jasa Jokiwi 🎓</p>
-        <p>
+      <div className="mt-0 border-t border-dashed border-gray-300 py-3 text-[11px] text-gray-500">
+        <p className="text-center leading-[1.4]">
+          Terima kasih sudah menggunakan jasa Jokiwi 🎓
+        </p>
+        <p className="text-center leading-[1.4]">
           Struk ini dibuat secara otomatis dari{" "}
           <a
             href="https://jokiwi.app/"
