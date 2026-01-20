@@ -6,6 +6,7 @@ import Image from "next/image";
 import StatusBadge from "./StatusBadge";
 import QRISLogo from "./QRISLogo";
 import ReceiptCard from "./ReceiptCard";
+import ModalPortal from "./ModalPortal";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
@@ -51,6 +52,14 @@ export default function OrderTable({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [qrisModal.open]);
+
+  useEffect(() => {
+    const isModalOpen = qrisModal.open || receiptModal.open;
+    document.body.style.overflow = isModalOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [qrisModal.open, receiptModal.open]);
 
   async function fetchOrders(signal) {
     const params = new URLSearchParams();
@@ -160,7 +169,7 @@ export default function OrderTable({
     if (!receiptRef.current || !receiptModal.order) return;
     try {
       const canvas = await html2canvas(receiptRef.current, {
-        scale: 5,
+        scale: 3,
       });
       const imgData = canvas.toDataURL("image/png");
   
@@ -484,108 +493,122 @@ export default function OrderTable({
 
       {/* QRIS Modal */}
       {qrisModal.open && (
-        <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40"
-          onClick={closeQrisModal}
-        >
+        <ModalPortal>
           <div
-            className="w-full max-w-sm mx-4 max-h-[calc(100vh-3rem)] rounded-2xl overflow-y-auto bg-white p-4 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4"
+            style={{
+              minHeight: "100dvh",
+              paddingTop: "env(safe-area-inset-top)",
+              paddingBottom: "env(safe-area-inset-bottom)",
+            }}
+            onClick={closeQrisModal}
           >
-            <div className="flex items-center justify-between gap-3">
-              <QRISLogo className="h-30 w-30 mt-2" />
-              <button
-                type="button"
-                onClick={closeQrisModal}
-                className="text-sm text-gray-500 hover:text-gray-700"
-              >
-                Tutup
-              </button>
-            </div>
-
-            <div className="mt-3">
-              {qrisModal.loading && (
-                <p className="text-sm text-gray-600">Loading...</p>
-              )}
-
-              {!qrisModal.loading && qrisModal.error && (
-                <p className="text-sm text-red-600">{qrisModal.error}</p>
-              )}
-
-              {!qrisModal.loading &&
-                !qrisModal.error &&
-                qrisModal.dataUrl && (
-                  <div className="space-y-3">
-                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
-                      <Image
-                        src={qrisModal.dataUrl}
-                        alt="QRIS"
-                        className="mx-auto h-56 w-56 object-contain rounded-xl"
-                      />
-                    </div>
-                    <div className="flex justify-center">
-                      <a
-                        href={qrisModal.dataUrl}
-                        download={`QRIS_${qrisModal.orderCode || "ORDER"}.png`}
-                        className="btn btn-primary w-full text-center"
-                      >
-                        Download
-                      </a>
-                    </div>
-                  </div>
+            <div
+              className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <QRISLogo className="h-30 w-30 mt-2" />
+                <button
+                  type="button"
+                  onClick={closeQrisModal}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Tutup
+                </button>
+              </div>
+  
+              <div className="mt-3">
+                {qrisModal.loading && (
+                  <p className="text-sm text-gray-600">Loading...</p>
                 )}
+  
+                {!qrisModal.loading && qrisModal.error && (
+                  <p className="text-sm text-red-600">{qrisModal.error}</p>
+                )}
+  
+                {!qrisModal.loading &&
+                  !qrisModal.error &&
+                  qrisModal.dataUrl && (
+                    <div className="space-y-3">
+                      <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+                        <Image
+                          src={qrisModal.dataUrl}
+                          alt="QRIS"
+                          className="mx-auto h-56 w-56 object-contain rounded-xl"
+                        />
+                      </div>
+                      <div className="flex justify-center">
+                        <a
+                          href={qrisModal.dataUrl}
+                          download={`QRIS_${qrisModal.orderCode || "ORDER"}.png`}
+                          className="btn btn-primary w-full text-center"
+                        >
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  )}
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
       
       {/* Struk Modal */}
       {receiptModal.open && receiptModal.order && (
-        <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40"
-          onClick={closeReceiptModal}
-        >
+        <ModalPortal>
           <div
-            className="w-full max-w-md mx-4 max-h-[calc(100vh-3rem)] rounded-2xl overflow-y-auto bg-white p-5 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4"
+            style={{
+              minHeight: "100dvh",
+              paddingTop: "env(safe-area-inset-top)",
+              paddingBottom: "env(safe-area-inset-bottom)",
+            }}
+            onClick={closeReceiptModal}
           >
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold tracking-wide text-primary-600">
-                  STRUK PEMBAYARAN
-                </p>
-                <h3 className="text-lg font-bold text-gray-900">Jokiwi</h3>
+            <div
+              className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold tracking-wide text-primary-600">
+                    STRUK PEMBAYARAN
+                  </p>
+                  <h3 className="text-lg font-bold text-gray-900">Jokiwi</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeReceiptModal}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Tutup
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={closeReceiptModal}
-                className="text-sm text-gray-500 hover:text-gray-700"
-              >
-                Tutup
-              </button>
-            </div>
-      
-            {/* Isi struk yang akan dirender jadi PNG/PDF */}
-            <ReceiptCard order={receiptModal.order} ref={receiptRef} />
-      
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
-              <button
-                type="button"
-                onClick={handleReceiptDownloadPdf}
-                className="btn btn-secondary w-full sm:w-auto"
-              >
-                Download PDF
-              </button>
-              <button
-                type="button"
-                onClick={handleReceiptDownloadPng}
-                className="btn btn-primary w-full sm:w-auto"
-              >
-                Download PNG
-              </button>
+        
+              {/* Isi struk yang akan dirender jadi PNG/PDF */}
+              <ReceiptCard order={receiptModal.order} ref={receiptRef} />
+        
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
+                <button
+                  type="button"
+                  onClick={handleReceiptDownloadPdf}
+                  className="btn btn-secondary w-full sm:w-auto"
+                >
+                  Download PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={handleReceiptDownloadPng}
+                  className="btn btn-primary w-full sm:w-auto"
+                >
+                  Download PNG
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>  
       )}
     </div>
   );
