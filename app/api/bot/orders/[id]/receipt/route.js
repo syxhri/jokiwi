@@ -6,7 +6,7 @@ import chromium from "@sparticuz/chromium";
 import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
-const puppeteer = require("puppeteer-core/lib/cjs/puppeteer/puppeteer-core.js");
+const puppeteer = require("puppeteer-core");
 
 async function getBrowser() {
   const isVercel = !!process.env.VERCEL;
