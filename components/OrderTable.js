@@ -485,19 +485,14 @@ export default function OrderTable({
       {/* QRIS Modal */}
       {qrisModal.open && (
         <div
-          className="fixed inset-0 z-[9999] overflow-y-auto flex items-center justify-center bg-black/40 px-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40"
           onClick={closeQrisModal}
         >
-        {/*<div
-          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center shadow-3xl px-4"
-          onClick={closeQrisModal}
-        >*/}
           <div
-            className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-xl"
+            className="w-full max-w-sm mx-4 max-h-[calc(100vh-3rem)] rounded-2xl overflow-y-auto bg-white p-4 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-3">
-              {/* <h3 className="text-sm font-semibold text-gray-900">QRIS</h3> */}
               <QRISLogo className="h-30 w-30 mt-2" />
               <button
                 type="button"
@@ -517,26 +512,28 @@ export default function OrderTable({
                 <p className="text-sm text-red-600">{qrisModal.error}</p>
               )}
 
-              {!qrisModal.loading && !qrisModal.error && qrisModal.dataUrl && (
-                <div className="space-y-3">
-                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
-                    <Image
-                      src={qrisModal.dataUrl}
-                      alt="QRIS"
-                      className="mx-auto h-56 w-56 object-contain rounded-xl"
-                    />
+              {!qrisModal.loading &&
+                !qrisModal.error &&
+                qrisModal.dataUrl && (
+                  <div className="space-y-3">
+                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+                      <Image
+                        src={qrisModal.dataUrl}
+                        alt="QRIS"
+                        className="mx-auto h-56 w-56 object-contain rounded-xl"
+                      />
+                    </div>
+                    <div className="flex justify-center">
+                      <a
+                        href={qrisModal.dataUrl}
+                        download={`QRIS_${qrisModal.orderCode || "ORDER"}.png`}
+                        className="btn btn-primary w-full text-center"
+                      >
+                        Download
+                      </a>
+                    </div>
                   </div>
-                  <div className="flex justify-center">
-                    <a
-                      href={qrisModal.dataUrl}
-                      download={`QRIS_${qrisModal.orderCode || "ORDER"}.png`}
-                      className="btn btn-primary w-full text-center"
-                    >
-                      Download
-                    </a>
-                  </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
         </div>
@@ -545,15 +542,11 @@ export default function OrderTable({
       {/* Struk Modal */}
       {receiptModal.open && receiptModal.order && (
         <div
-          className="fixed inset-0 z-[9999] overflow-y-auto flex items-center justify-center bg-black/40 px-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40"
           onClick={closeReceiptModal}
         >
-        {/*<div
-          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center shadow-3xl px-4"
-          onClick={closeReceiptModal}
-        >*/}
           <div
-            className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl"
+            className="w-full max-w-md mx-4 max-h-[calc(100vh-3rem)] rounded-2xl overflow-y-auto bg-white p-5 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-3">
@@ -571,10 +564,10 @@ export default function OrderTable({
                 Tutup
               </button>
             </div>
-
+      
             {/* Isi struk yang akan dirender jadi PNG/PDF */}
             <ReceiptCard order={receiptModal.order} ref={receiptRef} />
-
+      
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
               <button
                 type="button"
