@@ -17,6 +17,7 @@ export default function OrderTable({
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("assigned_date");
   const [sortDir, setSortDir] = useState("desc");
+  const [showFilters, setShowFilters] = useState(false);
 
   const [qrisModal, setQrisModal] = useState({
     open: false,
@@ -122,6 +123,41 @@ export default function OrderTable({
     }
   }
 
+  async function handleMakeReceipt(order) {
+    // setQrisModal({
+      // open: true,
+      // loading: true,
+      // categoryCode: order.categoryCode,
+      // orderCode: order.orderCode,
+      // dataUrl: "",
+      // error: "",
+    // });
+    // try {
+      // const res = await fetch(`/api/orders/${order.orderCode}/qris`);
+      // const data = await res.json().catch(() => ({}));
+      // if (!res.ok) {
+        // setQrisModal((prev) => ({
+          // ...prev,
+          // loading: false,
+          // error: data.error || "Gagal membuat QRIS",
+        // }));
+        // return;
+      // }
+      // setQrisModal((prev) => ({
+        // ...prev,
+        // loading: false,
+        // dataUrl: data.dataUrl || "",
+        // error: "",
+      // }));
+    // } catch {
+      // setQrisModal((prev) => ({
+        // ...prev,
+        // loading: false,
+        // error: "Gagal membuat QRIS",
+      // }));
+    // }
+  }
+
   function closeQrisModal() {
     setQrisModal({
       open: false,
@@ -186,59 +222,91 @@ export default function OrderTable({
         </Link>
       </div>
 
-      {/* Filter + Sort panel */}
-      <div className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
-        <div className="grid gap-4 md:grid-cols-3">
-          <div>
+      {/* Search + toggle filter */}
+      <div className="rounded-2xl bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="w-full md:max-w-md">
             <label className="label">Pencarian</label>
-            <input
-              type="text"
-              placeholder="Cari nama client atau tugas"
-              className="input"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Cari nama client atau tugas"
+                className="input pr-10"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowFilters((v) => !v)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                aria-label="Buka filter dan sort"
+              >
+                <svg
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                  fill="none"
+                  className="h-4 w-4"
+                >
+                  <path
+                    d="M3 5h14M6 10h8M8 15h4"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
-          <div>
-            <label className="label">Filter Status</label>
-            <select
-              className="input"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="all">Semua</option>
-              <option value="done">Selesai</option>
-              <option value="not_done">Belum Selesai</option>
-              <option value="paid">Lunas</option>
-              <option value="not_paid">Belum Lunas</option>
-            </select>
-          </div>
-          <div>
-            <label className="label">Urutkan Berdasarkan</label>
-            <select
-              className="input"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="assigned_date">Tanggal Disuruh</option>
-              <option value="deadline_date">Deadline</option>
-              <option value="price">Harga</option>
-            </select>
-          </div>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          <div>
-            <label className="label">Arah Sort</label>
-            <select
-              className="input"
-              value={sortDir}
-              onChange={(e) => setSortDir(e.target.value)}
-            >
-              <option value="asc">Asc (terlama / terkecil dulu)</option>
-              <option value="desc">Desc (terbaru / terbesar dulu)</option>
-            </select>
+      
+          <div className="flex justify-start md:justify-end">
+            <Link href="/orders/new" className="btn btn-primary">
+              Tambah Orderan
+            </Link>
           </div>
         </div>
+      
+        {showFilters && (
+          <div className="mt-4 grid gap-4 md:grid-cols-3">
+            <div>
+              <label className="label">Filter Status</label>
+              <select
+                className="input"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="all">Semua</option>
+                <option value="done">Selesai</option>
+                <option value="not_done">Belum Selesai</option>
+                <option value="paid">Lunas</option>
+                <option value="not_paid">Belum Lunas</option>
+              </select>
+            </div>
+            <div>
+              <label className="label">Urut Berdasarkan</label>
+              <select
+                className="input"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="assigned_date">Tanggal Disuruh</option>
+                <option value="deadline_date">Deadline</option>
+                <option value="price">Harga</option>
+              </select>
+            </div>
+            <div>
+              <label className="label">Arah Sort</label>
+              <select
+                className="input"
+                value={sortDir}
+                onChange={(e) => setSortDir(e.target.value)}
+              >
+                <option value="asc">Naik (terlama / terkecil dulu)</option>
+                <option value="desc">Turun (terbaru / terbesar dulu)</option>
+              </select>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Table */}
@@ -316,18 +384,30 @@ export default function OrderTable({
                     <td className="px-4 py-3 text-xs text-left">
                       <div className="flex items-center justify-end gap-3 whitespace-nowrap">
                         <Link
-                          href={`/orders/${order.orderCode}`}
+                          href={`/orders/${order.orderCode}/edit`}
                           className="text-primary-600 hover:text-primary-800"
                         >
                           Edit
                         </Link>
+                        
+                        {order.is_paid && (
+                          <button
+                            type="button"
+                            onClick={() => handleMakeReceipt(order)}
+                            className="text-amber-600 hover:text-amber-800"
+                          >
+                            Buat Struk
+                          </button>
+                        )}
+                        
                         <button
                           type="button"
                           onClick={() => handleMakeQris(order)}
                           className="text-emerald-600 hover:text-emerald-800"
                         >
-                          Buat QRIS
+                          QRIS
                         </button>
+                        
                         <button
                           type="button"
                           onClick={() => handleDelete(order.orderCode)}

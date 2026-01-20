@@ -1,42 +1,34 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { AUTH_COOKIE_NAME, verifyToken } from "../../../../lib/auth.js";
+import { requireBotUser } from "../../../../lib/bot.js";
 import { findOrder, updateOrder, deleteOrder } from "../../../../lib/db.js";
 
 function parseIds(params) {
   const id = params.id;
-  const token = cookies().get(AUTH_COOKIE_NAME)?.value;
-  let userId = null;
-  if (token) {
-    try {
-      userId = verifyToken(token).userId;
-    } catch {
-      userId = null;
-    }
-  }
-  return { id, userId };
+  const { user, error, status } = await requireBotUser(request);
+  return { id, userId: error ? null : user.id };
 }
 
 export async function GET(_req, { params }) {
   try {
     const { id, userId } = parseIds(params);
     if (!userId) {
-      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+      return NextResponse.json({ error: "Silakan login terlebih dahulu" }, { status: 401 });
     }
     if (!id) {
-      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+      return NextResponse.json({ error: "Order ID tidak valid" }, { status: 400 });
     }
+    
     const order = await findOrder(userId, id);
     if (!order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return NextResponse.json({ error: "Orderan tidak ditemukan" }, { status: 404 });
     }
     return NextResponse.json(order);
   } catch (err) {
-    console.error("Failed to fetch order:", err);
+    console.error("Gagal memuat orderan:", err);
     return NextResponse.json(
-      { error: "Failed to fetch order" },
+      { error: "Gagal memuat orderan" },
       { status: 500 }
     );
   }
@@ -46,21 +38,22 @@ export async function PUT(request, { params }) {
   try {
     const { id, userId } = parseIds(params);
     if (!userId) {
-      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+      return NextResponse.json({ error: "Silakan login terlebih dahulu" }, { status: 401 });
     }
     if (!id) {
-      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+      return NextResponse.json({ error: "Order ID tidak valid" }, { status: 400 });
     }
+    
     const body = await request.json();
     const updated = await updateOrder(userId, id, body);
     if (!updated) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return NextResponse.json({ error: "Orderan tidak ditemukan" }, { status: 404 });
     }
     return NextResponse.json(updated);
   } catch (err) {
-    console.error("Failed to update order:", err);
+    console.error("Gagal mengupdate orderan:", err);
     return NextResponse.json(
-      { error: "Failed to update order" },
+      { error: "Gagal mengupdate orderan" },
       { status: 500 }
     );
   }
@@ -70,17 +63,18 @@ export async function DELETE(_req, { params }) {
   try {
     const { id, userId } = parseIds(params);
     if (!userId) {
-      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+      return NextResponse.json({ error: "Silakan login terlebih dahulu" }, { status: 401 });
     }
     if (!id) {
-      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+      return NextResponse.json({ error: "Order ID tidak valid" }, { status: 400 });
     }
+    
     const ok = await deleteOrder(userId, id);
     return NextResponse.json({ deleted: ok });
   } catch (err) {
-    console.error("Failed to delete order:", err);
+    console.error("Gagal menghapus orderan:", err);
     return NextResponse.json(
-      { error: "Failed to delete order" },
+      { error: "Gagal menghapus orderan" },
       { status: 500 }
     );
   }

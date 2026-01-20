@@ -1,35 +1,28 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { AUTH_COOKIE_NAME, verifyToken } from "../../../../../lib/auth.js";
+import { requireBotUser } from "../../../../../lib/bot.js";
 import { findOrder, findUserByCode } from "../../../../../lib/db.js";
 import { defGen } from "../../../../../lib/qris.js";
 
 export async function GET(_req, { params }) {
   try {
-    const token = cookies().get(AUTH_COOKIE_NAME)?.value;
-    if (!token)
-      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-
-    let userId;
-    try {
-      userId = verifyToken(token).userId;
-    } catch {
-      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+    const { user, error, status } = await requireBotUser(request);
+    if (error) {
+      return NextResponse.json({ error }, { status });
     }
 
     const orderId = params.id;
     if (!orderId.startsWith("OD")) {
-      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+      return NextResponse.json({ error: "Order ID tidak valid" }, { status: 400 });
     }
 
-    const order = await findOrder(userId, orderId);
+    const order = await findOrder(user.id, orderId);
     if (!order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return NextResponse.json({ error: "Orderan tidak ditemukan" }, { status: 404 });
     }
 
-    const user = await findUserByCode(userId);
+    const user = await findUserByCode(user.userCode);
     const qris = user?.qrisPayload;
     if (!qris) {
       return NextResponse.json(
@@ -52,9 +45,9 @@ export async function GET(_req, { params }) {
     const { dataUrl } = await defGen({ qris, amount });
     return NextResponse.json({ dataUrl });
   } catch (err) {
-    console.error("Failed to generate QRIS:", err);
+    console.error("Gagal membuat QRIS:", err);
     return NextResponse.json(
-      { error: "Failed to generate QRIS" },
+      { error: "Gagal membuat QRIS" },
       { status: 500 }
     );
   }
