@@ -16,7 +16,7 @@ const ReceiptCard = forwardRef(function ReceiptCard({ order, className = "", ...
     <div
       ref={ref}
       {...props}
-      className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800 shadow-3xl"
+      className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800"
     >
       <div className="flex items-center justify-between gap-3 border-b border-dashed border-gray-300 pb-3">
         <div>
