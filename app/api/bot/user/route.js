@@ -1,9 +1,9 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { requireBotUser } from "../../../lib/bot.js";
-import { findUserByCode } from "../../../lib/db.js";
-import { verifyToken } from "../../../lib/auth.js";
+import { requireBotUser } from "@/lib/bot.js";
+import { findUserByCode } from "@/lib/db.js";
+import { verifyToken } from "@/lib/auth.js";
 
 export async function GET(request) {
   try {
@@ -17,6 +17,9 @@ export async function GET(request) {
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Gagal memuat user" }, { status: 500 });
+    return NextResponse.json({
+      error: "Gagal memuat user",
+      detail: String(err),
+    }, { status: 500 });
   }
 }

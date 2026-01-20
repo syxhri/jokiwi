@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
-import { requireAuth } from "../../../lib/auth.js";
+import { requireAuth } from "@/lib/auth.js";
 import {
   findCategory,
   getAllOrdersForUser,
   computeStats,
-} from "../../../lib/db.js";
-import OrderTable from "../../../components/OrderTable";
+} from "@/lib/db.js";
+import OrderTable from "@/components/OrderTable";
 
 async function getData(params) {
   const user = await requireAuth();

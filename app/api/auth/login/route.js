@@ -1,8 +1,8 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { findUserByUsername, verifyUserPassword } from "../../../../lib/db.js";
-import { AUTH_COOKIE_NAME, signToken } from "../../../../lib/auth.js";
+import { findUserByUsername, verifyUserPassword } from "@/lib/db.js";
+import { AUTH_COOKIE_NAME, signToken } from "@/lib/auth.js";
 
 export async function POST(request) {
   try {

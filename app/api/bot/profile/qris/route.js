@@ -1,8 +1,8 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { requireBotUser } from "../../../../lib/bot.js";
-import { setUserQrisPayload, deleteUserQris } from "../../../../lib/db.js";
+import { requireBotUser } from "@/lib/bot.js";
+import { setUserQrisPayload, deleteUserQris } from "@/lib/db.js";
 
 export async function POST(request) {
   try {
@@ -24,7 +24,10 @@ export async function POST(request) {
     return NextResponse.json({ message: "QRIS berhasil disimpan" });
   } catch (err) {
     console.error("Gagal menyimpan QRIS:", err);
-    return NextResponse.json({ error: "Gagal menyimpan QRIS" }, { status: 500 });
+    return NextResponse.json({
+      error: "Gagal menyimpan QRIS",
+      detail: String(err),
+    }, { status: 500 });
   }
 }
 
@@ -40,7 +43,10 @@ export async function DELETE(request) {
   } catch (err) {
     console.error("Gagal menghapus QRIS:", err);
     return NextResponse.json(
-      { error: "Gagal menghapus QRIS" },
+      {
+        error: "Gagal menghapus QRIS",
+        detail: String(err),
+      },
       { status: 500 }
     );
   }

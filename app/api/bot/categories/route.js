@@ -1,8 +1,8 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { requireBotUser } from "../../../lib/bot.js";
-import { getAllCategoriesForUser, createCategory } from "../../../lib/db.js";
+import { requireBotUser } from "@/lib/bot.js";
+import { getAllCategoriesForUser, createCategory } from "@/lib/db.js";
 
 export async function GET(request) {
   try {
@@ -16,7 +16,10 @@ export async function GET(request) {
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: "Gagal memuat kategori" },
+      {
+        error: "Gagal memuat kategori",
+        detail: String(err),
+      },
       { status: 500 }
     );
   }
@@ -38,7 +41,10 @@ export async function POST(request) {
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: "Gagal membuat kategori" },
+      {
+        error: "Gagal membuat kategori",
+        detail: String(err),
+      },
       { status: 500 }
     );
   }

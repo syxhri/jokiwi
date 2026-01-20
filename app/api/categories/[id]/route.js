@@ -2,12 +2,12 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { AUTH_COOKIE_NAME, verifyToken } from "../../../../lib/auth.js";
+import { AUTH_COOKIE_NAME, verifyToken } from "@/lib/auth.js";
 import {
   findCategory,
   updateCategory,
   deleteCategory,
-} from "../../../../lib/db.js";
+} from "@/lib/db.js";
 
 function parseIds(params) {
   const id = params.id;

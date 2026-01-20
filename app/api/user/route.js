@@ -2,8 +2,8 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { findUserByCode } from "../../../lib/db.js";
-import { AUTH_COOKIE_NAME, verifyToken } from "../../../lib/auth.js";
+import { findUserByCode } from "@/lib/db.js";
+import { AUTH_COOKIE_NAME, verifyToken } from "@/lib/auth.js";
 
 export async function GET() {
   try {

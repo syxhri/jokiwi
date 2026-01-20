@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { requireAuth } from "../../../../lib/auth.js";
-import { findCategory } from "../../../../lib/db.js";
-import CategoryForm from "../../../../components/CategoryForm";
+import { requireAuth } from "@/lib/auth.js";
+import { findCategory } from "@/lib/db.js";
+import CategoryForm from "@/components/CategoryForm";
 
 async function getData(params) {
   const user = await requireAuth();

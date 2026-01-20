@@ -1,8 +1,8 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { requireBotUser } from "../../../../lib/bot.js";
-import { findOrder, updateOrder, deleteOrder } from "../../../../lib/db.js";
+import { requireBotUser } from "@/lib/bot.js";
+import { findOrder, updateOrder, deleteOrder } from "@/lib/db.js";
 
 function parseIds(params) {
   const id = params.id;
@@ -28,7 +28,10 @@ export async function GET(_req, { params }) {
   } catch (err) {
     console.error("Gagal memuat orderan:", err);
     return NextResponse.json(
-      { error: "Gagal memuat orderan" },
+      {
+        error: "Gagal memuat orderan",
+        detail: String(err),
+      },
       { status: 500 }
     );
   }
@@ -53,7 +56,10 @@ export async function PUT(request, { params }) {
   } catch (err) {
     console.error("Gagal mengupdate orderan:", err);
     return NextResponse.json(
-      { error: "Gagal mengupdate orderan" },
+      {
+        error: "Gagal mengupdate orderan",
+        detail: String(err),
+      },
       { status: 500 }
     );
   }
@@ -74,7 +80,10 @@ export async function DELETE(_req, { params }) {
   } catch (err) {
     console.error("Gagal menghapus orderan:", err);
     return NextResponse.json(
-      { error: "Gagal menghapus orderan" },
+      {
+        error: "Gagal menghapus orderan",
+        detail: String(err),
+      },
       { status: 500 }
     );
   }

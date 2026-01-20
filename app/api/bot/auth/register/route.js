@@ -1,9 +1,9 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { findUserByUsername, verifyUserPassword } from "../../../../lib/db.js";
-import { requireBotKey } from "../../../../lib/bot.js";
-import { signTokenUser } from "../../../../lib/auth.js";
+import { createUser, findUserByUsername } from "@/lib/db.js";
+import { requireBotKey } from "@/lib/bot.js";
+import { signTokenUser } from "@/lib/auth.js";
 
 export async function POST(request) {
   try {
@@ -13,21 +13,24 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { username, password } = body || {};
+    const { username, password, name } = body || {};
     if (!username || !password) {
       return NextResponse.json(
-        { error: "Username dan password wajib diisi!" },
+        {
+          error: "Username dan password wajib diisi!",
+          detail: `username: ${username}; password: ${password}`,
+        },
         { status: 400 }
       );
     }
-    const user = await findUserByUsername(username);
-    const ok = await verifyUserPassword(user, password);
-    if (!user || !ok) {
+    const existing = await findUserByUsername(username);
+    if (existing) {
       return NextResponse.json(
-        { error: "Username atau password tidak valid!" },
-        { status: 401 }
+        { error: "Username ini sudah dipake" },
+        { status: 409 }
       );
     }
+    const user = await createUser({ username, password, name: name || "" });
     const token = signTokenUser(user);
     
     return NextResponse.json({
@@ -40,6 +43,9 @@ export async function POST(request) {
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Gagal melakukan login" }, { status: 500 });
+    return NextResponse.json({
+      error: "Gagal membuat akun",
+      detail: String(err),
+    }, { status: 500 });
   }
 }

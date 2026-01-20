@@ -1,5 +1,5 @@
-import { requireAuth } from "../../../lib/auth.js";
-import OrderForm from "../../../components/OrderForm";
+import { requireAuth } from "@/lib/auth.js";
+import OrderForm from "@/components/OrderForm";
 
 export const metadata = {
   title: "Jokiwi - Buat Orderan",

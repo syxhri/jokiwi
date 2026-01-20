@@ -2,8 +2,8 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { AUTH_COOKIE_NAME, verifyToken } from "../../../../lib/auth.js";
-import { setUserQrisPayload, deleteUserQris } from "../../../../lib/db.js";
+import { AUTH_COOKIE_NAME, verifyToken } from "@/lib/auth.js";
+import { setUserQrisPayload, deleteUserQris } from "@/lib/db.js";
 
 export async function POST(request) {
   try {

@@ -1,10 +1,10 @@
-import { requireAuth } from "../../lib/auth.js";
+import { requireAuth } from "@/lib/auth.js";
 import {
   getAllCategoriesForUser,
   getAllOrdersForUser,
   computeStats,
-} from "../../lib/db.js";
-import CategoryTable from "../../components/CategoryTable";
+} from "@/lib/db.js";
+import CategoryTable from "@/components/CategoryTable";
 import Link from "next/link.js";
 
 export const metadata = {

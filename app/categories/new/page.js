@@ -1,5 +1,5 @@
-import { requireAuth } from "../../../lib/auth.js";
-import CategoryForm from "../../../components/CategoryForm";
+import { requireAuth } from "@/lib/auth.js";
+import CategoryForm from "@/components/CategoryForm";
 
 export const metadata = {
   title: "Jokiwi - Tambah Kategori",

@@ -1,6 +1,6 @@
-import { requireAuth } from "../../lib/auth.js";
-import { getAllOrdersForUser, computeStats } from "../../lib/db.js";
-import OrderTable from "../../components/OrderTable";
+import { requireAuth } from "@/lib/auth.js";
+import { getAllOrdersForUser, computeStats } from "@/lib/db.js";
+import OrderTable from "@/components/OrderTable";
 
 export const metadata = {
   title: "Jokiwi - Orderan",

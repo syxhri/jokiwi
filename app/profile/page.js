@@ -1,4 +1,4 @@
-import { requireAuth } from "../../lib/auth.js";
+import { requireAuth } from "@/lib/auth.js";
 import ProfileClient from "./profileClient";
 
 export const metadata = {

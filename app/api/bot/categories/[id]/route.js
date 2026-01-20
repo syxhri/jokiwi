@@ -1,12 +1,12 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { requireBotUser } from "../../../../lib/bot.js";
+import { requireBotUser } from "@/lib/bot.js";
 import {
   findCategory,
   updateCategory,
   deleteCategory,
-} from "../../../../lib/db.js";
+} from "@/lib/db.js";
 
 function parseIds(params) {
   const id = params.id;
@@ -30,7 +30,10 @@ export async function GET(_req, { params }) {
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: "Gagal memuat kategori" },
+      {
+        error: "Gagal memuat kategori",
+        detail: String(err),
+      },
       { status: 500 }
     );
   }
@@ -52,7 +55,10 @@ export async function PUT(request, { params }) {
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: err.message || "Gagal mengupdate kategori" },
+      {
+        error: "Gagal mengupdate kategori",
+        detail: String(err),
+      },
       { status: 400 }
     );
   }
@@ -73,7 +79,10 @@ export async function DELETE(_req, { params }) {
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: err.message || "Gagal menghapus kategori" },
+      {
+        error: "Gagal menghapus kategori",
+        detail: String(err),
+      },
       { status: 400 }
     );
   }

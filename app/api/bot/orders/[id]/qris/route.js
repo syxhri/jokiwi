@@ -1,9 +1,9 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { requireBotUser } from "../../../../../lib/bot.js";
-import { findOrder, findUserByCode } from "../../../../../lib/db.js";
-import { defGen } from "../../../../../lib/qris.js";
+import { requireBotUser } from "@/lib/bot.js";
+import { findOrder, findUserByCode } from "@/lib/db.js";
+import { defGen } from "@/lib/qris.js";
 
 export async function GET(_req, { params }) {
   try {
@@ -14,7 +14,10 @@ export async function GET(_req, { params }) {
 
     const orderId = params.id;
     if (!orderId.startsWith("OD")) {
-      return NextResponse.json({ error: "Order ID tidak valid" }, { status: 400 });
+      return NextResponse.json({
+        error: "Order ID tidak valid",
+        detail: `orderId: ${orderId}`,
+      }, { status: 400 });
     }
 
     const order = await findOrder(user.id, orderId);
@@ -37,7 +40,10 @@ export async function GET(_req, { params }) {
     );
     if (!/^\d+$/.test(amount)) {
       return NextResponse.json(
-        { error: "Harga orderan tidak valid" },
+        {
+          error: "Harga orderan tidak valid",
+          detail: `amount: ${amount}`,
+        },
         { status: 400 }
       );
     }
@@ -47,7 +53,10 @@ export async function GET(_req, { params }) {
   } catch (err) {
     console.error("Gagal membuat QRIS:", err);
     return NextResponse.json(
-      { error: "Gagal membuat QRIS" },
+      {
+        error: "Gagal membuat QRIS",
+        detail: String(err),
+      },
       { status: 500 }
     );
   }

@@ -1,8 +1,8 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { requireBotUser } from "../../../lib/bot.js";
-import { filterOrders, computeStats, createOrder } from "../../../lib/db.js";
+import { requireBotUser } from "@/lib/bot.js";
+import { filterOrders, computeStats, createOrder } from "@/lib/db.js";
 
 export async function GET(request) {
   try {
@@ -32,7 +32,10 @@ export async function GET(request) {
   } catch (err) {
     console.error("Gagal memuat orderan:", err);
     return NextResponse.json(
-      { error: "Gagal memuat orderan" },
+      {
+        error: "Gagal memuat orderan",
+        detail: String(err),
+      },
       { status: 500 }
     );
   }
@@ -59,7 +62,10 @@ export async function POST(request) {
     } = data || {};
     if (!client_name || !task_name || price === undefined) {
       return NextResponse.json(
-        { error: "Nama client, nama tugas, dan harga wajib diisi!" },
+        {
+          error: "Nama client, nama tugas, dan harga wajib diisi!",
+          detail: `client_name: ${client_name}; task_name: ${task_name}; price: ${price}`,
+        },
         { status: 400 }
       );
     }
@@ -78,7 +84,10 @@ export async function POST(request) {
   } catch (err) {
     console.error("Gagal membuat orderan:", err);
     return NextResponse.json(
-      { error: "Gagal membuat orderan" },
+      {
+        error: "Gagal membuat orderan",
+        detail: String(err),
+      },
       { status: 500 }
     );
   }

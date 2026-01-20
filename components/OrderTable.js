@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import StatusBadge from "./StatusBadge";
 import QRISLogo from "./QRISLogo";
+import ReceiptCard from "./ReceiptCard";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
@@ -158,31 +159,52 @@ export default function OrderTable({
   async function handleReceiptDownloadPdf() {
     if (!receiptRef.current || !receiptModal.order) return;
     try {
-      const canvas = await html2canvas(receiptRef.current);
+      const canvas = await html2canvas(receiptRef.current, {
+        scale: 5,
+      });
       const imgData = canvas.toDataURL("image/png");
-
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgProps = pdf.getImageProperties(imgData);
-
-      const ratio = Math.min(
-        pageWidth / imgProps.width,
-        pageHeight / imgProps.height
-      );
-
-      const imgWidth = imgProps.width * ratio;
-      const imgHeight = imgProps.height * ratio;
-      const x = (pageWidth - imgWidth) / 2;
-      const y = 20;
-
-      pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
+  
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+  
+      const pdf = new jsPDF("p", "pt", [canvasWidth, canvasHeight]);
+  
+      pdf.addImage(imgData, "PNG", 0, 0, canvasWidth, canvasHeight);
       pdf.save(`Receipt_${receiptModal.order.orderCode || "ORDER"}.pdf`);
     } catch (err) {
       console.error(err);
       alert("Gagal membuat PDF struk");
     }
   }
+
+  // async function handleReceiptDownloadPdf() {
+    // if (!receiptRef.current || !receiptModal.order) return;
+    // try {
+      // const canvas = await html2canvas(receiptRef.current);
+      // const imgData = canvas.toDataURL("image/png");
+
+      // const pdf = new jsPDF("p", "mm", "a4");
+      // const pageWidth = pdf.internal.pageSize.getWidth();
+      // const pageHeight = pdf.internal.pageSize.getHeight();
+      // const imgProps = pdf.getImageProperties(imgData);
+
+      // const ratio = Math.min(
+        // pageWidth / imgProps.width,
+        // pageHeight / imgProps.height
+      // );
+
+      // const imgWidth = imgProps.width * ratio;
+      // const imgHeight = imgProps.height * ratio;
+      // const x = (pageWidth - imgWidth) / 2;
+      // const y = 20;
+
+      // pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
+      // pdf.save(`Receipt_${receiptModal.order.orderCode || "ORDER"}.pdf`);
+    // } catch (err) {
+      // console.error(err);
+      // alert("Gagal membuat PDF struk");
+    // }
+  // }
 
   function closeQrisModal() {
     setQrisModal({
@@ -463,9 +485,13 @@ export default function OrderTable({
       {/* QRIS Modal */}
       {qrisModal.open && (
         <div
-          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center shadow-3xl px-4"
+          className="fixed inset-0 z-[9999] overflow-y-auto flex items-center justify-center bg-black/40 px-4"
           onClick={closeQrisModal}
         >
+        {/*<div
+          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center shadow-3xl px-4"
+          onClick={closeQrisModal}
+        >*/}
           <div
             className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-xl"
             onClick={(e) => e.stopPropagation()}
@@ -518,8 +544,12 @@ export default function OrderTable({
       
       {/* Struk Modal */}
       {receiptModal.open && receiptModal.order && (
-        <div
+        {/*<div
           className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center shadow-3xl px-4"
+          onClick={closeReceiptModal}
+        >*/}
+        <div
+          className="fixed inset-0 z-[9999] overflow-y-auto flex items-center justify-center bg-black/40 px-4"
           onClick={closeReceiptModal}
         >
           <div
@@ -545,93 +575,8 @@ export default function OrderTable({
             {/* Isi struk yang akan dirender jadi PNG/PDF */}
             <div
               ref={receiptRef}
-              className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800"
             >
-              <div className="flex items-center justify-between gap-3 border-b border-dashed border-gray-300 pb-3">
-                <div>
-                  <p className="text-xs font-semibold text-gray-500">
-                    Client
-                  </p>
-                  <p className="text-base font-semibold text-gray-900">
-                    {receiptModal.order.client_name || "-"}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-semibold text-gray-500">
-                    Total
-                  </p>
-                  <p className="text-base font-bold text-emerald-600">
-                    Rp{" "}
-                    {Number(
-                      receiptModal.order.price || 0
-                    ).toLocaleString("id-ID")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-3 space-y-1 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Tugas</span>
-                  <span className="font-medium text-gray-900">
-                    {receiptModal.order.task_name || "-"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Kategori</span>
-                  <span className="font-medium text-gray-900">
-                    {receiptModal.order.category_name || "-"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Tanggal Disuruh</span>
-                  <span className="font-medium text-gray-900">
-                    {formatDate(receiptModal.order.assigned_date)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Deadline</span>
-                  <span className="font-medium text-gray-900">
-                    {formatDate(receiptModal.order.deadline_date)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Status Pengerjaan</span>
-                  <span className="font-medium text-gray-900">
-                    {receiptModal.order.is_done ? "Selesai" : "Belum Selesai"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Status Pembayaran</span>
-                  <span className="font-medium text-emerald-700">
-                    {receiptModal.order.is_paid ? "Lunas" : "Belum Lunas"}
-                  </span>
-                </div>
-                {receiptModal.order.notes && (
-                  <div className="mt-2">
-                    <p className="text-gray-500">Catatan</p>
-                    <p className="whitespace-pre-line text-gray-800">
-                      {receiptModal.order.notes}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-4 border-t border-dashed border-gray-300 text-xs text-gray-500">
-                <p>
-                  {new Date().toLocaleString("id-ID", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })} | Order ID: {receiptModal.order.orderCode || "-"}
-                </p>
-              </div>
-
-              <div className="mt-4 border-t border-dashed border-gray-300 pt-3 text-[11px] text-gray-500">
-                <p>Terima kasih sudah menggunakan jasa Jokiwi 🎓</p>
-                <p>Struk ini dibuat secara otomatis dari <a href="https://jokiwi.app/" className="text-primary-600 hover:text-primary-800 whitespace-nowrap">jokiwi.app</a>.</p>
-              </div>
+              <ReceiptCard order={receiptModal.order} ref={receiptRef} />
             </div>
 
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
