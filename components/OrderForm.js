@@ -30,7 +30,7 @@ export default function OrderForm({ data }) {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch("/api/categories");
+        const res = await fetch("/api/category");
         if (res.ok) {
           const data = await res.json();
           setCategories(data);
@@ -41,7 +41,7 @@ export default function OrderForm({ data }) {
     async function fetchCategory() {
       if (!category) return;
       try {
-        const res = await fetch(`/api/categories/${category}`);
+        const res = await fetch(`/api/category/${category}`);
         if (res.ok) {
           const data = await res.json();
           setForm((prev) => ({
@@ -68,7 +68,7 @@ export default function OrderForm({ data }) {
     setError("");
     setLoading(true);
     try {
-      const url = order ? `/api/orders/${order.orderCode}` : "/api/orders";
+      const url = order ? `/api/order/${order.orderCode}` : "/api/order";
       const method = order ? "PUT" : "POST";
       const payload = {
         ...form,
@@ -84,8 +84,8 @@ export default function OrderForm({ data }) {
       });
       if (res.ok) {
         payload.categoryCode
-          ? router.push(`/categories/${payload.categoryCode}`)
-          : router.push("/orders");
+          ? router.push(`/category/${payload.categoryCode}`)
+          : router.push("/order");
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
@@ -103,7 +103,7 @@ export default function OrderForm({ data }) {
       const ok = window.confirm("Perubahan belum disimpan. Yakin mau kembali?");
       if (!ok) return;
     }
-    router.push("/orders");
+    router.push("/order");
   }
 
   return (

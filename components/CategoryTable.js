@@ -59,7 +59,7 @@ export default function CategoryTable({ categoriesWithStats }) {
     );
     if (!ok) return;
     try {
-      const res = await fetch(`/api/categories/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/category/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) {
         alert(data.error || "Gagal menghapus kategori");
@@ -112,7 +112,7 @@ export default function CategoryTable({ categoriesWithStats }) {
             </div>
         
             <Link
-              href="/categories/new"
+              href="/category/new"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-white shadow hover:bg-primary-700"
               aria-label="Tambah kategori"
             >
@@ -203,7 +203,7 @@ export default function CategoryTable({ categoriesWithStats }) {
                   <tr key={cat.id}>
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
                       <Link
-                        href={`/categories/${cat.categoryCode}`}
+                        href={`/category/${cat.categoryCode}`}
                         className="text-primary-600 hover:text-primary-800"
                       >
                         {cat.name}
@@ -222,7 +222,7 @@ export default function CategoryTable({ categoriesWithStats }) {
                     <td className="px-4 py-3 text-xs">
                       <div className="flex gap-3">
                         <Link
-                          href={`/categories/${cat.categoryCode}/edit`}
+                          href={`/category/${cat.categoryCode}/edit`}
                           className="text-primary-600 hover:text-primary-800"
                         >
                           Edit

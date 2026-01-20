@@ -27,8 +27,8 @@ export default function CategoryForm({ category = null }) {
     setLoading(true);
     try {
       const url = category
-        ? `/api/categories/${category.categoryCode}`
-        : "/api/categories";
+        ? `/api/category/${category.categoryCode}`
+        : "/api/category";
       const method = category ? "PUT" : "POST";
       const res = await fetch(url, {
         method,

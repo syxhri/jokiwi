@@ -28,17 +28,18 @@ export async function generateMetadata({ params }) {
 export default async function ReceiptPrintPage({ params, searchParams }) {
   const { user, id, order } = await getData(params);
 
-  if (!order) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Orderan tidak ditemukan.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <ReceiptCard order={order} />
+    <div className="min-h-screen flex items-center justify-center">
+      <div
+        className="w-full max-w-md px-4"
+        data-receipt-root
+      >
+        {order ? (
+          <ReceiptCard order={order} />
+        ) : (
+          <p>Orderan tidak ditemukan.</p>
+        )}
+      </div>
     </div>
   );
 }

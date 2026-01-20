@@ -112,17 +112,17 @@ export default function Navbar() {
           {/* Nav utama (desktop) */}
           <nav className="hidden items-center gap-4 text-sm font-medium md:flex">
             <Link
-              href="/orders"
+              href="/order"
               className={`${isActive(
-                "/orders"
+                "/order"
               )} hover:text-gray-900 whitespace-nowrap`}
             >
               Semua Orderan
             </Link>
             <Link
-              href="/orders/new"
+              href="/order/new"
               className={`${isActive(
-                "/orders/new"
+                "/order/new"
               )} hover:text-gray-900 whitespace-nowrap`}
             >
               Orderan Baru
@@ -244,9 +244,9 @@ export default function Navbar() {
             {user && (
               <>
                   <Link
-                    href="/orders"
+                    href="/order"
                     className={`rounded-lg px-3 py-2 ${
-                      isActive("/orders") === "text-primary-600"
+                      isActive("/order") === "text-primary-600"
                         ? "bg-primary-50 text-primary-700"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
@@ -255,9 +255,9 @@ export default function Navbar() {
                     Semua Orderan
                   </Link>
                   <Link
-                    href="/orders/new"
+                    href="/order/new"
                     className={`rounded-lg px-3 py-2 ${
-                      isActive("/orders/new") === "text-primary-600"
+                      isActive("/order/new") === "text-primary-600"
                         ? "bg-primary-50 text-primary-700"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}

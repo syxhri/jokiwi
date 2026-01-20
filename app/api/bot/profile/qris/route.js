@@ -4,6 +4,30 @@ import { NextResponse } from "next/server";
 import { requireBotUser } from "@/lib/bot.js";
 import { setUserQrisPayload, deleteUserQris } from "@/lib/db.js";
 
+export async function GET(request) {
+  try {
+    const { user, error, status } = await requireBotUser(request);
+    if (error) {
+      return NextResponse.json({ error }, { status });
+    }
+    
+    if (!user.qrisPayload) {
+      return NextResponse.json(
+        { error: "QRIS belum diupload. Silakan upload terlebih dahulu" },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({ qris: user.qrisPayload });
+  } catch (err) {
+    console.error("Gagal memuat QRIS:", err);
+    return NextResponse.json({
+      error: "Gagal memuat QRIS",
+      detail: String(err),
+    }, { status: 500 });
+  }
+}
+
 export async function POST(request) {
   try {
     const { user, error, status } = await requireBotUser(request);

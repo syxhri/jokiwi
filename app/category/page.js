@@ -56,7 +56,7 @@ export default async function CategoriesPage() {
           </p>
         </div>
         <Link
-          href="/orders"
+          href="/order"
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <div className="rounded-2xl bg-white p-4 shadow-sm">

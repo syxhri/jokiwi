@@ -74,7 +74,7 @@ export default function OrderTable({
     params.set("sortDir", sortDir);
     if (categoryCode) params.set("categoryCode", String(categoryCode));
 
-    const res = await fetch(`/api/orders?${params.toString()}`, { signal });
+    const res = await fetch(`/api/order?${params.toString()}`, { signal });
     if (!res.ok) return;
 
     const data = await res.json();
@@ -93,7 +93,7 @@ export default function OrderTable({
     const ok = window.confirm("Yakin mau menghapus orderan ini?");
     if (!ok) return;
     try {
-      const res = await fetch(`/api/orders/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/order/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) {
         alert(data.error || "Gagal menghapus orderan");
@@ -116,7 +116,7 @@ export default function OrderTable({
       error: "",
     });
     try {
-      const res = await fetch(`/api/orders/${order.orderCode}/qris`);
+      const res = await fetch(`/api/order/${order.orderCode}/qris`);
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setQrisModal((prev) => ({
@@ -315,7 +315,7 @@ export default function OrderTable({
             </div>
         
             <Link
-              href={categoryCode ? `/orders/new?category=${encodeURIComponent(categoryCode)}` : "/orders/new"}
+              href={categoryCode ? `/order/new?category=${encodeURIComponent(categoryCode)}` : "/order/new"}
               className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-white shadow hover:bg-primary-700"
               aria-label="Tambah orderan"
             >
@@ -450,7 +450,7 @@ export default function OrderTable({
                     <td className="px-4 py-3 text-xs text-left">
                       <div className="flex items-center justify-end gap-3 whitespace-nowrap">
                         <Link
-                          href={`/orders/${order.orderCode}/edit`}
+                          href={`/order/${order.orderCode}/edit`}
                           className="text-primary-600 hover:text-primary-800"
                         >
                           Edit
