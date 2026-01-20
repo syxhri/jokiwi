@@ -212,16 +212,6 @@ export default function OrderTable({
         </div>
       </div>
 
-      <div className="flex justify-start">
-        <Link href={{
-          pathname: "/orders/new",
-          query: { category: categoryCode },
-        }}
-          className="btn btn-primary">
-          Tambah Orderan
-        </Link>
-      </div>
-
       {/* Search + toggle filter */}
       <div className="rounded-2xl bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -468,7 +458,7 @@ export default function OrderTable({
                   <div className="flex justify-center">
                     <a
                       href={qrisModal.dataUrl}
-                      download={`qris-${qrisModal.categoryCode || "order"}-${qrisModal.orderCode}.png`}
+                      download={`QRIS_${qrisModal.categoryCode || "ORDER"}_${qrisModal.orderCode}.png`}
                       className="btn btn-primary w-full text-center"
                     >
                       Download

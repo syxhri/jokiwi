@@ -160,7 +160,9 @@ export default function CategoryTable({ categoriesWithStats }) {
               </div>
             </div>
           )}
+        </div>
       
+        <div className="overflow-x-auto rounded-2xl">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
