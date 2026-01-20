@@ -616,7 +616,7 @@ export default function OrderTable({
                 )}
               </div>
 
-              <div className="mt-4 border-t border-dashed border-gray-300 pt-3 text-xs text-gray-500">
+              <div className="mt-4 border-t border-dashed border-gray-300 text-xs text-gray-500">
                 <p>
                   {new Date().toLocaleString("id-ID", {
                     day: "2-digit",
@@ -624,9 +624,8 @@ export default function OrderTable({
                     year: "numeric",
                     hour: "2-digit",
                     minute: "2-digit",
-                  })}
+                  })} | Order ID: {receiptModal.order.orderCode || "-"}
                 </p>
-                <p>Order ID: {receiptModal.order.orderCode || "-"}</p>
               </div>
 
               <div className="mt-4 border-t border-dashed border-gray-300 pt-3 text-[11px] text-gray-500">
