@@ -503,7 +503,7 @@ export default function OrderTable({
                   <div className="flex justify-center">
                     <a
                       href={qrisModal.dataUrl}
-                      download={`QRIS_${qrisModal.categoryCode || "ORDER"}_${qrisModal.orderCode}.png`}
+                      download={`QRIS_${qrisModal.orderCode || "ORDER"}.png`}
                       className="btn btn-primary w-full text-center"
                     >
                       Download
@@ -540,19 +540,6 @@ export default function OrderTable({
               >
                 Tutup
               </button>
-            </div>
-
-            <div className="mt-1 text-xs text-gray-500">
-              <p>
-                {new Date().toLocaleString("id-ID", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-              <p>Order ID: {receiptModal.order.orderCode || "-"}</p>
             </div>
 
             {/* Isi struk yang akan dirender jadi PNG/PDF */}
@@ -627,6 +614,19 @@ export default function OrderTable({
                     </p>
                   </div>
                 )}
+              </div>
+
+              <div className="mt-4 border-t border-dashed border-gray-300 pt-3 text-xs text-gray-500">
+                <p>
+                  {new Date().toLocaleString("id-ID", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+                <p>Order ID: {receiptModal.order.orderCode || "-"}</p>
               </div>
 
               <div className="mt-4 border-t border-dashed border-gray-300 pt-3 text-[11px] text-gray-500">
