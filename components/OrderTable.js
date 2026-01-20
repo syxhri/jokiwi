@@ -306,7 +306,7 @@ export default function OrderTable({
             </div>
         
             <Link
-              href="/orders/new"
+              href={categoryCode ? `/orders/new?category=${encodeURIComponent(categoryCode)}` : "/orders/new"}
               className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-white shadow hover:bg-primary-700"
               aria-label="Tambah orderan"
             >
@@ -573,11 +573,7 @@ export default function OrderTable({
             </div>
 
             {/* Isi struk yang akan dirender jadi PNG/PDF */}
-            <div
-              ref={receiptRef}
-            >
-              <ReceiptCard order={receiptModal.order} ref={receiptRef} />
-            </div>
+            <ReceiptCard order={receiptModal.order} ref={receiptRef} />
 
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
               <button
