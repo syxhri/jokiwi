@@ -3,7 +3,10 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { requireBotUser } from "@/lib/bot.js";
 import chromium from "@sparticuz/chromium";
-import puppeteer from "puppeteer-core";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const puppeteer = require("puppeteer-core/lib/cjs/puppeteer/puppeteer-core.js");
 
 async function getBrowser() {
   const isVercel = !!process.env.VERCEL;
