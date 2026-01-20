@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { requireAuth } from "../../../lib/auth.js";
-import { findOrder } from "../../../lib/db.js";
-import OrderForm from "../../../components/OrderForm";
+import { requireAuth } from "../../../../lib/auth.js";
+import { findOrder } from "../../../../lib/db.js";
+import OrderForm from "../../../../components/OrderForm";
 
 export const metadata = {
   title: "Jokiwi - Edit Orderan",
