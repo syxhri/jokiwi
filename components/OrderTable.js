@@ -248,7 +248,7 @@ export default function OrderTable({
       {/* Search + toggle filter */}
       <div className="rounded-2xl bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="w-full md:max-w-md flex items-end gap-2">
+          <div className="w-full flex items-end gap-2">
             <div className="flex-1">
               <label className="label">Pencarian</label>
               <div className="relative">
@@ -285,10 +285,18 @@ export default function OrderTable({
         
             <Link
               href="/orders/new"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-white text-xl leading-none shadow hover:bg-primary-700"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-white shadow hover:bg-primary-700"
               aria-label="Tambah orderan"
             >
-              +
+              <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5">
+                <path
+                  d="M10 4v12M4 10h12"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </Link>
           </div>
         </div>
@@ -511,7 +519,7 @@ export default function OrderTable({
       {/* Struk Modal */}
       {receiptModal.open && receiptModal.order && (
         <div
-          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center bg-black/40 px-4"
+          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center shadow-3xl px-4"
           onClick={closeReceiptModal}
         >
           <div
