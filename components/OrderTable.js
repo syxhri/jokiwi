@@ -544,14 +544,14 @@ export default function OrderTable({
       
       {/* Struk Modal */}
       {receiptModal.open && receiptModal.order && (
-        {/*<div
-          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center shadow-3xl px-4"
-          onClick={closeReceiptModal}
-        >*/}
         <div
           className="fixed inset-0 z-[9999] overflow-y-auto flex items-center justify-center bg-black/40 px-4"
           onClick={closeReceiptModal}
         >
+        {/*<div
+          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center shadow-3xl px-4"
+          onClick={closeReceiptModal}
+        >*/}
           <div
             className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl"
             onClick={(e) => e.stopPropagation()}

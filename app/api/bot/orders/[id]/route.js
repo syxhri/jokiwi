@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { requireBotUser } from "@/lib/bot.js";
 import { findOrder, updateOrder, deleteOrder } from "@/lib/db.js";
 
-function parseIds(params) {
+async function parseIds(params) {
   const id = params.id;
   const { user, error, status } = await requireBotUser(request);
   return { id, userId: error ? null : user.id };
@@ -12,7 +12,7 @@ function parseIds(params) {
 
 export async function GET(_req, { params }) {
   try {
-    const { id, userId } = parseIds(params);
+    const { id, userId } = await parseIds(params);
     if (!userId) {
       return NextResponse.json({ error: "Silakan login terlebih dahulu" }, { status: 401 });
     }
@@ -39,7 +39,7 @@ export async function GET(_req, { params }) {
 
 export async function PUT(request, { params }) {
   try {
-    const { id, userId } = parseIds(params);
+    const { id, userId } = await parseIds(params);
     if (!userId) {
       return NextResponse.json({ error: "Silakan login terlebih dahulu" }, { status: 401 });
     }
@@ -67,7 +67,7 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(_req, { params }) {
   try {
-    const { id, userId } = parseIds(params);
+    const { id, userId } = await parseIds(params);
     if (!userId) {
       return NextResponse.json({ error: "Silakan login terlebih dahulu" }, { status: 401 });
     }

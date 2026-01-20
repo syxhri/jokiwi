@@ -25,7 +25,6 @@ export async function GET(_req, { params }) {
       return NextResponse.json({ error: "Orderan tidak ditemukan" }, { status: 404 });
     }
 
-    const user = await findUserByCode(user.userCode);
     const qris = user?.qrisPayload;
     if (!qris) {
       return NextResponse.json(

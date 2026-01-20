@@ -19,7 +19,7 @@ export async function GET(request) {
     const sortBy = searchParams.get("sortBy") || "assigned_date";
     const sortDir = searchParams.get("sortDir") || "desc";
     const orders = await filterOrders({
-      user.id,
+      userId: user.id,
       search,
       isDone,
       isPaid,
