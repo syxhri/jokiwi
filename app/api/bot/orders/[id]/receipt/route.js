@@ -84,7 +84,6 @@ export async function GET(req, { params }) {
     wrapper.style.minHeight = "100vh";
     wrapper.style.display = "flex";
     wrapper.style.alignItems = "center";
-    wrapper.style.justContent = "center";
     wrapper.style.justifyContent = "center";
     wrapper.style.background = "#f3f4f6";
   
@@ -96,8 +95,6 @@ export async function GET(req, { params }) {
   if (format === "pdf") {
     buf = await page.pdf({
       printBackground: true,
-      width: "1000px",
-      height: "1000px",
       margin: { top: "32px", right: "32px", bottom: "32px", left: "32px" },
     });
   } else {

@@ -21,17 +21,19 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `${order.category_name} - ${order.task_name}`,
-    description: `Rp ${order.price} | ${order.is_done ? "Selesai" : "Belum Selesai"}`,
+    description: `Rp ${order.price} | ${
+      order.is_done ? "Selesai" : "Belum Selesai"
+    }`,
   };
 }
 
-export default async function ReceiptPrintPage({ params, searchParams }) {
-  const { user, id, order } = await getData(params);
+export default async function ReceiptPrintPage({ params }) {
+  const { order } = await getData(params);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex justify-center bg-gray-100">
       <div
-        className="w-full max-w-md px-4"
+        className="w-full max-w-md px-4 py-4"
         data-receipt-root
       >
         {order ? (

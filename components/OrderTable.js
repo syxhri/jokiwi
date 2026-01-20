@@ -169,45 +169,47 @@ export default function OrderTable({
     if (!receiptRef.current || !receiptModal.order) return;
     try {
       const canvas = await html2canvas(receiptRef.current, {
-        scale: 3,
+        scale: 2,
       });
       const imgData = canvas.toDataURL("image/png");
   
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgProps = pdf.getImageProperties(imgData);
   
-      const pdf = new jsPDF("p", "pt", [canvasWidth, canvasHeight]);
+      const ratio = Math.min(
+        pageWidth / imgProps.width,
+        pageHeight / imgProps.height
+      );
   
-      pdf.addImage(imgData, "PNG", 0, 0, canvasWidth, canvasHeight);
+      const imgWidth = imgProps.width * ratio;
+      const imgHeight = imgProps.height * ratio;
+      const x = (pageWidth - imgWidth) / 2;
+      const y = (pageHeight - imgHeight) / 2;
+  
+      pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
       pdf.save(`Receipt_${receiptModal.order.orderCode || "ORDER"}.pdf`);
     } catch (err) {
       console.error(err);
-      alert("Gagal membuat PDF struk");
+      alert("Gagal membuat struk PDF");
     }
   }
 
   // async function handleReceiptDownloadPdf() {
     // if (!receiptRef.current || !receiptModal.order) return;
     // try {
-      // const canvas = await html2canvas(receiptRef.current);
+      // const canvas = await html2canvas(receiptRef.current, {
+        // scale: 3,
+      // });
       // const imgData = canvas.toDataURL("image/png");
-
-      // const pdf = new jsPDF("p", "mm", "a4");
-      // const pageWidth = pdf.internal.pageSize.getWidth();
-      // const pageHeight = pdf.internal.pageSize.getHeight();
-      // const imgProps = pdf.getImageProperties(imgData);
-
-      // const ratio = Math.min(
-        // pageWidth / imgProps.width,
-        // pageHeight / imgProps.height
-      // );
-
-      // const imgWidth = imgProps.width * ratio;
-      // const imgHeight = imgProps.height * ratio;
-      // const x = (pageWidth - imgWidth) / 2;
-      // const y = 20;
-
-      // pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
+  
+      // const canvasWidth = canvas.width;
+      // const canvasHeight = canvas.height;
+  
+      // const pdf = new jsPDF("p", "pt", [canvasWidth, canvasHeight]);
+  
+      // pdf.addImage(imgData, "PNG", 0, 0, canvasWidth, canvasHeight);
       // pdf.save(`Receipt_${receiptModal.order.orderCode || "ORDER"}.pdf`);
     // } catch (err) {
       // console.error(err);
@@ -591,6 +593,7 @@ export default function OrderTable({
               <ReceiptCard
                 order={receiptModal.order}
                 ref={receiptRef}
+                className="mt-4"
                 data-receipt-root
               />
         

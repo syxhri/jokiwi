@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 
-const ReceiptCard = forwardRef(function ReceiptCard({ order, ...props }, ref) {
+const ReceiptCard = forwardRef(function ReceiptCard({ order, className = "", ...props }, ref) {
   function formatDate(value) {
     if (!value) return "-";
     const d = new Date(value);
@@ -16,7 +16,7 @@ const ReceiptCard = forwardRef(function ReceiptCard({ order, ...props }, ref) {
     <div
       ref={ref}
       {...props}
-      className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800"
+      className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800 shadow-3xl"
     >
       <div className="flex items-center justify-between gap-3 border-b border-dashed border-gray-300 pb-3">
         <div>
