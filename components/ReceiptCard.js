@@ -88,11 +88,11 @@ const ReceiptCard = forwardRef(function ReceiptCard({ order }, ref) {
             hour: "2-digit",
             minute: "2-digit",
           })}{" "}
-          | Order ID: {order.orderCode || "-"}
+          | ID: #{order.orderCode || "-"}
         </p>
       </div>
 
-      <div className="mt-2 border-t border-dashed border-gray-300 pt-3 text-[11px] text-gray-500">
+      <div className="mt-4 border-t border-dashed border-gray-300 pt-3 text-[11px] text-gray-500">
         <p>Terima kasih sudah menggunakan jasa Jokiwi 🎓</p>
         <p>
           Struk ini dibuat secara otomatis dari{" "}
