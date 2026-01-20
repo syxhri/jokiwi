@@ -2,8 +2,7 @@ export const runtime = "nodejs";
 
 import { findOrder } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
-import { ReceiptCard } from "@/components/ReceiptCard";
-
+import ReceiptCard from "@/components/ReceiptCard";
 
 async function getData(params) {
   const user = await requireAuth();
