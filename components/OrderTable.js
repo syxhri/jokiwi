@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import StatusBadge from "./StatusBadge";
 import QRISLogo from "./QRISLogo";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 export default function OrderTable({
   initialOrders,
@@ -27,6 +29,12 @@ export default function OrderTable({
     dataUrl: "",
     error: "",
   });
+  const [receiptModal, setReceiptModal] = useState({
+    open: false,
+    order: null,
+  });
+
+  const receiptRef = useRef(null);
 
   const hasData = useMemo(() => orders && orders.length > 0, [orders]);
 
@@ -123,39 +131,57 @@ export default function OrderTable({
     }
   }
 
-  async function handleMakeReceipt(order) {
-    // setQrisModal({
-      // open: true,
-      // loading: true,
-      // categoryCode: order.categoryCode,
-      // orderCode: order.orderCode,
-      // dataUrl: "",
-      // error: "",
-    // });
-    // try {
-      // const res = await fetch(`/api/orders/${order.orderCode}/qris`);
-      // const data = await res.json().catch(() => ({}));
-      // if (!res.ok) {
-        // setQrisModal((prev) => ({
-          // ...prev,
-          // loading: false,
-          // error: data.error || "Gagal membuat QRIS",
-        // }));
-        // return;
-      // }
-      // setQrisModal((prev) => ({
-        // ...prev,
-        // loading: false,
-        // dataUrl: data.dataUrl || "",
-        // error: "",
-      // }));
-    // } catch {
-      // setQrisModal((prev) => ({
-        // ...prev,
-        // loading: false,
-        // error: "Gagal membuat QRIS",
-      // }));
-    // }
+  function handleMakeReceipt(order) {
+    setReceiptModal({
+      open: true,
+      order,
+    });
+  }
+
+  async function handleReceiptDownloadPng() {
+    if (!receiptRef.current || !receiptModal.order) return;
+    try {
+      const canvas = await html2canvas(receiptRef.current);
+      const dataUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `Receipt_${receiptModal.order.orderCode || "ORDER"}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal membuat gambar PNG struk");
+    }
+  }
+
+  async function handleReceiptDownloadPdf() {
+    if (!receiptRef.current || !receiptModal.order) return;
+    try {
+      const canvas = await html2canvas(receiptRef.current);
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgProps = pdf.getImageProperties(imgData);
+
+      const ratio = Math.min(
+        pageWidth / imgProps.width,
+        pageHeight / imgProps.height
+      );
+
+      const imgWidth = imgProps.width * ratio;
+      const imgHeight = imgProps.height * ratio;
+      const x = (pageWidth - imgWidth) / 2;
+      const y = 20;
+
+      pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
+      pdf.save(`Receipt_${receiptModal.order.orderCode || "ORDER"}.pdf`);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal membuat PDF struk");
+    }
   }
 
   function closeQrisModal() {
@@ -166,6 +192,13 @@ export default function OrderTable({
       orderCode: null,
       dataUrl: "",
       error: "",
+    });
+  }
+
+  function closeReceiptModal() {
+    setReceiptModal({
+      open: false,
+      order: null,
     });
   }
 
@@ -215,43 +248,47 @@ export default function OrderTable({
       {/* Search + toggle filter */}
       <div className="rounded-2xl bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="w-full md:max-w-md">
-            <label className="label">Pencarian</label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Cari nama client atau tugas"
-                className="input pr-10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <button
-                type="button"
-                onClick={() => setShowFilters((v) => !v)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
-                aria-label="Buka filter dan sort"
-              >
-                <svg
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                  fill="none"
-                  className="h-4 w-4"
+          <div className="w-full md:max-w-md flex items-end gap-2">
+            <div className="flex-1">
+              <label className="label">Pencarian</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Cari nama client atau tugas"
+                  className="input pr-10"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowFilters((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                  aria-label="Buka filter dan sort"
                 >
-                  <path
-                    d="M3 5h14M6 10h8M8 15h4"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                    fill="none"
+                    className="h-4 w-4"
+                  >
+                    <path
+                      d="M3 5h14M6 10h8M8 15h4"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
-          </div>
-      
-          <div className="flex justify-start md:justify-end">
-            <Link href="/orders/new" className="btn btn-primary">
-              Tambah Orderan
+        
+            <Link
+              href="/orders/new"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-white text-xl leading-none shadow hover:bg-primary-700"
+              aria-label="Tambah orderan"
+            >
+              +
             </Link>
           </div>
         </div>
@@ -466,6 +503,145 @@ export default function OrderTable({
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Struk Modal */}
+      {receiptModal.open && receiptModal.order && (
+        <div
+          className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center bg-black/40 px-4"
+          onClick={closeReceiptModal}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-primary-600">
+                  STRUK PEMBAYARAN
+                </p>
+                <h3 className="text-lg font-bold text-gray-900">Jokiwi</h3>
+              </div>
+              <button
+                type="button"
+                onClick={closeReceiptModal}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                Tutup
+              </button>
+            </div>
+
+            <div className="mt-1 text-xs text-gray-500">
+              <p>
+                {new Date().toLocaleString("id-ID", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+              <p>Order ID: {receiptModal.order.orderCode || "-"}</p>
+            </div>
+
+            {/* Isi struk yang akan dirender jadi PNG/PDF */}
+            <div
+              ref={receiptRef}
+              className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800"
+            >
+              <div className="flex items-center justify-between gap-3 border-b border-dashed border-gray-300 pb-3">
+                <div>
+                  <p className="text-xs font-semibold text-gray-500">
+                    Client
+                  </p>
+                  <p className="text-base font-semibold text-gray-900">
+                    {receiptModal.order.client_name || "-"}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-semibold text-gray-500">
+                    Total
+                  </p>
+                  <p className="text-base font-bold text-emerald-600">
+                    Rp{" "}
+                    {Number(
+                      receiptModal.order.price || 0
+                    ).toLocaleString("id-ID")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Tugas</span>
+                  <span className="font-medium text-gray-900">
+                    {receiptModal.order.task_name || "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Kategori</span>
+                  <span className="font-medium text-gray-900">
+                    {receiptModal.order.category_name || "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Tanggal Disuruh</span>
+                  <span className="font-medium text-gray-900">
+                    {formatDate(receiptModal.order.assigned_date)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Deadline</span>
+                  <span className="font-medium text-gray-900">
+                    {formatDate(receiptModal.order.deadline_date)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Status Pengerjaan</span>
+                  <span className="font-medium text-gray-900">
+                    {receiptModal.order.is_done ? "Selesai" : "Belum Selesai"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Status Pembayaran</span>
+                  <span className="font-medium text-emerald-700">
+                    {receiptModal.order.is_paid ? "Lunas" : "Belum Lunas"}
+                  </span>
+                </div>
+                {receiptModal.order.notes && (
+                  <div className="mt-2">
+                    <p className="text-gray-500">Catatan</p>
+                    <p className="whitespace-pre-line text-gray-800">
+                      {receiptModal.order.notes}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-4 border-t border-dashed border-gray-300 pt-3 text-[11px] text-gray-500">
+                <p>Terima kasih sudah menggunakan jasa Jokiwi 🎓</p>
+                <p>Struk ini dibuat secara otomatis dari <a href="https://jokiwi.app/" className="text-primary-600 hover:text-primary-800 whitespace-nowrap">jokiwi.app</a>.</p>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
+              <button
+                type="button"
+                onClick={handleReceiptDownloadPdf}
+                className="btn btn-secondary w-full sm:w-auto"
+              >
+                Download PDF
+              </button>
+              <button
+                type="button"
+                onClick={handleReceiptDownloadPng}
+                className="btn btn-primary w-full sm:w-auto"
+              >
+                Download PNG
+              </button>
             </div>
           </div>
         </div>
