@@ -1,6 +1,9 @@
 import { forwardRef } from "react";
 
-const ReceiptCard = forwardRef(function ReceiptCard({ order, className = "", ...props }, ref) {
+const ReceiptCard = forwardRef(function ReceiptCard(
+  { order, variant = "default", className = "", ...props },
+  ref
+) {
   function formatDate(value) {
     if (!value) return "-";
     const d = new Date(value);
@@ -12,11 +15,16 @@ const ReceiptCard = forwardRef(function ReceiptCard({ order, className = "", ...
     });
   }
 
+  const frameClass =
+    variant === "plain"
+      ? "bg-white"
+      : "rounded-xl border border-gray-200 bg-gray-50";
+
   return (
     <div
       ref={ref}
       {...props}
-      className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800"
+      className={`${frameClass} p-4 text-sm text-gray-800 ${className}`}
     >
       <div className="flex items-center justify-between gap-3 border-b border-dashed border-gray-300 pb-3">
         <div>
@@ -73,9 +81,7 @@ const ReceiptCard = forwardRef(function ReceiptCard({ order, className = "", ...
         {order.notes && (
           <div className="mt-2">
             <p className="text-gray-500">Catatan</p>
-            <p className="whitespace-pre-line text-gray-800">
-              {order.notes}
-            </p>
+            <p className="whitespace-pre-line text-gray-800">{order.notes}</p>
           </div>
         )}
       </div>
@@ -104,7 +110,8 @@ const ReceiptCard = forwardRef(function ReceiptCard({ order, className = "", ...
             className="text-primary-600 hover:text-primary-800 whitespace-nowrap"
           >
             jokiwi.app
-          </a>.
+          </a>
+          .
         </p>
       </div>
     </div>

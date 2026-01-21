@@ -37,7 +37,7 @@ export default async function ReceiptPrintPage({ params }) {
         data-receipt-root
       >
         {order ? (
-          <ReceiptCard order={order} />
+          <ReceiptCard order={order} variant="plain" />
         ) : (
           <p>Orderan tidak ditemukan.</p>
         )}

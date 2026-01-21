@@ -74,28 +74,35 @@ export async function GET(req, { params }) {
   await page.evaluate(() => {
     const receipt = document.querySelector("[data-receipt-root]");
     if (!receipt) return;
-  
+
     const cloned = receipt.cloneNode(true);
-  
+
     document.body.innerHTML = "";
     document.body.style.margin = "0";
-  
+
     const wrapper = document.createElement("div");
     wrapper.style.minHeight = "100vh";
     wrapper.style.display = "flex";
     wrapper.style.alignItems = "center";
     wrapper.style.justifyContent = "center";
     wrapper.style.background = "#f3f4f6";
-  
+
     wrapper.appendChild(cloned);
     document.body.appendChild(wrapper);
+  });
+
+  const rect = await page.$eval("[data-receipt-root]", (el) => {
+    const r = el.getBoundingClientRect();
+    return { width: r.width, height: r.height };
   });
 
   let buf;
   if (format === "pdf") {
     buf = await page.pdf({
       printBackground: true,
-      margin: { top: "32px", right: "32px", bottom: "32px", left: "32px" },
+      width: `${rect.width}px`,
+      height: `${rect.height}px`,
+      margin: { top: "0px", right: "0px", bottom: "0px", left: "0px" },
     });
   } else {
     const receiptHandle = await page.$("[data-receipt-root]");

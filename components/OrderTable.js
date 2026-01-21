@@ -169,26 +169,13 @@ export default function OrderTable({
     if (!receiptRef.current || !receiptModal.order) return;
     try {
       const canvas = await html2canvas(receiptRef.current, {
-        scale: 2,
+        scale: 3,
       });
       const imgData = canvas.toDataURL("image/png");
   
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgProps = pdf.getImageProperties(imgData);
+      const pdf = new jsPDF("p", "pt", [canvas.width, canvas.height]);
   
-      const ratio = Math.min(
-        pageWidth / imgProps.width,
-        pageHeight / imgProps.height
-      );
-  
-      const imgWidth = imgProps.width * ratio;
-      const imgHeight = imgProps.height * ratio;
-      const x = (pageWidth - imgWidth) / 2;
-      const y = (pageHeight - imgHeight) / 2;
-  
-      pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
       pdf.save(`Receipt_${receiptModal.order.orderCode || "ORDER"}.pdf`);
     } catch (err) {
       console.error(err);
