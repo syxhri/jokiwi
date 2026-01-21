@@ -17,7 +17,7 @@ const ReceiptCard = forwardRef(function ReceiptCard(
 
   const frameClass =
     variant === "plain"
-      ? "bg-white"
+      ? ""
       : "rounded-xl border border-gray-200 bg-gray-50";
 
   return (

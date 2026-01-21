@@ -31,9 +31,9 @@ export default async function ReceiptPrintPage({ params }) {
   const { order } = await getData(params);
 
   return (
-    <div className="min-h-screen flex justify-center bg-gray-100">
+    <div className="min-h-screen flex justify-center">
       <div
-        className="w-full max-w-md px-4 py-4"
+        className="w-full max-w-md px-2 py-2"
         data-receipt-root
       >
         {order ? (
