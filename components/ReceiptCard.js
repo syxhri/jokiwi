@@ -86,7 +86,7 @@ const ReceiptCard = forwardRef(function ReceiptCard(
         )}
       </div>
 
-      <div className="mt-4 border-t border-dashed border-gray-300 py-3">
+      <div className="mt-4 border-y border-dashed border-gray-300 py-3">
         <p className="text-center text-xs text-gray-500 leading-[1.4]">
           {new Date().toLocaleString("id-ID", {
             day: "2-digit",
@@ -99,7 +99,7 @@ const ReceiptCard = forwardRef(function ReceiptCard(
         </p>
       </div>
 
-      <div className="mt-0 border-t border-dashed border-gray-300 py-3 text-[11px] text-gray-500">
+      <div className="pt-3 text-[11px] text-gray-500">
         <p className="text-center leading-[1.4]">
           Terima kasih sudah menggunakan jasa Jokiwi 🎓
         </p>
@@ -110,8 +110,7 @@ const ReceiptCard = forwardRef(function ReceiptCard(
             className="text-primary-600 hover:text-primary-800 whitespace-nowrap"
           >
             jokiwi.app
-          </a>
-          .
+          </a>.
         </p>
       </div>
     </div>

@@ -577,7 +577,7 @@ export default function OrderTable({
               </div>
         
               {/* Isi struk yang akan dirender jadi PNG/PDF */}
-              <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50" data-receipt-root>
+              <div className="rounded-xl border border-gray-200 bg-gray-50" data-receipt-root>
                 <ReceiptCard
                   order={receiptModal.order}
                   ref={receiptRef}
