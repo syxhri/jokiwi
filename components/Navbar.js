@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
+import ThemeToggle from "./ThemeToggle";
 import LogoIcon from "./LogoIcon";
 
 export default function Navbar() {
@@ -112,6 +113,14 @@ export default function Navbar() {
           {/* Nav utama (desktop) */}
           <nav className="hidden items-center gap-4 text-sm font-medium md:flex">
             <Link
+              href="/"
+              className={`${isActive(
+                "/"
+              )} hover:text-gray-900 whitespace-nowrap`}
+            >
+              Home
+            </Link>
+            <Link
               href="/order"
               className={`${isActive(
                 "/order"
@@ -141,6 +150,7 @@ export default function Navbar() {
 
           {/* Kanan: auth / akun */}
           <div className="relative flex items-center gap-3 text-sm whitespace-nowrap">
+            <ThemeToggle />
             {loadingUser ? (
               <div className="h-8 w-20 rounded-full bg-gray-100" />
             ) : user ? (
@@ -240,6 +250,17 @@ export default function Navbar() {
               </button>
             </div>
             <nav className="flex flex-col gap-1 px-4 py-3 text-sm font-medium">
+            <Link
+              href="/"
+              className={`rounded-lg px-3 py-2 ${
+                isActive("/") === "text-primary-600"
+                  ? "bg-primary-50 text-primary-700"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+              onClick={() => setDrawerOpen(false)}
+            >
+              Home
+            </Link>
 
             {user && (
               <>

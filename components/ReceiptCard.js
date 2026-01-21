@@ -86,19 +86,17 @@ const ReceiptCard = forwardRef(function ReceiptCard(
         )}
       </div>
 
-      <div className="mt-4 border-y border-dashed border-gray-300">
-        <div className="flex h-10 items-center justify-center px-2">
-          <p className="text-center text-xs text-gray-500 leading-none">
-            {new Date().toLocaleString("id-ID", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}{" "}
-            | ID: #{order.orderCode || "-"}
-          </p>
-        </div>
+      <div className="mt-4 border-y border-dashed border-gray-300 py-3">
+        <p className="text-center text-xs text-gray-500 leading-[1.4]">
+          {new Date().toLocaleString("id-ID", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}{" "}
+          | ID: #{order.orderCode || "-"}
+        </p>
       </div>
 
       <div className="pt-3 text-[11px] text-gray-500">
