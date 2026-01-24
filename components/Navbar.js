@@ -58,7 +58,7 @@ export default function Navbar() {
       setUser(null);
       setAccountOpen(false);
       setDrawerOpen(false);
-      router.push("/login");
+      router.push("/");
       router.refresh?.();
     } catch {}
   }
