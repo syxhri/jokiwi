@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { requireAuth } from "@/lib/auth.js";
 
 export const metadata = {
   title: "Jokiwi - Joki with Izee",
@@ -6,7 +7,9 @@ export const metadata = {
     "Catat dan kelola jokian mu dengan mudah di sini.",
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await requireAuth();
+
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       <section className="relative overflow-hidden rounded-3xl border border-gray-100 bg-gradient-to-br from-primary-50/80 via-white to-sky-50 px-6 py-10 shadow-sm sm:px-10 sm:py-14 animate-fade-in-up dark:from-primary-900/40 dark:via-slate-950 dark:to-slate-900 dark:border-slate-800">
@@ -32,14 +35,14 @@ export default function HomePage() {
 
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/order"
+              href={user ? "/order" : "/login"}
               className="btn btn-primary flex items-center gap-2"
             >
-              Buka dashboard
+              {user ? "Buka dashboard" : "Login"}
               <span className="text-xs">↗</span>
             </Link>
-            <Link href="/category" className="btn btn-secondary">
-              Lihat per kategori
+            <Link href={user ? "/category" : "/register"} className="btn btn-secondary">
+              {user ? "Lihat per kategori" : "Register"}
             </Link>
           </div>
 
