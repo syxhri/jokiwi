@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireAuth } from "@/lib/auth.js";
+import { getCurrentUser } from "@/lib/auth.js";
 
 export const metadata = {
   title: "Jokiwi - Joki with Izee",
@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const user = await requireAuth();
+  const user = await getCurrentUser();
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
