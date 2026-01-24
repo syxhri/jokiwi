@@ -4,12 +4,20 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function LoginPage() {
+function safeNext(next) {
+  if (!next) return "/";
+  if (next.startsWith("/") && !next.startsWith("//")) return next;
+  return "/";
+}
+
+export default function LoginPage({ next }) {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const authQuery = next ? `?next=${encodeURIComponent(next)}` : "";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,7 +35,7 @@ export default function LoginPage() {
         body: JSON.stringify(form),
       });
       if (res.ok) {
-        router.push("/");
+        router.replace(safeNext(next));
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
@@ -129,7 +137,7 @@ export default function LoginPage() {
       <p className="mt-4 text-sm text-center">
         Belum punya akun?{" "}
         <Link
-          href="/register"
+          href={`/register${authQuery}`}
           className="text-primary-600 hover:text-primary-800"
         >
           Register

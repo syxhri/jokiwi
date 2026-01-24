@@ -5,6 +5,8 @@ export const metadata = {
   description: "Login ke akun Jokiwi",
 };
 
-export default async function LoginPage() {
-  return <LoginClient />;
+export default async function LoginPage({ searchParams }) {
+  const next = searchParams?.next || "/";
+
+  return <LoginClient next={next} />;
 }

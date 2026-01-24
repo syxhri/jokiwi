@@ -14,7 +14,7 @@ function isAuthPath(pathname) {
 }
 
 export function middleware(req) {
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
 
   if (
     pathname.startsWith("/_next") ||
@@ -41,8 +41,9 @@ export function middleware(req) {
 
   if (!isAuthPath(pathname) && !token) {
     const loginUrl = new URL("/login", req.url);
+    const nextPath = pathname + search;
 
-    loginUrl.searchParams.set("next", pathname);
+    loginUrl.searchParams.set("next", nextPath);
     return NextResponse.redirect(loginUrl);
   }
 

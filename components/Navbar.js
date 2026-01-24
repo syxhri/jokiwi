@@ -2,10 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import ThemeToggle from "./ThemeToggle";
 import LogoIcon from "./LogoIcon";
+
+const searchParams = useSearchParams();
+const next = searchParams.get("next");
+const authQuery = next ? `?next=${encodeURIComponent(next)}` : "";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -199,17 +203,17 @@ export default function Navbar() {
             ) : (
               <>
                 <Link
-                  href="/login"
-                  className={`${isActive("/login")} hover:text-gray-900`}
+                  href={`/login${authQuery}`}
+                  className={`${isActive("/login" + authQuery)} hover:text-gray-900`}
                 >
                   Login
                 </Link>
                 <Link
-                  href="/register"
-                  className={`${isActive("/register")} hover:text-gray-900`}
+                  href={`/register${authQuery}`}
+                  className={`${isActive("/register" + authQuery)} hover:text-gray-900`}
                 >
                 {/* <Link
-                  href="/register"
+                  href={`/register${authQuery}`}
                   className="text-primary-600 hover:text-primary-800"
                 */}
                   Register
@@ -319,9 +323,9 @@ export default function Navbar() {
               ) : (
                 <>
                   <Link
-                    href="/login"
+                    href={`/login${authQuery}`}
                     className={`rounded-lg px-3 py-2 ${
-                      isActive("/login") === "text-primary-600"
+                      isActive("/login" + authQuery) === "text-primary-600"
                         ? "bg-primary-50 text-primary-700"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
@@ -330,9 +334,9 @@ export default function Navbar() {
                     Login
                   </Link>
                   <Link
-                    href="/register"
+                    href={`/register${authQuery}`}
                     className={`rounded-lg px-3 py-2 ${
-                      isActive("/register") === "text-primary-600"
+                      isActive("/register" + authQuery) === "text-primary-600"
                         ? "bg-primary-50 text-primary-700"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}

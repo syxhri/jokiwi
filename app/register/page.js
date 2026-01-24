@@ -5,6 +5,8 @@ export const metadata = {
   description: "Buat akun Jokiwi",
 };
 
-export default async function RegisterPage() {
-  return <RegisterClient />;
+export default async function RegisterPage({ searchParams }) {
+  const next = searchParams?.next || "/";
+
+  return <RegisterClient next={next} />;
 }
