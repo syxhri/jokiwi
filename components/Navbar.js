@@ -150,7 +150,7 @@ export default function Navbar() {
 
           {/* Kanan: auth / akun */}
           <div className="relative flex items-center gap-3 text-sm whitespace-nowrap">
-            <ThemeToggle />
+            {/*<ThemeToggle />*/}
             {loadingUser ? (
               <div className="h-8 w-20 rounded-full bg-gray-100" />
             ) : user ? (

@@ -35,6 +35,10 @@ export function middleware(req) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
+  if (pathname === "/" && !token) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
   if (!isAuthPath(pathname) && !token) {
     const loginUrl = new URL("/login", req.url);
 

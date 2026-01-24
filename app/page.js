@@ -15,7 +15,7 @@ export default function HomePage() {
 
         <div className="relative space-y-6">
           <p className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-primary-700 shadow-sm backdrop-blur dark:bg-slate-900/70">
-            Catat jokianmu, hidup jadi lebih {" "}<s>malas</s>{" "} mudah 🎓
+            Catat jokianmu, hidup jadi lebih <s className="mx-1">malas</s> mudah 🎓
           </p>
 
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-50">
