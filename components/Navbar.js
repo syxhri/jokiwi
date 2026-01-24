@@ -7,9 +7,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 import LogoIcon from "./LogoIcon";
 
-const searchParams = useSearchParams();
-const next = searchParams.get("next");
-const authQuery = next ? `?next=${encodeURIComponent(next)}` : "";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -20,6 +17,9 @@ export default function Navbar() {
 
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
+  const authQuery = next ? `?next=${encodeURIComponent(next)}` : "";
 
   useEffect(() => {
     let ignore = false;
