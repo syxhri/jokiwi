@@ -204,13 +204,13 @@ export default function Navbar() {
               <>
                 <Link
                   href={`/login${authQuery}`}
-                  className={`${isActive("/login" + authQuery)} hover:text-gray-900`}
+                  className={`${isActive("/login")} hover:text-gray-900`}
                 >
                   Login
                 </Link>
                 <Link
                   href={`/register${authQuery}`}
-                  className={`${isActive("/register" + authQuery)} hover:text-gray-900`}
+                  className={`${isActive("/register")} hover:text-gray-900`}
                 >
                 {/* <Link
                   href={`/register${authQuery}`}
@@ -325,7 +325,7 @@ export default function Navbar() {
                   <Link
                     href={`/login${authQuery}`}
                     className={`rounded-lg px-3 py-2 ${
-                      isActive("/login" + authQuery) === "text-primary-600"
+                      isActive("/login") === "text-primary-600"
                         ? "bg-primary-50 text-primary-700"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
@@ -336,7 +336,7 @@ export default function Navbar() {
                   <Link
                     href={`/register${authQuery}`}
                     className={`rounded-lg px-3 py-2 ${
-                      isActive("/register" + authQuery) === "text-primary-600"
+                      isActive("/register") === "text-primary-600"
                         ? "bg-primary-50 text-primary-700"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
