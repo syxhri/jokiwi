@@ -36,7 +36,7 @@ export function middleware(req) {
   }
 
   if (pathname === "/" && !token) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.next();
   }
 
   if (!isAuthPath(pathname) && !token) {

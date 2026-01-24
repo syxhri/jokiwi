@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME, verifyToken } from "@/lib/auth.js";
 import { findOrder, updateOrder, deleteOrder } from "@/lib/db.js";
+import { apiLimiter, getClientIp } from "@/lib/client.js";
 
 function parseIds(params) {
   const id = params.id;
@@ -19,7 +20,16 @@ function parseIds(params) {
   return { id, userId };
 }
 
-export async function GET(_req, { params }) {
+export async function GET(request, { params }) {
+  const ip = getClientIp(request);
+  const { success } = await apiLimiter.limit(ip);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Terlalu banyak request. Coba lagi nanti." },
+      { status: 429 }
+    );
+  }
+  
   try {
     const { id, userId } = parseIds(params);
     if (!userId) {
@@ -43,6 +53,15 @@ export async function GET(_req, { params }) {
 }
 
 export async function PUT(request, { params }) {
+  const ip = getClientIp(request);
+  const { success } = await apiLimiter.limit(ip);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Terlalu banyak request. Coba lagi nanti." },
+      { status: 429 }
+    );
+  }
+  
   try {
     const { id, userId } = parseIds(params);
     if (!userId) {
@@ -66,7 +85,16 @@ export async function PUT(request, { params }) {
   }
 }
 
-export async function DELETE(_req, { params }) {
+export async function DELETE(request, { params }) {
+  const ip = getClientIp(request);
+  const { success } = await apiLimiter.limit(ip);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Terlalu banyak request. Coba lagi nanti." },
+      { status: 429 }
+    );
+  }
+  
   try {
     const { id, userId } = parseIds(params);
     if (!userId) {

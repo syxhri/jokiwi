@@ -5,8 +5,18 @@ import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME, verifyToken } from "@/lib/auth.js";
 import { findOrder, findUserByCode } from "@/lib/db.js";
 import { defGen } from "@/lib/qris.js";
+import { qrisLimiter, getClientIp } from "@/lib/client.js";
 
-export async function GET(_req, { params }) {
+export async function GET(request, { params }) {
+  const ip = getClientIp(request);
+  const { success } = await qrisLimiter.limit(ip);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Terlalu banyak request. Coba lagi nanti." },
+      { status: 429 }
+    );
+  }
+  
   try {
     const token = cookies().get(AUTH_COOKIE_NAME)?.value;
     if (!token)

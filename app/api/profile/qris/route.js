@@ -4,8 +4,18 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME, verifyToken } from "@/lib/auth.js";
 import { setUserQrisPayload, deleteUserQris } from "@/lib/db.js";
+import { apiLimiter, getClientIp } from "@/lib/client.js";
 
 export async function POST(request) {
+  const ip = getClientIp(request);
+  const { success } = await apiLimiter.limit(ip);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Terlalu banyak request. Coba lagi nanti." },
+      { status: 429 }
+    );
+  }
+
   try {
     const token = cookies().get(AUTH_COOKIE_NAME)?.value;
     if (!token)
@@ -35,6 +45,15 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
+  const ip = getClientIp(request);
+  const { success } = await apiLimiter.limit(ip);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Terlalu banyak request. Coba lagi nanti." },
+      { status: 429 }
+    );
+  }
+
   try {
     const token = cookies().get(AUTH_COOKIE_NAME)?.value;
     if (!token)

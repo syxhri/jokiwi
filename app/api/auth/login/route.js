@@ -3,14 +3,31 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { findUserByUsername, verifyUserPassword } from "@/lib/db.js";
 import { AUTH_COOKIE_NAME, signToken } from "@/lib/auth.js";
+import { authLimiter, getClientIp } from "@/lib/client.js";
 
 export async function POST(request) {
+  const ip = getClientIp(request);
+  const { success, reset, remaining } = await authLimiter.limit(ip);
+  if (!success) {
+    const retryAfterSec = Math.max(1, Math.ceil((reset - Date.now()) / 1000));
+    
+    return NextResponse.json(
+      { error: "Terlalu banyak percobaan login. Coba lagi nanti." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(retryAfterSec),
+        },
+      }
+    );
+  }
+  
   try {
     const body = await request.json();
     const { username, password } = body || {};
     if (!username || !password) {
       return NextResponse.json(
-        { error: "Username and password are required" },
+        { error: "Username dan password wajib diisi" },
         { status: 400 }
       );
     }
@@ -18,11 +35,11 @@ export async function POST(request) {
     const ok = await verifyUserPassword(user, password);
     if (!user || !ok) {
       return NextResponse.json(
-        { error: "Invalid username or password" },
+        { error: "Username atau password tidak valid" },
         { status: 401 }
       );
     }
-    const response = NextResponse.json({ message: "Login successful", ...user });
+    const response = NextResponse.json({ message: "Login berhasil", ...user });
     const token = signToken(user.userCode);
     response.cookies.set({
       name: AUTH_COOKIE_NAME,
@@ -36,6 +53,6 @@ export async function POST(request) {
     return response;
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to login" }, { status: 500 });
+    return NextResponse.json({ error: "Login gagal" }, { status: 500 });
   }
 }
