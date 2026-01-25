@@ -2,9 +2,16 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth.js";
 
 export const metadata = {
-  title: "Jokiwi - Joki with Izee",
-  description:
-    "Catat dan kelola jokian mu dengan mudah di sini.",
+  title: "Jokiwi — Joki with Izee",
+  description: "Dashboard sederhana untuk mencatat jokian: client, tugas, harga, status pengerjaan & pembayaran, lengkap dengan struk otomatis (PNG & PDF) serta QRIS generator dan terintegrasi dengan bot WhatsApp.",
+  openGraph: {
+    title: "Jokiwi",
+    description:
+      "Kelola jokian dengan rapi: client, tugas, pembayaran, QRIS, dan struk otomatis.",
+    url: "https://jokiwi.app",
+    siteName: "Jokiwi",
+    type: "website",
+  },
 };
 
 export default async function HomePage() {
