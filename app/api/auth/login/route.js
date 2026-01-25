@@ -24,7 +24,7 @@ export async function POST(request) {
   
   try {
     const body = await request.json();
-    const { username, password } = body || {};
+    let { username, password } = body || {};
     if (!username || !password) {
       return NextResponse.json(
         { error: "Username dan password wajib diisi" },
