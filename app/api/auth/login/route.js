@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { findUserByUsername, verifyUserPassword } from "@/lib/db.js";
-import { AUTH_COOKIE_NAME, signToken } from "@/lib/auth.js";
+import { AUTH_COOKIE_NAME, authValidator, signToken } from "@/lib/auth.js";
 import { authLimiter, getClientIp } from "@/lib/client.js";
 
 export async function POST(request) {
@@ -34,18 +34,21 @@ export async function POST(request) {
     
     username = username.trim();
     password = password.trim();
-    if (username.length < 5) {
+    const validateResult = authValidator({ username, password });
+    if (typeof validateResult === "object" && (Array.isArray(validateResult?.username) || Array.isArray(validateResult?.password))) {
+      let errMsg = null;
+      if (validateResult.username && validateResult.username.length > 0) {
+        errMsg = validateResult.username[0];
+      } else if (validateResult.password && validateResult.password.length > 0) {
+        errMsg = validateResult.password[0];
+      }
+      
       return NextResponse.json(
-        { error: "Username harus terdiri dari minimal 5 karakter" },
+        { error: errMsg },
         { status: 400 }
       );
     }
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: "Password harus terdiri dari minimal 8 karakter" },
-        { status: 400 }
-      );
-    }
+    
     const user = await findUserByUsername(username);
     const ok = await verifyUserPassword(user, password);
     if (!user || !ok) {

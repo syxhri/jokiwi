@@ -25,7 +25,8 @@
     "puppeteer-core": "^24.35.0",
     "qrcode": "^1.5.4",
     "@sparticuz/chromium": "143.0.4",
-    "jsqr": "^1.4.0"
+    "jsqr": "^1.4.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
