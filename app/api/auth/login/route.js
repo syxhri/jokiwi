@@ -51,12 +51,19 @@ export async function POST(request) {
     
     const user = await findUserByUsername(username);
     const ok = await verifyUserPassword(user, password);
-    if (!user || !ok) {
+    if (!user) {
       return NextResponse.json(
-        { error: "Username atau password tidak valid" },
+        { error: "Akun ini tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+    if (!ok) {
+      return NextResponse.json(
+        { error: "Password tidak valid" },
         { status: 401 }
       );
     }
+    
     const response = NextResponse.json({ message: "Login berhasil", ...user });
     const token = signToken(user.userCode);
     response.cookies.set({
