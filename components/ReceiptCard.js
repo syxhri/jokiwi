@@ -68,13 +68,13 @@ const ReceiptCard = forwardRef(function ReceiptCard(
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">Status Pengerjaan</span>
-          <span className="font-medium text-gray-900">
+          <span className={`font-medium ${order.is_done ? "text-emerald-700" : "text-yellow-700"}`}>
             {order.is_done ? "Selesai" : "Belum Selesai"}
           </span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">Status Pembayaran</span>
-          <span className="font-medium text-emerald-700">
+          <span className={`font-medium ${order.is_paid ? "text-blue-700" : "text-red-700"}`}>
             {order.is_paid ? "Lunas" : "Belum Lunas"}
           </span>
         </div>
