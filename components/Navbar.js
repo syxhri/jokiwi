@@ -125,12 +125,28 @@ export default function Navbar() {
               Home
             </Link>
             <Link
+              href="/category"
+              className={`${isActive(
+                "/category"
+              )} hover:text-gray-900 whitespace-nowrap`}
+            >
+              Daftar Kategori
+            </Link>
+            <Link
               href="/order"
               className={`${isActive(
                 "/order"
               )} hover:text-gray-900 whitespace-nowrap`}
             >
               Semua Orderan
+            </Link>
+            <Link
+              href="/category/new"
+              className={`${isActive(
+                "/category/new"
+              )} hover:text-gray-900 whitespace-nowrap`}
+            >
+              Buat Kategori
             </Link>
             <Link
               href="/order/new"
@@ -269,6 +285,17 @@ export default function Navbar() {
             {user && (
               <>
                   <Link
+                    href="/category"
+                    className={`rounded-lg px-3 py-2 ${
+                      isActive("/category") === "text-primary-600"
+                        ? "bg-primary-50 text-primary-700"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    Daftar Kategori
+                  </Link>
+                  <Link
                     href="/order"
                     className={`rounded-lg px-3 py-2 ${
                       isActive("/order") === "text-primary-600"
@@ -278,6 +305,17 @@ export default function Navbar() {
                     onClick={() => setDrawerOpen(false)}
                   >
                     Semua Orderan
+                  </Link>
+                  <Link
+                    href="/category/new"
+                    className={`rounded-lg px-3 py-2 ${
+                      isActive("/category/new") === "text-primary-600"
+                        ? "bg-primary-50 text-primary-700"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    Buat Kategori
                   </Link>
                   <Link
                     href="/order/new"
