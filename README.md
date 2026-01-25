@@ -71,7 +71,7 @@ KV_REST_API_READ_ONLY_TOKEN=
 REDIS_URL=
 ```
 
-Di code cukup pakai:
+Di code cukup pake:
 ```js
 const redis = new Redis({
   url: process.env.KV_REST_API_URL,
@@ -95,11 +95,15 @@ Digunakan buat mencegah abuse:
 
 ## Receipt / Struk
 Halaman print [WIP]:
+```
 /print/receipt/[orderCode]
+```
 
 Bot API (hanya bisa diakses oleh bot):
+```
 /api/bot/order/[orderCode]/receipt?format=png
 /api/bot/order/[orderCode]/receipt?format=pdf
+```
 
 ---
 
