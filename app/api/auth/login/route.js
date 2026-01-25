@@ -31,6 +31,21 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+    
+    username = username.trim();
+    password = password.trim();
+    if (username.length < 5) {
+      return NextResponse.json(
+        { error: "Username harus terdiri dari minimal 5 karakter" },
+        { status: 400 }
+      );
+    }
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "Password harus terdiri dari minimal 8 karakter" },
+        { status: 400 }
+      );
+    }
     const user = await findUserByUsername(username);
     const ok = await verifyUserPassword(user, password);
     if (!user || !ok) {

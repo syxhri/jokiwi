@@ -3,11 +3,11 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { createUser, findUserByUsername } from "@/lib/db.js";
 import { AUTH_COOKIE_NAME, signToken } from "@/lib/auth.js";
-import { authLimiter, getClientIp } from "@/lib/client.js";
+import { customLimiter, getClientIp } from "@/lib/client.js";
 
 export async function POST(request) {
   const ip = getClientIp(request);
-  const { success, reset, remaining } = await authLimiter.limit(ip);
+  const { success, reset, remaining } = await customLimiter(1, "30 m", "rl:auth").limit(ip);
   if (!success) {
     const retryAfterSec = Math.max(1, Math.ceil((reset - Date.now()) / 1000));
     
@@ -28,6 +28,21 @@ export async function POST(request) {
     if (!username || !password) {
       return NextResponse.json(
         { error: "Username dan password wajib diisi" },
+        { status: 400 }
+      );
+    }
+    
+    username = username.trim();
+    password = password.trim();
+    if (username.length < 5) {
+      return NextResponse.json(
+        { error: "Username harus terdiri dari minimal 5 karakter" },
+        { status: 400 }
+      );
+    }
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "Password harus terdiri dari minimal 8 karakter" },
         { status: 400 }
       );
     }
