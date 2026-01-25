@@ -6,22 +6,6 @@ import { AUTH_COOKIE_NAME, authValidator, signToken } from "@/lib/auth.js";
 import { authLimiter, getClientIp } from "@/lib/client.js";
 
 export async function POST(request) {
-  const ip = getClientIp(request);
-  const { success, reset, remaining } = await authLimiter.limit(ip);
-  if (!success) {
-    const retryAfterSec = Math.max(1, Math.ceil((reset - Date.now()) / 1000));
-    
-    return NextResponse.json(
-      { error: "Terlalu banyak percobaan login. Coba lagi nanti." },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(retryAfterSec),
-        },
-      }
-    );
-  }
-  
   try {
     const body = await request.json();
     let { username, password } = body || {};
@@ -32,6 +16,22 @@ export async function POST(request) {
       );
     }
     
+    const ip = getClientIp(request);
+    const { success, reset, remaining } = await authLimiter.limit(ip);
+    if (!success) {
+      const retryAfterSec = Math.max(1, Math.ceil((reset - Date.now()) / 1000));
+      
+      return NextResponse.json(
+        { error: "Terlalu banyak percobaan login. Coba lagi nanti." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(retryAfterSec),
+          },
+        }
+      );
+    }
+  
     username = username.trim();
     password = password.trim();
     const validateResult = authValidator({ username, password });

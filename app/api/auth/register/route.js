@@ -6,22 +6,6 @@ import { AUTH_COOKIE_NAME, authValidator, signToken } from "@/lib/auth.js";
 import { customLimiter, getClientIp } from "@/lib/client.js";
 
 export async function POST(request) {
-  const ip = getClientIp(request);
-  const { success, reset, remaining } = await customLimiter(1, "30 m", "rl:auth").limit(ip);
-  if (!success) {
-    const retryAfterSec = Math.max(1, Math.ceil((reset - Date.now()) / 1000));
-    
-    return NextResponse.json(
-      { error: "Terlalu banyak percobaan register. Coba lagi nanti." },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(retryAfterSec),
-        },
-      }
-    );
-  }
-
   try {
     const body = await request.json();
     let { username, password, name } = body || {};
@@ -46,6 +30,22 @@ export async function POST(request) {
       return NextResponse.json(
         { error: errMsg },
         { status: 400 }
+      );
+    }
+    
+    const ip = getClientIp(request);
+    const { success, reset, remaining } = await customLimiter(1, "30 m", "rl:auth").limit(ip);
+    if (!success) {
+      const retryAfterSec = Math.max(1, Math.ceil((reset - Date.now()) / 1000));
+      
+      return NextResponse.json(
+        { error: "Terlalu banyak percobaan register. Coba lagi nanti." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(retryAfterSec),
+          },
+        }
       );
     }
     
