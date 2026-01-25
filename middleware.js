@@ -20,7 +20,8 @@ export function middleware(req) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/public") ||
-    pathname.startsWith("/images")
+    pathname.startsWith("/images") ||
+    pathname.startsWith("/sitemap.xml")
   ) {
     return NextResponse.next();
   }
