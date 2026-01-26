@@ -21,7 +21,8 @@ export function middleware(req) {
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/public") ||
     pathname.startsWith("/images") ||
-    pathname.startsWith("/sitemap.xml")
+    pathname.startsWith("/sitemap.xml") ||
+    pathname.startsWith("/robots.txt")
   ) {
     return NextResponse.next();
   }
