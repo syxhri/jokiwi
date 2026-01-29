@@ -5,7 +5,7 @@ import { requireBotUser } from "@/lib/bot.js";
 import { findOrder, findUserByCode } from "@/lib/db.js";
 import { defGen } from "@/lib/qris.js";
 
-export async function GET(_req, { params }) {
+export async function GET(request, { params }) {
   try {
     const { user, error, status } = await requireBotUser(request);
     if (error) {
