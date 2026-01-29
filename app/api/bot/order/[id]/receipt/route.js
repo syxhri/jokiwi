@@ -1,36 +1,3 @@
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
-import { requireBotUser } from "@/lib/bot.js";
-import chromium from "@sparticuz/chromium";
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
-const puppeteer = require("puppeteer-core");
-
-async function getBrowser() {
-  const isVercel = !!process.env.VERCEL;
-
-  if (isVercel) {
-    return puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-    });
-  }
-
-  return puppeteer.launch({
-    headless: true,
-  });
-}
-
-function isTruthyParam(value) {
-  if (value == null) return false;
-  const v = String(value).toLowerCase().trim();
-  return v !== "" && v !== "0" && v !== "false" && v !== "no";
-}
-
 export async function GET(req, { params }) {
   const { user, error, status } = await requireBotUser(req);
   if (!user && error && status >= 400) {
