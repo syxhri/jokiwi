@@ -65,11 +65,10 @@ export async function GET(req, { params }) {
   await page.setCookie({
     name: "token",
     value: token,
-    url: origin,
+    domain: hostname,
     path: "/",
     httpOnly: false,
     sameSite: "Lax",
-    secure: origin.startsWith("https://"),
   });
 
   await page.setViewport({
@@ -78,8 +77,8 @@ export async function GET(req, { params }) {
     deviceScaleFactor: 2,
   });
 
-  await page.goto(receiptUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
-  await page.waitForSelector("[data-receipt-root]", { timeout: 60000 });
+  await page.goto(receiptUrl, { waitUntil: "networkidle0" });
+  await page.waitForSelector("[data-receipt-root]");
 
   await page.evaluate(() => {
     const receipt = document.querySelector("[data-receipt-root]");
