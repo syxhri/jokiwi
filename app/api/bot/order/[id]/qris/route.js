@@ -12,6 +12,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error }, { status });
     }
 
+console.log(params, user);
     const orderId = params.id;
     if (!orderId.startsWith("OD")) {
       return NextResponse.json({
