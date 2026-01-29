@@ -12,7 +12,6 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error }, { status });
     }
 
-console.log(params, user);
     const orderId = params.id;
     if (!orderId.startsWith("OD")) {
       return NextResponse.json({
@@ -48,7 +47,7 @@ console.log(params, user);
       );
     }
 
-    const { dataUrl } = await defGen({ qris, amount });
+    const { data: dataUrl.split(",")[1] } = await defGen({ qris, amount });
     return NextResponse.json({ dataUrl });
   } catch (err) {
     console.error("Gagal membuat QRIS:", err);
