@@ -56,13 +56,14 @@ export async function GET(req, { params }) {
   }
 
   const orderCode = params.id;
-  const receiptUrl = `${origin}/print/receipt/${orderCode}?t=${token}`;
+  const receiptUrl = `${origin}/print/receipt/${orderCode}`;
 
   let browser;
   try {
     browser = await getBrowser();
     const page = await browser.newPage();
 
+    // Debug hooks
     page.on("console", (msg) => console.log("PAGE CONSOLE:", msg.text()));
     page.on("pageerror", (err) => console.log("PAGE ERROR:", err.toString()));
     page.on("requestfailed", (req) =>
@@ -73,18 +74,19 @@ export async function GET(req, { params }) {
       if (s >= 300) console.log("RESPONSE:", s, res.url());
     });
 
-    // await page.setExtraHTTPHeaders({
-      // authorization: `Bearer ${token}`,
-    // });
+    // Make auth robust: header + cookie
+    await page.setExtraHTTPHeaders({
+      authorization: `Bearer ${token}`,
+    });
 
-    // await page.setCookie({
-      // name: "token",
-      // value: token,
-      // url: origin,
-      // path: "/",
-      // sameSite: "Lax",
-      // secure: origin.startsWith("https://"),
-    // });
+    await page.setCookie({
+      name: "token",
+      value: token,
+      url: origin,
+      path: "/",
+      sameSite: "Lax",
+      secure: origin.startsWith("https://"),
+    });
 
     await page.setViewport({ width: 600, height: 800, deviceScaleFactor: 2 });
 
@@ -93,6 +95,7 @@ export async function GET(req, { params }) {
     console.log("Final URL:", page.url());
     console.log("Status:", (await page.mainFrame().response())?.status());
 
+    // If redirected, fail fast with meaningful error
     if (!page.url().includes(`/print/receipt/`)) {
       const html = await page.content();
       return NextResponse.json(
@@ -110,6 +113,7 @@ export async function GET(req, { params }) {
       { timeout: 90000 }
     );
 
+    // Now do your DOM cleanup
     await page.evaluate(() => {
       const receipt = document.querySelector("[data-receipt-root]");
       if (!receipt) return;
