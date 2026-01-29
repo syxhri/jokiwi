@@ -25,12 +25,6 @@ async function getBrowser() {
   });
 }
 
-function isTruthyParam(value) {
-  if (value == null) return false;
-  const v = String(value).toLowerCase().trim();
-  return v !== "" && v !== "0" && v !== "false" && v !== "no";
-}
-
 export async function GET(req, { params }) {
   const { user, error, status } = await requireBotUser(req);
   if (!user && error && status >= 400) {
@@ -40,18 +34,14 @@ export async function GET(req, { params }) {
   const auth = req.headers.get("authorization") || "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
   if (!token) {
-    return NextResponse.json(
-      {
-        error: "Missing bearer token",
-        detail: `token: ${token}`,
-      },
-      { status: 401 }
-    );
+    return NextResponse.json({
+      error: "Missing bearer token",
+      detail: `token: ${token}`,
+    }, { status: 401 });
   }
 
   const url = new URL(req.url);
-  const format = (url.searchParams.get("format") || "png").toLowerCase();
-  const wantsJson = isTruthyParam(url.searchParams.get("json"));
+  const format = url.searchParams.get("format") || "png";
 
   const origin = process.env.APP_URL || `${url.protocol}//${url.host}`;
   const orderCode = params.id;
@@ -59,6 +49,7 @@ export async function GET(req, { params }) {
   const receiptUrl = `${origin}/print/receipt/${orderCode}`;
 
   const browser = await getBrowser();
+
   const page = await browser.newPage();
 
   const { hostname } = new URL(origin);
@@ -106,8 +97,6 @@ export async function GET(req, { params }) {
   });
 
   let buf;
-  let contentType;
-
   if (format === "pdf") {
     buf = await page.pdf({
       printBackground: true,
@@ -115,42 +104,21 @@ export async function GET(req, { params }) {
       height: `${rect.height}px`,
       margin: { top: "0px", right: "0px", bottom: "0px", left: "0px" },
     });
-    contentType = "application/pdf";
   } else {
     const receiptHandle = await page.$("[data-receipt-root]");
     buf = await receiptHandle.screenshot({
       type: "png",
       omitBackground: false,
     });
-    contentType = "image/png";
   }
 
   await browser.close();
 
-  const filename = `Receipt_${orderCode}.${format === "pdf" ? "pdf" : "png"}`;
-
-  if (wantsJson) {
-    const base64 = Buffer.from(buf).toString("base64");
-
-    return NextResponse.json(
-      {
-        ok: true,
-        orderId: orderCode,
-        format: format === "pdf" ? "pdf" : "png",
-        contentType,
-        filename,
-        encoding: "base64",
-        data: base64,
-      },
-      { status: 200 }
-    );
-  }
-
   return new NextResponse(buf, {
     status: 200,
     headers: {
-      "Content-Type": contentType,
-      "Content-Disposition": `inline; filename="${filename}"`,
+      "Content-Type": format === "pdf" ? "application/pdf" : "image/png",
+      "Content-Disposition": `inline; filename="Receipt_${orderCode}.${format}"`,
     },
   });
 }
