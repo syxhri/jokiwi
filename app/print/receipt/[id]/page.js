@@ -4,8 +4,8 @@ import { findOrder } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import ReceiptCard from "@/components/ReceiptCard";
 
-async function getData(params) {
-  const user = await requireAuth();
+async function getData(params, searchParams) {
+  const user = await requireAuth({ token: searchParams?.token || null });
   const id = params.id;
   const order = await findOrder(user.id, id);
   return { user, id, order };
@@ -27,8 +27,8 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function ReceiptPrintPage({ params }) {
-  const { order } = await getData(params);
+export default async function ReceiptPrintPage({ params, searchParams }) {
+  const { order } = await getData(params, searchParams);
 
   return (
     <div className="min-h-screen flex justify-center">
