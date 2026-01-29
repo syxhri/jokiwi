@@ -20,7 +20,9 @@ async function getBrowser() {
     });
   }
 
-  return puppeteer.launch({ headless: true });
+  return puppeteer.launch({
+    headless: true,
+  });
 }
 
 function isTruthyParam(value) {
@@ -46,17 +48,21 @@ export async function GET(req, { params }) {
   const wantsJson = isTruthyParam(url.searchParams.get("json"));
 
   const origin = process.env.APP_URL || `${url.protocol}//${url.host}`;
-  const orderCode = params.id;
+  if (!origin) {
+    return NextResponse.json(
+      { error: "APP_URL is not set (required for puppeteer rendering on Vercel)" },
+      { status: 500 }
+    );
+  }
 
-  // IMPORTANT: encode token
-  const receiptUrl = `${origin}/print/receipt/${orderCode}?t=${encodeURIComponent(token)}`;
+  const orderCode = params.id;
+  const receiptUrl = `${origin}/print/receipt/${orderCode}?t=${token}`;
 
   let browser;
   try {
     browser = await getBrowser();
     const page = await browser.newPage();
 
-    // (optional) debug
     page.on("console", (msg) => console.log("PAGE CONSOLE:", msg.text()));
     page.on("pageerror", (err) => console.log("PAGE ERROR:", err.toString()));
     page.on("requestfailed", (req) =>
@@ -67,7 +73,6 @@ export async function GET(req, { params }) {
       if (s >= 300) console.log("RESPONSE:", s, res.url());
     });
 
-    // optional: keep it, doesn't hurt
     await page.setExtraHTTPHeaders({
       authorization: `Bearer ${token}`,
     });
@@ -83,14 +88,10 @@ export async function GET(req, { params }) {
 
     await page.setViewport({ width: 600, height: 800, deviceScaleFactor: 2 });
 
-    // ✅ Use goto response to get status (works across puppeteer-core versions)
-    const resp = await page.goto(receiptUrl, {
-      waitUntil: "networkidle0",
-      timeout: 90000,
-    });
+    await page.goto(receiptUrl, { waitUntil: "networkidle0", timeout: 90000 });
 
     console.log("Final URL:", page.url());
-    console.log("Goto status:", resp?.status?.(), "Goto URL:", resp?.url?.());
+    console.log("Status:", (await page.mainFrame().response())?.status());
 
     if (!page.url().includes(`/print/receipt/`)) {
       const html = await page.content();
@@ -114,7 +115,6 @@ export async function GET(req, { params }) {
       if (!receipt) return;
 
       const cloned = receipt.cloneNode(true);
-
       document.body.innerHTML = "";
       document.body.style.margin = "0";
 
