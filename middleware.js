@@ -22,6 +22,7 @@ export function middleware(req) {
     pathname.startsWith("/public") ||
     pathname.startsWith("/images") ||
     pathname.startsWith("/sitemap.xml") ||
+    pathname.startsWith("/print") ||
     pathname.startsWith("/robots.txt")
   ) {
     return NextResponse.next();
