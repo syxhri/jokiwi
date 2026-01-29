@@ -73,18 +73,18 @@ export async function GET(req, { params }) {
       if (s >= 300) console.log("RESPONSE:", s, res.url());
     });
 
-    await page.setExtraHTTPHeaders({
-      authorization: `Bearer ${token}`,
-    });
+    // await page.setExtraHTTPHeaders({
+      // authorization: `Bearer ${token}`,
+    // });
 
-    await page.setCookie({
-      name: "token",
-      value: token,
-      url: origin,
-      path: "/",
-      sameSite: "Lax",
-      secure: origin.startsWith("https://"),
-    });
+    // await page.setCookie({
+      // name: "token",
+      // value: token,
+      // url: origin,
+      // path: "/",
+      // sameSite: "Lax",
+      // secure: origin.startsWith("https://"),
+    // });
 
     await page.setViewport({ width: 600, height: 800, deviceScaleFactor: 2 });
 
