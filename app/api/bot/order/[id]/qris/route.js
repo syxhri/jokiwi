@@ -8,7 +8,7 @@ import { defGen } from "@/lib/qris.js";
 export async function GET(request, { params }) {
   try {
     const { user, error, status } = await requireBotUser(request);
-    if (error) {
+    if (!user && error && status >= 400) {
       return NextResponse.json({ error }, { status });
     }
 
