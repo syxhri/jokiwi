@@ -47,7 +47,7 @@ export async function GET(req, { params }) {
   const format = (url.searchParams.get("format") || "png").toLowerCase();
   const wantsJson = isTruthyParam(url.searchParams.get("json"));
 
-  const origin = process.env.APP_URL || `${url.protocol}//${url.host}`;
+  const origin = process.env.APP_URL;
   if (!origin) {
     return NextResponse.json(
       { error: "APP_URL is not set (required for puppeteer rendering on Vercel)" },
