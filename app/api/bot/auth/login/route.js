@@ -3,7 +3,7 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { findUserByUsername, verifyUserPassword } from "@/lib/db.js";
 import { requireBotKey } from "@/lib/bot.js";
-import { signTokenUser } from "@/lib/auth.js";
+import { authValidator, signTokenUser } from "@/lib/auth.js";
 
 export async function POST(request) {
   try {
@@ -13,7 +13,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { username, password } = body || {};
+    let { username, password } = body || {};
     if (!username || !password) {
       return NextResponse.json(
         {
@@ -23,6 +23,24 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+    
+    username = username.trim();
+    password = password.trim();
+    const validateResult = authValidator({ username, password });
+    if (typeof validateResult === "object" && (Array.isArray(validateResult?.username) || Array.isArray(validateResult?.password))) {
+      let errMsg = null;
+      if (validateResult.username && validateResult.username.length > 0) {
+        errMsg = validateResult.username[0];
+      } else if (validateResult.password && validateResult.password.length > 0) {
+        errMsg = validateResult.password[0];
+      }
+      
+      return NextResponse.json(
+        { error: errMsg },
+        { status: 400 }
+      );
+    }
+    
     const user = await findUserByUsername(username);
     const ok = await verifyUserPassword(user, password);
     if (!user || !ok) {
