@@ -10,6 +10,9 @@ const nextConfig = {
     }
     return config;
   },
+  images: {
+    domains: ['api.qrcode-monkey.com'],
+  },
 };
 
 module.exports = nextConfig;
