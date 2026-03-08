@@ -59,8 +59,8 @@ export async function GET(request, { params }) {
       );
     }
 
-    const { dataUrl } = await defGen({ qris, amount });
-    return NextResponse.json({ dataUrl });
+    const result = await defGen({ qris, amount });
+    return NextResponse.json(result);
   } catch (err) {
     console.error("Failed to generate QRIS:", err);
     return NextResponse.json(

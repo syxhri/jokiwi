@@ -125,21 +125,22 @@ export default function Navbar() {
               Home
             </Link>
             <Link
-              href="/category"
+              href="/categories"
               className={`${isActive(
-                "/category"
+                "/categories"
               )} hover:text-gray-900 whitespace-nowrap`}
             >
               Daftar Kategori
             </Link>
             <Link
-              href="/order"
+              href="/orders"
               className={`${isActive(
-                "/order"
+                "/orders"
               )} hover:text-gray-900 whitespace-nowrap`}
             >
               Semua Orderan
             </Link>
+            {/*
             <Link
               href="/category/new"
               className={`${isActive(
@@ -166,6 +167,7 @@ export default function Navbar() {
                 Profil
               </Link>
             )}
+            */}
           </nav>
 
           {/* Kanan: auth / akun */}
@@ -285,9 +287,9 @@ export default function Navbar() {
             {user && (
               <>
                   <Link
-                    href="/category"
+                    href="/categories"
                     className={`rounded-lg px-3 py-2 ${
-                      isActive("/category") === "text-primary-600"
+                      isActive("/categories") === "text-primary-600"
                         ? "bg-primary-50 text-primary-700"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
@@ -296,9 +298,9 @@ export default function Navbar() {
                     Daftar Kategori
                   </Link>
                   <Link
-                    href="/order"
+                    href="/orders"
                     className={`rounded-lg px-3 py-2 ${
-                      isActive("/order") === "text-primary-600"
+                      isActive("/orders") === "text-primary-600"
                         ? "bg-primary-50 text-primary-700"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
@@ -306,6 +308,7 @@ export default function Navbar() {
                   >
                     Semua Orderan
                   </Link>
+                  {/*
                   <Link
                     href="/category/new"
                     className={`rounded-lg px-3 py-2 ${
@@ -340,6 +343,7 @@ export default function Navbar() {
                   >
                     Profil
                   </Link>
+                  */}
                 </>
               )}
 

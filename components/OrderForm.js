@@ -85,7 +85,7 @@ export default function OrderForm({ data }) {
       if (res.ok) {
         payload.categoryCode
           ? router.push(`/category/${payload.categoryCode}`)
-          : router.push("/order");
+          : router.push("/orders");
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
@@ -103,7 +103,7 @@ export default function OrderForm({ data }) {
       const ok = window.confirm("Perubahan belum disimpan. Yakin mau kembali?");
       if (!ok) return;
     }
-    router.push("/order");
+    router.push("/orders");
   }
 
   return (
