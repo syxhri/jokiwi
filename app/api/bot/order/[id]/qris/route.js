@@ -48,7 +48,7 @@ export async function GET(request, { params }) {
     }
 
     const result = await defGen({ qris, amount });
-    return NextResponse.json({ data: result?.dataUrl?.split(",")[1], payload: result?.payload });
+    return NextResponse.json({ url: result?.dataUrl, payload: result?.payload });
   } catch (err) {
     console.error("Gagal membuat QRIS:", err);
     return NextResponse.json(
