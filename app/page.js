@@ -3,7 +3,8 @@ import { getCurrentUser } from "@/lib/auth.js";
 
 export const metadata = {
   title: "Jokiwi — Joki with Izee",
-  description: "Dashboard sederhana untuk mencatat jokian: client, tugas, harga, status pengerjaan & pembayaran, lengkap dengan struk otomatis (PNG & PDF) serta QRIS generator dan terintegrasi dengan bot WhatsApp.",
+  description:
+    "Dashboard sederhana untuk mencatat jokian: client, tugas, harga, status pengerjaan & pembayaran, lengkap dengan struk otomatis (PNG & PDF) serta QRIS generator dan terintegrasi dengan bot WhatsApp.",
   openGraph: {
     title: "Jokiwi",
     description:
@@ -25,7 +26,8 @@ export default async function HomePage() {
 
         <div className="relative space-y-6">
           <p className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-primary-700 shadow-sm backdrop-blur dark:bg-slate-900/70">
-            Catat jokianmu, hidup jadi lebih <s className="mx-1">malas</s> mudah 🎓
+            Catat jokianmu, hidup jadi lebih <s className="mx-1">malas</s> mudah
+            🎓
           </p>
 
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-50">
@@ -36,19 +38,22 @@ export default async function HomePage() {
           </h1>
 
           <p className="max-w-xl text-sm text-gray-600 sm:text-base dark:text-gray-300">
-            Jokiwi bantu kamu nyatat client, tugas, harga, status pengerjaan
-            & pembayaran, sampai bikin struk otomatis dalam sekali klik.
+            Jokiwi bantu kamu nyatat client, tugas, harga, status pengerjaan &
+            pembayaran, sampai bikin struk otomatis dalam sekali klik.
           </p>
 
           <div className="flex flex-wrap gap-3">
             <Link
-              href={user ? "/order" : "/login"}
+              href={user ? "/orders" : "/login"}
               className="btn btn-primary flex items-center gap-2"
             >
               {user ? "Buka dashboard" : "Login"}
               <span className="text-xs">↗</span>
             </Link>
-            <Link href={user ? "/category" : "/register"} className="btn btn-secondary">
+            <Link
+              href={user ? "/categories" : "/register"}
+              className="btn btn-secondary"
+            >
               {user ? "Lihat per kategori" : "Register"}
             </Link>
           </div>
@@ -78,8 +83,8 @@ export default async function HomePage() {
             Pantau jokian per kategori
           </h2>
           <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-            Lihat berapa banyak orderan dan pendapatan per mata kuliah / kategori
-            biar tau mana yang paling cuan 🤑.
+            Lihat berapa banyak orderan dan pendapatan per mata kuliah /
+            kategori biar tau mana yang paling cuan 🤑.
           </p>
         </div>
 
@@ -89,8 +94,8 @@ export default async function HomePage() {
             Status jelas, ga ada yang kelewat
           </h2>
           <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-            Tandai selesai / belum selesai serta lunas / belum lunas untuk tiap orderan.
-            Sekali liat langsung kebaca dengan jelas 🗿.
+            Tandai selesai / belum selesai serta lunas / belum lunas untuk tiap
+            orderan. Sekali liat langsung kebaca dengan jelas 🗿.
           </p>
         </div>
 
@@ -113,11 +118,13 @@ export default async function HomePage() {
         </h2>
         <ol className="mt-3 space-y-2 text-xs text-gray-600 dark:text-gray-300">
           <li>1. Tambah kategori / mata kuliah yang biasa kamu pegang.</li>
-          <li>2. Setiap ada client baru, buat orderan dari menu Orderan Baru.</li>
+          <li>
+            2. Setiap ada client baru, buat orderan dari menu Orderan Baru.
+          </li>
           <li>3. Update status pengerjaan & pembayaran sambil jalan.</li>
           <li>
-            4. Kalau client minta bukti, klik <b>Buat Struk</b> dan kirim PNG / PDF
-            nya.
+            4. Kalau client minta bukti, klik <b>Buat Struk</b> dan kirim PNG /
+            PDF nya.
           </li>
         </ol>
       </section>
