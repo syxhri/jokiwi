@@ -1,21 +1,41 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { createUser, findUserByUsername } from "@/lib/db.js";
-import { AUTH_COOKIE_NAME, authValidator, signToken } from "@/lib/auth.js";
+import { cookies } from "next/headers";
+import { AUTH_COOKIE_NAME, verifyToken } from "@/lib/auth.js";
+import { findUserByCode, createUser } from "@/lib/db.js";
+import { authValidator, whatsappSchema } from "@/lib/auth.js";
 import { customLimiter, getClientIp } from "@/lib/client.js";
+import { findUserByUsername } from "@/lib/db.js";
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    let { username, password, name } = body || {};
+    let { username, password, name, whatsapp_phone } = body || {};
+
     if (!username || !password) {
       return NextResponse.json(
         { error: "Username dan password wajib diisi" },
         { status: 400 }
       );
     }
-    
+
+    // Validasi nomor WhatsApp wajib diisi saat register
+    if (!whatsapp_phone) {
+      return NextResponse.json(
+        { error: "Nomor WhatsApp wajib diisi" },
+        { status: 400 }
+      );
+    }
+
+    const phoneValidation = whatsappSchema.safeParse(whatsapp_phone.trim());
+    if (!phoneValidation.success) {
+      return NextResponse.json(
+        { error: phoneValidation.error.errors[0]?.message || "Nomor WhatsApp tidak valid" },
+        { status: 400 }
+      );
+    }
+
     username = username.trim();
     password = password.trim();
     const validateResult = authValidator({ username, password });
@@ -26,18 +46,18 @@ export async function POST(request) {
       } else if (validateResult.password && validateResult.password.length > 0) {
         errMsg = validateResult.password[0];
       }
-      
+
       return NextResponse.json(
         { error: errMsg },
         { status: 400 }
       );
     }
-    
+
     const ip = getClientIp(request);
-    const { success, reset, remaining } = await customLimiter(1, "30 m", "rl:auth").limit(ip);
+    const { success, reset } = await customLimiter(1, "30 m", "rl:auth").limit(ip);
     if (!success) {
       const retryAfterSec = Math.max(1, Math.ceil((reset - Date.now()) / 1000));
-      
+
       return NextResponse.json(
         { error: "Terlalu banyak percobaan register. Coba lagi nanti." },
         {
@@ -48,7 +68,7 @@ export async function POST(request) {
         }
       );
     }
-    
+
     const existing = await findUserByUsername(username);
     if (existing) {
       return NextResponse.json(
@@ -56,7 +76,15 @@ export async function POST(request) {
         { status: 409 }
       );
     }
-    const user = await createUser({ username, password, name: name || "" });
+
+    const user = await createUser({
+      username,
+      password,
+      name: name || "",
+      whatsappPhone: phoneValidation.data,
+    });
+
+    const { signToken } = await import("@/lib/auth.js");
     const response = NextResponse.json({ message: "Register berhasil" });
     const token = signToken(user.userCode);
     response.cookies.set({

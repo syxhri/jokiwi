@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { requireAuth } from "@/lib/auth.js";
 import { findOrder } from "@/lib/db.js";

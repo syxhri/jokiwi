@@ -1,8 +1,10 @@
+﻿export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth.js";
 
 export const metadata = {
-  title: "Jokiwi — Joki with Izee",
+  title: "Jokiwi â€” Joki with Izee",
   description:
     "Dashboard sederhana untuk mencatat jokian: client, tugas, harga, status pengerjaan & pembayaran, lengkap dengan struk otomatis (PNG & PDF) serta QRIS generator dan terintegrasi dengan bot WhatsApp.",
   openGraph: {
@@ -27,7 +29,7 @@ export default async function HomePage() {
         <div className="relative space-y-6">
           <p className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-primary-700 shadow-sm backdrop-blur dark:bg-slate-900/70">
             Catat jokianmu, hidup jadi lebih <s className="mx-1">malas</s> mudah
-            🎓
+            ðŸŽ“
           </p>
 
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-50">
@@ -48,7 +50,7 @@ export default async function HomePage() {
               className="btn btn-primary flex items-center gap-2"
             >
               {user ? "Buka dashboard" : "Login"}
-              <span className="text-xs">↗</span>
+              <span className="text-xs">â†—</span>
             </Link>
             <Link
               href={user ? "/categories" : "/register"}
@@ -84,7 +86,7 @@ export default async function HomePage() {
           </h2>
           <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
             Lihat berapa banyak orderan dan pendapatan per mata kuliah /
-            kategori biar tau mana yang paling cuan 🤑.
+            kategori biar tau mana yang paling cuan ðŸ¤‘.
           </p>
         </div>
 
@@ -95,7 +97,7 @@ export default async function HomePage() {
           </h2>
           <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
             Tandai selesai / belum selesai serta lunas / belum lunas untuk tiap
-            orderan. Sekali liat langsung kebaca dengan jelas 🗿.
+            orderan. Sekali liat langsung kebaca dengan jelas ðŸ—¿.
           </p>
         </div>
 

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "@/styles/globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import MissingWhatsappDialog from "@/components/MissingWhatsappDialog";
 import { getCurrentUser } from "@/lib/auth.js";
 import { ThemeProvider } from "./ThemeProvider";
 
@@ -23,6 +24,11 @@ export default async function RootLayout({ children }) {
   const initialUser = user
     ? { id: user.id, username: user.username, name: user.name || "" }
     : null;
+
+  // Dialog wajib WA: hanya tampil untuk penjoki yang sudah login tapi belum isi WA
+  const showWhatsappDialog =
+    user && user.role === "joki" && !user.whatsappPhone;
+
   return (
     <html lang="id" suppressHydrationWarning>
       <body className={inter.className}>
@@ -31,9 +37,12 @@ export default async function RootLayout({ children }) {
             <Navbar initialUser={initialUser} />
             <main className="container mx-auto px-4 py-8">{children}</main>
             <Footer />
+            {/* Modal mandatory jika penjoki belum isi nomor WhatsApp */}
+            {showWhatsappDialog && <MissingWhatsappDialog />}
           </div>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+

@@ -35,6 +35,27 @@ export default function OrderTable({
     open: false,
     order: null,
   });
+  // Modal untuk terima pesanan customer
+  const [acceptModal, setAcceptModal] = useState({
+    open: false,
+    orderId: null,
+    price: "",
+    estimated_hours: "",
+    loading: false,
+    error: "",
+  });
+  // Modal untuk upload hasil (dukung Upload File & Link External GDrive >50MB)
+  const [uploadModal, setUploadModal] = useState({
+    open: false,
+    orderCode: null,
+    isReupload: false,
+    tab: "file", // "file" | "link"
+    linkInput: "",
+    loading: false,
+    error: "",
+  });
+  // State untuk status loading upload per order
+  const [uploadState, setUploadState] = useState({}); // keyed by orderId
 
   const receiptRef = useRef(null);
 
@@ -99,10 +120,130 @@ export default function OrderTable({
         alert(data.error || "Gagal menghapus orderan");
         return;
       }
-      
       await fetchOrders();
     } catch {
       alert("Gagal menghapus orderan");
+    }
+  }
+
+  async function handleReject(orderId) {
+    const ok = window.confirm("Yakin mau menolak pesanan ini?");
+    if (!ok) return;
+    try {
+      const res = await fetch(`/api/order/${orderId}/reject`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data.error || "Gagal menolak pesanan");
+        return;
+      }
+      await fetchOrders();
+    } catch {
+      alert("Gagal menolak pesanan");
+    }
+  }
+
+  async function submitAccept(e) {
+    e.preventDefault();
+    setAcceptModal((m) => ({ ...m, loading: true, error: "" }));
+    try {
+      const res = await fetch(`/api/order/${acceptModal.orderId}/accept`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          price: Number(acceptModal.price),
+          estimated_hours: acceptModal.estimated_hours ? Number(acceptModal.estimated_hours) : null,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAcceptModal((m) => ({ ...m, loading: false, error: data.error || "Gagal menerima pesanan" }));
+        return;
+      }
+      setAcceptModal({ open: false, orderId: null, price: "", estimated_hours: "", loading: false, error: "" });
+      await fetchOrders();
+    } catch {
+      setAcceptModal((m) => ({ ...m, loading: false, error: "Terjadi kesalahan" }));
+    }
+  }
+
+  async function handleFileUpload(orderId, orderCode, file, isReupload = false) {
+    if (!file) return;
+    setUploadState((s) => ({ ...s, [orderId]: { loading: true, error: "" } }));
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const endpoint = isReupload ? `/api/order/${orderCode}/reupload` : `/api/order/${orderCode}/upload`;
+      const res = await fetch(endpoint, { method: "POST", body: formData });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setUploadState((s) => ({ ...s, [orderId]: { loading: false, error: data.error || "Gagal upload" } }));
+        alert(data.error || "Gagal upload file");
+        return;
+      }
+      setUploadState((s) => ({ ...s, [orderId]: { loading: false, error: "" } }));
+      await fetchOrders();
+    } catch {
+      setUploadState((s) => ({ ...s, [orderId]: { loading: false, error: "Terjadi kesalahan" } }));
+      alert("Gagal upload file");
+    }
+  }
+
+  async function handleConfirmPayment(orderId) {
+    const ok = window.confirm("Konfirmasi pembayaran dari customer?");
+    if (!ok) return;
+    try {
+      const res = await fetch(`/api/order/${orderId}/confirm-payment`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data.error || "Gagal konfirmasi");
+        return;
+      }
+      await fetchOrders();
+    } catch {
+      alert("Gagal konfirmasi pembayaran");
+    }
+  }
+
+  async function handleSendRemindPayment(orderCode) {
+    try {
+      const res = await fetch(`/api/order/${orderCode}/remind-payment`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data.error || "Gagal mengirim reminder");
+        return;
+      }
+      alert(data.message || "Reminder bayar berhasil dikirim! 🔔");
+      await fetchOrders();
+    } catch {
+      alert("Gagal mengirim reminder");
+    }
+  }
+
+  async function submitExternalLinkUpload(e) {
+    e.preventDefault();
+    if (!uploadModal.linkInput || !/^https?:\/\//i.test(uploadModal.linkInput.trim())) {
+      setUploadModal((m) => ({ ...m, error: "Link external harus diawali http:// atau https://" }));
+      return;
+    }
+    setUploadModal((m) => ({ ...m, loading: true, error: "" }));
+    try {
+      const endpoint = uploadModal.isReupload
+        ? `/api/order/${uploadModal.orderCode}/reupload`
+        : `/api/order/${uploadModal.orderCode}/upload`;
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ external_link: uploadModal.linkInput.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setUploadModal((m) => ({ ...m, loading: false, error: data.error || "Gagal menyimpan link" }));
+        return;
+      }
+      setUploadModal({ open: false, orderCode: null, isReupload: false, tab: "file", linkInput: "", loading: false, error: "" });
+      await fetchOrders();
+    } catch {
+      setUploadModal((m) => ({ ...m, loading: false, error: "Terjadi kesalahan" }));
     }
   }
 
@@ -427,6 +568,10 @@ export default function OrderTable({
                     </td>
                     <td className="px-4 py-3 text-xs">
                       <div className="space-y-1">
+                        {/* Status pesanan customer (jika ada) */}
+                        {order.status && order.status !== "manual" && (
+                          <StatusBadge type="order-status" status={order.status} />
+                        )}
                         <StatusBadge type="done" status={order.is_done} />
                         <StatusBadge type="paid" status={order.is_paid} />
                       </div>
@@ -437,36 +582,103 @@ export default function OrderTable({
                       </p>
                     </td>
                     <td className="px-4 py-3 text-xs text-left">
-                      <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                      <div className="flex flex-col items-start gap-1.5 whitespace-nowrap">
+
+                        {/* Tombol untuk order customer pending */}
+                        {order.status === "pending" && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => setAcceptModal({ open: true, orderId: order.orderCode, price: "", estimated_hours: "", loading: false, error: "" })}
+                              className="text-xs font-medium text-emerald-600 hover:text-emerald-800"
+                            >
+                              ✅ Terima
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleReject(order.orderCode)}
+                              className="text-xs font-medium text-red-500 hover:text-red-700"
+                            >
+                              ❌ Tolak
+                            </button>
+                          </>
+                        )}
+
+                        {/* Tombol upload hasil untuk order accepted */}
+                        {order.status === "accepted" && (
+                          <button
+                            type="button"
+                            onClick={() => setUploadModal({ open: true, orderCode: order.orderCode, isReupload: false, tab: "file", linkInput: order.external_link || "", loading: false, error: "" })}
+                            className="text-xs font-medium text-blue-600 hover:text-blue-800"
+                          >
+                            📤 Upload Hasil / Link
+                          </button>
+                        )}
+
+                        {/* Tombol reupload + konfirmasi bayar + reminder untuk order done / accepted */}
+                        {(order.status === "done" || order.is_done) && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => setUploadModal({ open: true, orderCode: order.orderCode, isReupload: true, tab: order.external_link ? "link" : "file", linkInput: order.external_link || "", loading: false, error: "" })}
+                              className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
+                            >
+                              🔄 Reupload / Ganti Link
+                            </button>
+                            {!order.is_paid && order.status === "done" && (
+                              <button
+                                type="button"
+                                onClick={() => handleConfirmPayment(order.orderCode)}
+                                className="text-xs font-medium text-teal-600 hover:text-teal-800"
+                              >
+                                💳 Konfirmasi Bayar
+                              </button>
+                            )}
+                          </>
+                        )}
+
+                        {/* Tombol manual reminder bayar (jika belum bayar & ada push token) */}
+                        {!order.is_paid && (order.status === "accepted" || order.status === "done") && (
+                          <button
+                            type="button"
+                            onClick={() => handleSendRemindPayment(order.orderCode)}
+                            className="text-xs font-medium text-amber-600 hover:text-amber-800"
+                            title="Kirim reminder notifikasi bayar ke customer"
+                          >
+                            🔔 Remind Bayar
+                          </button>
+                        )}
+
+                        {/* Actions standard */}
                         <Link
                           href={`/order/${order.orderCode}/edit`}
-                          className="text-primary-600 hover:text-primary-800"
+                          className="text-primary-600 hover:text-primary-800 text-xs"
                         >
                           Edit
                         </Link>
-                        
+
                         {order.is_paid && (
                           <button
                             type="button"
                             onClick={() => handleMakeReceipt(order)}
-                            className="text-amber-600 hover:text-amber-800"
+                            className="text-amber-600 hover:text-amber-800 text-xs"
                           >
                             Buat Struk
                           </button>
                         )}
-                        
+
                         <button
                           type="button"
                           onClick={() => handleMakeQris(order)}
-                          className="text-emerald-600 hover:text-emerald-800"
+                          className="text-emerald-600 hover:text-emerald-800 text-xs"
                         >
                           QRIS
                         </button>
-                        
+
                         <button
                           type="button"
                           onClick={() => handleDelete(order.orderCode)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 hover:text-red-800 text-xs"
                         >
                           Hapus
                         </button>
@@ -604,6 +816,198 @@ export default function OrderTable({
             </div>
           </div>
         </ModalPortal>  
+      )}
+      {/* Accept Order Modal */}
+      {acceptModal.open && (
+        <ModalPortal>
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            onClick={() => !acceptModal.loading && setAcceptModal((m) => ({ ...m, open: false }))}
+          >
+            <div
+              className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 p-5 shadow-2xl border border-gray-100 dark:border-slate-700"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 mb-1">
+                Terima Pesanan
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                Tentukan harga dan estimasi sebelum menerima.
+              </p>
+
+              {acceptModal.error && (
+                <p className="text-sm text-red-600 mb-3">{acceptModal.error}</p>
+              )}
+
+              <form onSubmit={submitAccept} className="space-y-3">
+                <div>
+                  <label className="label">Harga (Rp) *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    required
+                    className="input"
+                    placeholder="150000"
+                    value={acceptModal.price}
+                    onChange={(e) => setAcceptModal((m) => ({ ...m, price: e.target.value }))}
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="label">Estimasi Waktu (jam, opsional)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    className="input"
+                    placeholder="24"
+                    value={acceptModal.estimated_hours}
+                    onChange={(e) => setAcceptModal((m) => ({ ...m, estimated_hours: e.target.value }))}
+                  />
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="submit"
+                    disabled={acceptModal.loading}
+                    className="btn btn-primary flex-1"
+                  >
+                    {acceptModal.loading ? "Menyimpan…" : "✅ Terima Pesanan"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={acceptModal.loading}
+                    onClick={() => setAcceptModal({ open: false, orderId: null, price: "", estimated_hours: "", loading: false, error: "" })}
+                    className="btn btn-secondary"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* Upload Hasil Pekerjaan Modal */}
+      {uploadModal.open && (
+        <ModalPortal>
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            onClick={() => !uploadModal.loading && setUploadModal((m) => ({ ...m, open: false }))}
+          >
+            <div
+              className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-5 shadow-2xl border border-gray-100 dark:border-slate-700 space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">
+                  {uploadModal.isReupload ? "🔄 Upload Ulang Hasil" : "📤 Kirim Hasil Pekerjaan"}
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Order: <span className="font-mono font-semibold">{uploadModal.orderCode}</span>
+                </p>
+              </div>
+
+              {/* Tab Selector */}
+              <div className="flex rounded-xl bg-gray-100 dark:bg-slate-800 p-1 text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setUploadModal((m) => ({ ...m, tab: "file", error: "" }))}
+                  className={`flex-1 py-1.5 rounded-lg text-center transition ${
+                    uploadModal.tab === "file"
+                      ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                  }`}
+                >
+                  📁 Upload File (Max 50MB)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUploadModal((m) => ({ ...m, tab: "link", error: "" }))}
+                  className={`flex-1 py-1.5 rounded-lg text-center transition ${
+                    uploadModal.tab === "link"
+                      ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                  }`}
+                >
+                  🔗 Link External (&gt;50MB)
+                </button>
+              </div>
+
+              {uploadModal.error && (
+                <div className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 text-xs text-red-700 dark:text-red-300">
+                  {uploadModal.error}
+                </div>
+              )}
+
+              {uploadModal.tab === "file" ? (
+                <div className="space-y-3">
+                  <p className="text-xs text-gray-500">
+                    Pilih file hasil pekerjaan dari perangkat kamu (Maksimal 50 MB di Supabase Storage).
+                  </p>
+                  <input
+                    type="file"
+                    disabled={uploadModal.loading}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) {
+                        setUploadModal((m) => ({ ...m, open: false }));
+                        handleFileUpload(uploadModal.orderCode, uploadModal.orderCode, f, uploadModal.isReupload);
+                      }
+                      e.target.value = "";
+                    }}
+                    className="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900/40 dark:file:text-primary-300"
+                  />
+                  <div className="flex justify-end pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setUploadModal({ open: false, orderCode: null, isReupload: false, tab: "file", linkInput: "", loading: false, error: "" })}
+                      className="btn btn-secondary text-xs"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={submitExternalLinkUpload} className="space-y-3">
+                  <p className="text-xs text-gray-500">
+                    Jika file hasil pekerjaan <strong>lebih besar dari 50 MB</strong> (misal file ZIP, project video, dll), upload ke <strong>Google Drive / Mega / Dropbox</strong> lalu tempel link nya di bawah ini:
+                  </p>
+                  <div>
+                    <label className="label">Link External (URL) *</label>
+                    <input
+                      type="url"
+                      required
+                      placeholder="https://drive.google.com/file/d/..."
+                      value={uploadModal.linkInput}
+                      onChange={(e) => setUploadModal((m) => ({ ...m, linkInput: e.target.value }))}
+                      className="input text-xs"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="submit"
+                      disabled={uploadModal.loading}
+                      className="btn btn-primary flex-1 text-xs"
+                    >
+                      {uploadModal.loading ? "Menyimpan…" : "💾 Simpan Link & Kirim Notif"}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={uploadModal.loading}
+                      onClick={() => setUploadModal({ open: false, orderCode: null, isReupload: false, tab: "file", linkInput: "", loading: false, error: "" })}
+                      className="btn btn-secondary text-xs"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </div>
   );

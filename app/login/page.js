@@ -1,3 +1,5 @@
+﻿export const dynamic = "force-dynamic";
+
 import LoginClient from "./loginClient";
 
 export const metadata = {

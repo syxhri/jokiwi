@@ -32,7 +32,13 @@ export async function GET(request) {
     }
     const { passwordHash, qrisPayload, ...safeUser } = user;
     return NextResponse.json({
-      user: { ...safeUser, hasQris: Boolean(qrisPayload) },
+      user: {
+        ...safeUser,
+        hasQris: Boolean(qrisPayload),
+        // Expose whatsappPhone dan role untuk UI logic
+        whatsappPhone: user.whatsappPhone || null,
+        role: user.role || "joki",
+      },
     });
   } catch (err) {
     console.error(err);

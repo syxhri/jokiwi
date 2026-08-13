@@ -1,3 +1,5 @@
+﻿export const dynamic = "force-dynamic";
+
 import RegisterClient from "./registerClient";
 
 export const metadata = {

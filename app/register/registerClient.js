@@ -12,7 +12,12 @@ function safeNext(next) {
 
 export default function RegisterPage({ next }) {
   const router = useRouter();
-  const [form, setForm] = useState({ username: "", password: "", name: "" });
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+    name: "",
+    whatsapp_phone: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,16 +55,19 @@ export default function RegisterPage({ next }) {
 
   return (
     <div className="max-w-sm mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-4">Register</h1>
+      <h1 className="text-3xl font-bold mb-1">Register</h1>
+      <p className="text-xs text-gray-500 mb-4">Daftar sebagai penjoki</p>
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-lg shadow p-6 space-y-4"
+        className="bg-white dark:bg-slate-900 rounded-2xl shadow border border-gray-100 dark:border-slate-800 p-6 space-y-4"
       >
         {error && (
-          <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+          <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg text-sm">
             {error}
           </div>
         )}
+
+        {/* Username */}
         <div>
           <label className="label">Username</label>
           <input
@@ -72,6 +80,8 @@ export default function RegisterPage({ next }) {
             required
           />
         </div>
+
+        {/* Password */}
         <div className="space-y-1">
           <label className="label">Password</label>
           <div className="relative">
@@ -88,46 +98,29 @@ export default function RegisterPage({ next }) {
               type="button"
               onClick={() => setShowPassword((v) => !v)}
               className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
-              aria-label={
-                showPassword ? "Sembunyikan password" : "Tampilkan password"
-              }
+              aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
             >
               {showPassword ? (
-                // hide password icon
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-5 0-9.27-3.11-11-8 0-1.13.22-2.21.63-3.2" />
                   <path d="M3 3l18 18" />
                   <path d="M10.58 10.58A3 3 0 0 0 13.41 13.4" />
                   <path d="M9.88 4.24A9.87 9.87 0 0 1 12 4c5 0 9.27 3.11 11 8a10.89 10.89 0 0 1-1.65 3.35" />
                 </svg>
               ) : (
-                // show password icon
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>
               )}
             </button>
           </div>
+          <p className="text-xs text-gray-400">
+            Min. 8 karakter, harus ada huruf besar, kecil, angka, dan simbol.
+          </p>
         </div>
+
+        {/* Nama */}
         <div>
           <label className="label">Nama</label>
           <input
@@ -140,6 +133,27 @@ export default function RegisterPage({ next }) {
             autoComplete="name"
           />
         </div>
+
+        {/* WhatsApp — WAJIB */}
+        <div>
+          <label className="label">
+            Nomor WhatsApp <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="tel"
+            name="whatsapp_phone"
+            value={form.whatsapp_phone}
+            onChange={handleChange}
+            className="input"
+            placeholder="08xxxxxxxxxx"
+            required
+            autoComplete="tel"
+          />
+          <p className="text-xs text-gray-400 mt-1">
+            Digunakan customer untuk mengirim bukti pembayaran ke kamu.
+          </p>
+        </div>
+
         <div className="flex justify-end">
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? "Mendaftar…" : "Register"}

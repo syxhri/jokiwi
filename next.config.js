@@ -1,11 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Paksa semua halaman jadi dynamic (tidak diprerender saat build)
+  // karena semua halaman bergantung pada auth/cookie/DB runtime
+  experimental: {
+    serverComponentsExternalPackages: ["pg", "bcryptjs"],
+  },
   webpack(config, { isServer }) {
     if (isServer) {
-      // pastiin array-nya ada
       config.externals = config.externals || [];
-
-      // jangan dibundle / di-transform sama Next
       config.externals.push("puppeteer-core", "@sparticuz/chromium");
     }
     return config;
@@ -15,4 +17,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = nextConfig;

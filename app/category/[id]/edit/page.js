@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 import { notFound } from "next/navigation";
 import { requireAuth } from "@/lib/auth.js";
 import { findCategory } from "@/lib/db.js";

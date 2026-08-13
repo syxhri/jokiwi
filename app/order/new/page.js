@@ -1,3 +1,5 @@
+﻿export const dynamic = "force-dynamic";
+
 import { requireAuth } from "@/lib/auth.js";
 import OrderForm from "@/components/OrderForm";
 
