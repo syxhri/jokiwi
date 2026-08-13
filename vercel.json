@@ -1,12 +1,3 @@
 {
-  "crons": [
-    {
-      "path": "/api/cron/payment-reminder",
-      "schedule": "*/30 * * * *"
-    },
-    {
-      "path": "/api/cron/cleanup-files",
-      "schedule": "*/5 * * * *"
-    }
-  ]
+ 
 }
