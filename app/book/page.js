@@ -19,9 +19,12 @@ export default function BookPage() {
     customer_phone: "",
     task_name: "",
     category_id: "",
+    custom_category: "",
     deadline_date: "",
     notes: "",
   });
+
+  const [useCustomCat, setUseCustomCat] = useState(false);
 
   // Ambil daftar penjoki
   useEffect(() => {
@@ -48,12 +51,36 @@ export default function BookPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    if (name === "category_id") {
+      if (value === "CUSTOM") {
+        setUseCustomCat(true);
+        setForm((prev) => ({ ...prev, category_id: "" }));
+      } else {
+        setUseCustomCat(false);
+        setForm((prev) => ({ ...prev, category_id: value, custom_category: "" }));
+      }
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Validasi 628
+    const cleanPhone = form.customer_phone.trim().replace(/[^0-9+]/g, "");
+    const formattedPhone = cleanPhone.startsWith("08")
+      ? "628" + cleanPhone.slice(2)
+      : cleanPhone.startsWith("+62")
+      ? cleanPhone.slice(1)
+      : cleanPhone;
+
+    if (!/^628[0-9]{8,12}$/.test(formattedPhone)) {
+      setError("Nomor WhatsApp wajib diawali 628 (contoh: 628123456789)");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -62,7 +89,9 @@ export default function BookPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          category_id: form.category_id ? Number(form.category_id) : null,
+          customer_phone: formattedPhone,
+          category_id: useCustomCat ? null : form.category_id ? Number(form.category_id) : null,
+          custom_category: useCustomCat ? form.custom_category : null,
         }),
       });
 
@@ -72,6 +101,20 @@ export default function BookPage() {
         setError(data.error || "Gagal membuat pesanan");
         return;
       }
+
+      // Simpan ke localStorage agar customer bisa lacak tanpa hapal kode
+      try {
+        const saved = JSON.parse(localStorage.getItem("jokiwi_recent_orders") || "[]");
+        const existingIdx = saved.findIndex((o) => o.orderCode === data.orderCode);
+        const newItem = {
+          orderCode: data.orderCode,
+          taskName: form.task_name,
+          createdAt: new Date().toISOString(),
+        };
+        if (existingIdx >= 0) saved[existingIdx] = newItem;
+        else saved.unshift(newItem);
+        localStorage.setItem("jokiwi_recent_orders", JSON.stringify(saved.slice(0, 10)));
+      } catch {}
 
       // Redirect ke halaman tracking
       router.push(`/track/${data.orderCode}`);
@@ -166,11 +209,11 @@ export default function BookPage() {
               value={form.customer_phone}
               onChange={handleChange}
               className="input"
-              placeholder="08xxxxxxxxxx"
+              placeholder="628123456789"
               required
             />
             <p className="text-xs text-gray-400">
-              Digunakan penjoki untuk menghubungimu jika perlu.
+              Wajib diawali <strong className="text-gray-600 dark:text-gray-300">628</strong> (Contoh: 628123456789).
             </p>
           </div>
 
@@ -193,7 +236,7 @@ export default function BookPage() {
           </div>
 
           {/* Kategori */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <label htmlFor="category_id" className="label">
               Kategori / Mata Kuliah{" "}
               <span className="text-gray-400 text-xs">(opsional)</span>
@@ -204,16 +247,14 @@ export default function BookPage() {
               <select
                 id="category_id"
                 name="category_id"
-                value={form.category_id}
+                value={useCustomCat ? "CUSTOM" : form.category_id}
                 onChange={handleChange}
                 className="input"
-                disabled={!form.joki_user_code || categories.length === 0}
+                disabled={!form.joki_user_code}
               >
                 <option value="">
                   {!form.joki_user_code
                     ? "-- Pilih penjoki dulu --"
-                    : categories.length === 0
-                    ? "-- Tidak ada kategori --"
                     : "-- Pilih kategori --"}
                 </option>
                 {categories.map((c) => (
@@ -221,7 +262,29 @@ export default function BookPage() {
                     {c.name}
                   </option>
                 ))}
+                {form.joki_user_code && (
+                  <option value="CUSTOM">✏️ Input Kategori Sendiri...</option>
+                )}
               </select>
+            )}
+
+            {/* Input custom category */}
+            {useCustomCat && (
+              <div className="pt-1">
+                <input
+                  type="text"
+                  name="custom_category"
+                  value={form.custom_category}
+                  onChange={handleChange}
+                  className="input text-xs"
+                  placeholder="Ketik nama mata kuliah / kategori baru…"
+                  required
+                  autoFocus
+                />
+                <p className="text-[11px] text-primary-600 dark:text-primary-400 mt-1">
+                  ✨ Kategori baru ini akan tersimpan otomatis untuk penjoki.
+                </p>
+              </div>
             )}
           </div>
 

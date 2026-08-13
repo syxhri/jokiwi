@@ -27,10 +27,20 @@ function NotificationBell({ userId }) {
     finally { setLoading(false); }
   }, [userId]);
 
-  // Initial load + poll setiap 30 detik
+  // Initial load + poll setiap 30 detik + minta izin notifikasi web browser
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
+
+    // Otomatis minta izin notifikasi saat pertama kali membuka website
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "default") {
+        setTimeout(() => {
+          Notification.requestPermission().catch(() => {});
+        }, 1500);
+      }
+    }
+
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 

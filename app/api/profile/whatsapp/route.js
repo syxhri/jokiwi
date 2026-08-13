@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { AUTH_COOKIE_NAME, verifyToken, whatsappSchema } from "@/lib/auth.js";
+import { AUTH_COOKIE_NAME, verifyToken, whatsappSchema, formatPhone628 } from "@/lib/auth.js";
 import { setUserWhatsapp } from "@/lib/db.js";
 import { apiLimiter, getClientIp } from "@/lib/client.js";
 
@@ -30,12 +30,13 @@ export async function PATCH(request) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const phone = String(body.whatsapp_phone || "").trim();
+    const rawPhone = String(body.whatsapp_phone || "").trim();
+    const phone = formatPhone628(rawPhone);
 
     const validation = whatsappSchema.safeParse(phone);
     if (!validation.success) {
       return NextResponse.json(
-        { error: validation.error.errors[0]?.message || "Nomor WhatsApp tidak valid" },
+        { error: "Nomor WhatsApp wajib diawali 628 (contoh: 628123456789)" },
         { status: 400 }
       );
     }

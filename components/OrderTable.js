@@ -110,19 +110,24 @@ export default function OrderTable({
     return () => controller.abort();
   }, [search, filterStatus, sortBy, sortDir, categoryCode]);
 
-  async function handleDelete(id) {
-    const ok = window.confirm("Yakin mau menghapus orderan ini?");
-    if (!ok) return;
+  const [deleteModal, setDeleteModal] = useState({ open: false, orderCode: null, loading: false });
+
+  function triggerDelete(orderCode) {
+    setDeleteModal({ open: true, orderCode, loading: false });
+  }
+
+  async function confirmDelete() {
+    if (!deleteModal.orderCode) return;
+    setDeleteModal((m) => ({ ...m, loading: true }));
     try {
-      const res = await fetch(`/api/order/${id}`, { method: "DELETE" });
-      const data = await res.json();
-      if (!res.ok) {
-        alert(data.error || "Gagal menghapus orderan");
-        return;
+      const res = await fetch(`/api/order/${deleteModal.orderCode}`, { method: "DELETE" });
+      if (res.ok) {
+        setDeleteModal({ open: false, orderCode: null, loading: false });
+        await fetchOrders();
       }
-      await fetchOrders();
-    } catch {
-      alert("Gagal menghapus orderan");
+    } catch {}
+    finally {
+      setDeleteModal({ open: false, orderCode: null, loading: false });
     }
   }
 
@@ -582,105 +587,21 @@ export default function OrderTable({
                       </p>
                     </td>
                     <td className="px-4 py-3 text-xs text-left">
-                      <div className="flex flex-col items-start gap-1.5 whitespace-nowrap">
-
-                        {/* Tombol untuk order customer pending */}
-                        {order.status === "pending" && (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => setAcceptModal({ open: true, orderId: order.orderCode, price: "", estimated_hours: "", loading: false, error: "" })}
-                              className="text-xs font-medium text-emerald-600 hover:text-emerald-800"
-                            >
-                              ✅ Terima
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleReject(order.orderCode)}
-                              className="text-xs font-medium text-red-500 hover:text-red-700"
-                            >
-                              ❌ Tolak
-                            </button>
-                          </>
-                        )}
-
-                        {/* Tombol upload hasil untuk order accepted */}
-                        {order.status === "accepted" && (
-                          <button
-                            type="button"
-                            onClick={() => setUploadModal({ open: true, orderCode: order.orderCode, isReupload: false, tab: "file", linkInput: order.external_link || "", loading: false, error: "" })}
-                            className="text-xs font-medium text-blue-600 hover:text-blue-800"
-                          >
-                            📤 Upload Hasil / Link
-                          </button>
-                        )}
-
-                        {/* Tombol reupload + konfirmasi bayar + reminder untuk order done / accepted */}
-                        {(order.status === "done" || order.is_done) && (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => setUploadModal({ open: true, orderCode: order.orderCode, isReupload: true, tab: order.external_link ? "link" : "file", linkInput: order.external_link || "", loading: false, error: "" })}
-                              className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
-                            >
-                              🔄 Reupload / Ganti Link
-                            </button>
-                            {!order.is_paid && order.status === "done" && (
-                              <button
-                                type="button"
-                                onClick={() => handleConfirmPayment(order.orderCode)}
-                                className="text-xs font-medium text-teal-600 hover:text-teal-800"
-                              >
-                                💳 Konfirmasi Bayar
-                              </button>
-                            )}
-                          </>
-                        )}
-
-                        {/* Tombol manual reminder bayar (jika belum bayar & ada push token) */}
-                        {!order.is_paid && (order.status === "accepted" || order.status === "done") && (
-                          <button
-                            type="button"
-                            onClick={() => handleSendRemindPayment(order.orderCode)}
-                            className="text-xs font-medium text-amber-600 hover:text-amber-800"
-                            title="Kirim reminder notifikasi bayar ke customer"
-                          >
-                            🔔 Remind Bayar
-                          </button>
-                        )}
-
-                        {/* Actions standard */}
+                      <div className="flex items-center gap-2 whitespace-nowrap">
                         <Link
-                          href={`/order/${order.orderCode}/edit`}
-                          className="text-primary-600 hover:text-primary-800 text-xs"
+                          href={`/order/${order.orderCode}`}
+                          className="btn btn-primary text-[11px] py-1 px-2.5 inline-flex items-center gap-1"
                         >
-                          Edit
+                          <span>👁️ Detail</span>
                         </Link>
 
-                        {order.is_paid && (
-                          <button
-                            type="button"
-                            onClick={() => handleMakeReceipt(order)}
-                            className="text-amber-600 hover:text-amber-800 text-xs"
-                          >
-                            Buat Struk
-                          </button>
-                        )}
-
                         <button
                           type="button"
-                          onClick={() => handleMakeQris(order)}
-                          className="text-emerald-600 hover:text-emerald-800 text-xs"
+                          onClick={() => triggerDelete(order.orderCode)}
+                          className="text-red-600 hover:text-red-800 text-xs font-medium px-1.5 py-1"
+                          title="Hapus Orderan"
                         >
-                          QRIS
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(order.orderCode)}
-                          className="text-red-600 hover:text-red-800 text-xs"
-                        >
-                          Hapus
+                          🗑️
                         </button>
                       </div>
                     </td>
@@ -1005,6 +926,44 @@ export default function OrderTable({
                   </div>
                 </form>
               )}
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.open && (
+        <ModalPortal>
+          <div
+            className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => !deleteModal.loading && setDeleteModal({ open: false, orderCode: null, loading: false })}
+          >
+            <div
+              className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-gray-100 dark:border-slate-800 space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">Hapus Orderan?</h3>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Apakah kamu yakin ingin menghapus orderan <strong className="font-mono">{deleteModal.orderCode}</strong> secara permanen?
+              </p>
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  disabled={deleteModal.loading}
+                  onClick={confirmDelete}
+                  className="btn btn-primary flex-1 text-xs bg-red-600 hover:bg-red-700 border-red-600"
+                >
+                  {deleteModal.loading ? "Menghapus…" : "Ya, Hapus"}
+                </button>
+                <button
+                  type="button"
+                  disabled={deleteModal.loading}
+                  onClick={() => setDeleteModal({ open: false, orderCode: null, loading: false })}
+                  className="btn btn-secondary text-xs"
+                >
+                  Batal
+                </button>
+              </div>
             </div>
           </div>
         </ModalPortal>

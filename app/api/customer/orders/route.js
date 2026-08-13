@@ -35,10 +35,12 @@ export async function GET(request) {
   }
 }
 
+import { formatPhone628, whatsappSchema } from "@/lib/auth.js";
+
 /**
  * POST /api/customer/orders — Customer buat pesanan baru (tanpa akun)
  * Body: { joki_user_code, customer_name, customer_phone, task_name,
- *         category_id?, deadline_date?, notes? }
+ *         category_id?, custom_category?, deadline_date?, notes? }
  */
 export async function POST(request) {
   const ip = getClientIp(request);
@@ -55,6 +57,7 @@ export async function POST(request) {
       customer_phone,
       task_name,
       category_id,
+      custom_category,
       deadline_date,
       notes,
     } = body;
@@ -69,15 +72,27 @@ export async function POST(request) {
     if (!customer_phone) {
       return NextResponse.json({ error: "Nomor WhatsApp wajib diisi" }, { status: 400 });
     }
+
+    // Format & validasi nomor WhatsApp (wajib 628xxx)
+    const cleanPhone = formatPhone628(customer_phone);
+    const phoneCheck = whatsappSchema.safeParse(cleanPhone);
+    if (!phoneCheck.success) {
+      return NextResponse.json(
+        { error: "Nomor WhatsApp wajib diawali 628 (contoh: 628123456789)" },
+        { status: 400 }
+      );
+    }
+
     if (!task_name || task_name.trim().length < 3) {
       return NextResponse.json({ error: "Nama tugas wajib diisi (minimal 3 karakter)" }, { status: 400 });
     }
 
     const order = await createCustomerOrder(joki_user_code, {
       customer_name: customer_name.trim(),
-      customer_phone: customer_phone.trim(),
+      customer_phone: cleanPhone,
       task_name: task_name.trim(),
       categoryId: category_id || null,
+      customCategory: custom_category || null,
       deadline_date: deadline_date || null,
       notes: notes || "",
     });

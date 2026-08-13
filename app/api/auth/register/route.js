@@ -28,10 +28,11 @@ export async function POST(request) {
       );
     }
 
-    const phoneValidation = whatsappSchema.safeParse(whatsapp_phone.trim());
+    const cleanPhone = formatPhone628(whatsapp_phone);
+    const phoneValidation = whatsappSchema.safeParse(cleanPhone);
     if (!phoneValidation.success) {
       return NextResponse.json(
-        { error: phoneValidation.error.errors[0]?.message || "Nomor WhatsApp tidak valid" },
+        { error: "Nomor WhatsApp wajib diawali 628 (contoh: 628123456789)" },
         { status: 400 }
       );
     }
