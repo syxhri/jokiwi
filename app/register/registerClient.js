@@ -54,9 +54,21 @@ export default function RegisterPage({ next }) {
   };
 
   return (
-    <div className="max-w-sm mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-1">Register</h1>
-      <p className="text-xs text-gray-500 mb-4">Daftar sebagai penjoki</p>
+    <div className="max-w-sm mx-auto py-8 space-y-4">
+      {/* Customer Notice */}
+      <div className="rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 p-3.5 text-xs text-sky-800 dark:text-sky-300">
+        <p className="font-semibold mb-1">🎓 Kamu seorang Customer?</p>
+        <p>
+          Kamu <strong>tidak perlu membuat akun atau mendaftar</strong>! Langsung buat pesanan di{" "}
+          <Link href="/book" className="underline font-semibold">Pesan Joki</Link> atau lacak status di{" "}
+          <Link href="/track" className="underline font-semibold">Lacak Pesanan</Link>.
+        </p>
+      </div>
+
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Register Penjoki</h1>
+        <p className="text-xs text-gray-500 mt-1">Daftar akun penjoki untuk menerima pesanan tugas.</p>
+      </div>
       <form
         onSubmit={handleSubmit}
         className="bg-white dark:bg-slate-900 rounded-2xl shadow border border-gray-100 dark:border-slate-800 p-6 space-y-4"

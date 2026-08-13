@@ -1,16 +1,16 @@
-﻿export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth.js";
 
 export const metadata = {
-  title: "Jokiwi â€” Joki with Izee",
+  title: "Jokiwi - Platform Joki Tugas",
   description:
-    "Dashboard sederhana untuk mencatat jokian: client, tugas, harga, status pengerjaan & pembayaran, lengkap dengan struk otomatis (PNG & PDF) serta QRIS generator dan terintegrasi dengan bot WhatsApp.",
+    "Platform joki tugas mudah & terpercaya. Customer pesan tanpa akun, penjoki kelola orderan dengan QRIS & notifikasi langsung.",
   openGraph: {
     title: "Jokiwi",
     description:
-      "Kelola jokian dengan rapi: client, tugas, pembayaran, QRIS, dan struk otomatis.",
+      "Pesan dan kelola jokian tugas dengan rapi: QRIS dinamis, tracking real-time, dan notifikasi langsung.",
     url: "https://jokiwi.app",
     siteName: "Jokiwi",
     type: "website",
@@ -22,113 +22,158 @@ export default async function HomePage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
+      {/* Hero Section */}
       <section className="relative overflow-hidden rounded-3xl border border-gray-100 bg-gradient-to-br from-primary-50/80 via-white to-sky-50 px-6 py-10 shadow-sm sm:px-10 sm:py-14 animate-fade-in-up dark:from-primary-900/40 dark:via-slate-950 dark:to-slate-900 dark:border-slate-800">
         <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-primary-400/25 blur-3xl" />
         <div className="pointer-events-none absolute -left-16 bottom-[-3rem] h-52 w-52 rounded-full bg-sky-400/20 blur-3xl" />
 
         <div className="relative space-y-6">
           <p className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-primary-700 shadow-sm backdrop-blur dark:bg-slate-900/70">
-            Catat jokianmu, hidup jadi lebih <s className="mx-1">malas</s> mudah
-            ðŸŽ“
+            Platform Joki Tugas Terpercaya 🎓
           </p>
 
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-50">
-            Kelola jokian dengan rapi{" "}
+            Solusi Tugas Kuliah & Sekolah{" "}
             <span className="text-primary-600 dark:text-primary-400">
-              tanpa berantakan.
+              Tanpa Ribet.
             </span>
           </h1>
 
           <p className="max-w-xl text-sm text-gray-600 sm:text-base dark:text-gray-300">
-            Jokiwi bantu kamu nyatat client, tugas, harga, status pengerjaan &
-            pembayaran, sampai bikin struk otomatis dalam sekali klik.
+            Pesan joki tugas dengan cepat tanpa perlu daftar akun. Pantau status pengerjaan secara real-time dan download hasil pekerjaan secara aman.
           </p>
 
-          <div className="flex flex-wrap gap-3">
+          {/* Action buttons */}
+          <div className="flex flex-wrap items-center gap-3">
             <Link
-              href={user ? "/orders" : "/login"}
-              className="btn btn-primary flex items-center gap-2"
+              href="/book"
+              className="btn btn-primary flex items-center gap-2 text-sm font-semibold"
             >
-              {user ? "Buka dashboard" : "Login"}
-              <span className="text-xs">â†—</span>
+              <span>🎓 Pesan Joki Sekarang</span>
+              <span>→</span>
             </Link>
             <Link
-              href={user ? "/categories" : "/register"}
-              className="btn btn-secondary"
+              href="/track"
+              className="btn btn-secondary text-sm font-semibold"
             >
-              {user ? "Lihat per kategori" : "Register"}
+              🔍 Lacak Pesanan
             </Link>
+            {user ? (
+              <Link
+                href="/orders"
+                className="btn btn-secondary text-sm font-semibold text-primary-700 dark:text-primary-300"
+              >
+                📊 Dashboard Penjoki
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="text-xs text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 underline ml-2"
+              >
+                Login Penjoki →
+              </Link>
+            )}
           </div>
 
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span>Struk pembayaran otomatis (PNG & PDF)</span>
+              <span>Pesan tanpa akun (Nama & WA saja)</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-sky-500" />
-              <span>Ringkasan pendapatan & orderan</span>
+              <span>Notifikasi Push & Tracking Real-time</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-amber-400" />
-              <span>QRIS sekali klik untuk tiap order</span>
+              <span>QRIS Pembayaran Dinamis</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Info khusus Customer & Penjoki */}
+      <section className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-primary-100 bg-primary-50/50 p-6 space-y-3 dark:border-primary-900/40 dark:bg-primary-950/20">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">👤</span>
+            <h2 className="text-base font-bold text-gray-900 dark:text-gray-50">
+              Untuk Customer / Pemesan
+            </h2>
+          </div>
+          <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+            <strong>Tidak perlu membuat akun atau login!</strong> Cukup pilih penjoki, isi nama dan nomor WhatsApp, lalu kamu akan mendapatkan <strong>Kode Order</strong> unik untuk memantau status pesanan dan mengunduh hasil.
+          </p>
+          <div className="flex gap-2 pt-1">
+            <Link href="/book" className="btn btn-primary text-xs">
+              Buat Pesanan Baru →
+            </Link>
+            <Link href="/track" className="btn btn-secondary text-xs">
+              Lacak Pesanan Saya
+            </Link>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 space-y-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">💻</span>
+            <h2 className="text-base font-bold text-gray-900 dark:text-gray-50">
+              Untuk Penjoki (Penyedia Jasa)
+            </h2>
+          </div>
+          <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+            Daftarkan diri kamu sebagai penjoki untuk menerima pesanan masuk, menentukan harga, mengatur QRIS pembayaran, serta mengirimkan hasil pekerjaan langsung ke customer.
+          </p>
+          <div className="flex gap-2 pt-1">
+            {user ? (
+              <Link href="/orders" className="btn btn-primary text-xs">
+                Masuk Dashboard Penjoki →
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="btn btn-primary text-xs">
+                  Login Penjoki
+                </Link>
+                <Link href="/register" className="btn btn-secondary text-xs">
+                  Daftar Penjoki Baru
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
 
       {/* Feature cards */}
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 text-sm shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 text-sm shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
           <p className="text-xs font-semibold text-primary-600">01</p>
-          <h2 className="mt-2 text-base font-semibold text-gray-900 dark:text-gray-50">
-            Pantau jokian per kategori
-          </h2>
+          <h3 className="mt-2 text-base font-semibold text-gray-900 dark:text-gray-50">
+            Pilih Penjoki & Kategori
+          </h3>
           <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-            Lihat berapa banyak orderan dan pendapatan per mata kuliah /
-            kategori biar tau mana yang paling cuan ðŸ¤‘.
+            Customer dapat memilih penjoki yang sesuai dengan bidang tugas atau mata kuliah yang dibutuhkan.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 text-sm shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 text-sm shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
           <p className="text-xs font-semibold text-primary-600">02</p>
-          <h2 className="mt-2 text-base font-semibold text-gray-900 dark:text-gray-50">
-            Status jelas, ga ada yang kelewat
-          </h2>
+          <h3 className="mt-2 text-base font-semibold text-gray-900 dark:text-gray-50">
+            Status Clear & Notifikasi
+          </h3>
           <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-            Tandai selesai / belum selesai serta lunas / belum lunas untuk tiap
-            orderan. Sekali liat langsung kebaca dengan jelas ðŸ—¿.
+            Dapatkan notifikasi Web Push langsung saat pesanan diterima, selesai dikerjakan, atau saat pembayaran dikonfirmasi.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 text-sm shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 text-sm shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
           <p className="text-xs font-semibold text-primary-600">03</p>
-          <h2 className="mt-2 text-base font-semibold text-gray-900 dark:text-gray-50">
-            Struk profesional
-          </h2>
+          <h3 className="mt-2 text-base font-semibold text-gray-900 dark:text-gray-50">
+            Aman & Pengiriman File Direct
+          </h3>
           <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-            Kirim bukti pembayaran yang rapi ke client: format struk konsisten,
-            ada tanggal, ID order, dan detail tugas.
+            File hasil pekerjaan diunduh secara aman dan otomatis dibersihkan secara berkala demi keamanan data.
           </p>
         </div>
-      </section>
-
-      {/* How it works */}
-      <section className="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50">
-          Cara pakainya singkat
-        </h2>
-        <ol className="mt-3 space-y-2 text-xs text-gray-600 dark:text-gray-300">
-          <li>1. Tambah kategori / mata kuliah yang biasa kamu pegang.</li>
-          <li>
-            2. Setiap ada client baru, buat orderan dari menu Orderan Baru.
-          </li>
-          <li>3. Update status pengerjaan & pembayaran sambil jalan.</li>
-          <li>
-            4. Kalau client minta bukti, klik <b>Buat Struk</b> dan kirim PNG /
-            PDF nya.
-          </li>
-        </ol>
       </section>
     </div>
   );

@@ -7,10 +7,16 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function MissingWhatsappDialog() {
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Jika sudah di halaman profil, jangan tampilkan dialog agar penjoki bisa mengisi nomor WA
+  if (pathname === "/profile") {
+    return null;
+  }
 
   // Blokir scroll body saat dialog terbuka
   useEffect(() => {

@@ -49,8 +49,21 @@ export default function LoginPage({ next }) {
   };
 
   return (
-    <div className="max-w-sm mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-4">Login</h1>
+    <div className="max-w-sm mx-auto py-8 space-y-4">
+      {/* Customer Notice */}
+      <div className="rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 p-3.5 text-xs text-sky-800 dark:text-sky-300">
+        <p className="font-semibold mb-1">🎓 Kamu seorang Customer?</p>
+        <p>
+          Kamu <strong>tidak perlu membuat akun atau login</strong>! Cukup pesan di{" "}
+          <Link href="/book" className="underline font-semibold">Pesan Joki</Link> atau lacak status di{" "}
+          <Link href="/track" className="underline font-semibold">Lacak Pesanan</Link>.
+        </p>
+      </div>
+
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Login Penjoki</h1>
+        <p className="text-xs text-gray-500 mt-1">Masuk ke akun penjoki kamu untuk mengelola pesanan.</p>
+      </div>
       <form
         onSubmit={handleSubmit}
         className="bg-white rounded-lg shadow p-6 space-y-4"
