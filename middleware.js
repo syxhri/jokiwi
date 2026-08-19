@@ -1,10 +1,22 @@
 import { NextResponse } from "next/server";
 
+// Halaman khusus penjoki — butuh login
 const AUTH_PATHS = [
   "/login",
   "/register",
   "/api/auth/login",
   "/api/auth/register",
+];
+
+// Halaman/route yang boleh diakses siapa saja tanpa login (customer & publik)
+const PUBLIC_PATHS = [
+  "/",
+  "/book",
+  "/track",
+  "/api/customer",
+  "/api/push",
+  "/api/cron",
+  "/api/bot",
 ];
 
 function isAuthPath(pathname) {
@@ -13,9 +25,16 @@ function isAuthPath(pathname) {
   );
 }
 
+function isPublicPath(pathname) {
+  return PUBLIC_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(path + "/")
+  );
+}
+
 export function middleware(req) {
   const { pathname, search } = req.nextUrl;
 
+  // Aset statis & internal Next.js
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
@@ -27,24 +46,27 @@ export function middleware(req) {
     return NextResponse.next();
   }
 
+  // API routes non-auth boleh langsung lanjut (auth dicek di handler masing-masing)
   if (pathname.startsWith("/api") && !isAuthPath(pathname)) {
     return NextResponse.next();
   }
 
   const token = req.cookies.get("token")?.value;
 
+  // Kalau sudah login & coba buka /login atau /register → redirect ke home
   if (isAuthPath(pathname) && token) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  if (pathname === "/" && !token) {
+  // Halaman publik boleh diakses tanpa login
+  if (isPublicPath(pathname)) {
     return NextResponse.next();
   }
 
+  // Semua halaman penjoki lainnya butuh token
   if (!isAuthPath(pathname) && !token) {
     const loginUrl = new URL("/login", req.url);
     const nextPath = pathname + search;
-
     loginUrl.searchParams.set("next", nextPath);
     return NextResponse.redirect(loginUrl);
   }
