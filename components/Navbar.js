@@ -94,7 +94,7 @@ function NotificationBell({ userId }) {
                     <p className="line-clamp-2">{n.message}</p>
                     {n.orderCode && (
                       <Link
-                        href={`/orders/${n.orderCode}`}
+                        href={`/order/${n.orderCode}`}
                         className="text-xs text-primary-600 hover:underline mt-0.5 block"
                         onClick={() => setOpen(false)}
                       >
