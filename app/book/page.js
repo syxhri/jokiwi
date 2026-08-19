@@ -128,7 +128,7 @@ export default function BookPage() {
   const selectedJoki = jokiList.find((j) => j.userCode === form.joki_user_code);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-10 px-4">
+    <div className="-mx-4 -mt-8 -mb-8 min-h-screen bg-gradient-to-br from-primary-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-10 px-4">
       <div className="mx-auto max-w-lg">
         {/* Header */}
         <div className="mb-8 text-center">
