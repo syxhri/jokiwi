@@ -17,7 +17,7 @@ export default async function EditOrderPage({ params }) {
     notFound();
   }
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Edit Orderan</h1>
         <p className="text-gray-600">

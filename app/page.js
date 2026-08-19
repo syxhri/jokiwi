@@ -21,7 +21,7 @@ export default async function HomePage() {
   const user = await getCurrentUser();
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12">
+    <div className="container mx-auto px-4 py-8 max-w-5xl space-y-12">
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-3xl border border-gray-100 bg-gradient-to-br from-primary-50/80 via-white to-sky-50 px-6 py-10 shadow-sm sm:px-10 sm:py-14 animate-fade-in-up dark:from-primary-900/40 dark:via-slate-950 dark:to-slate-900 dark:border-slate-800">
         <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-primary-400/25 blur-3xl" />

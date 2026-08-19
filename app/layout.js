@@ -35,7 +35,7 @@ export default async function RootLayout({ children }) {
         <ThemeProvider>
           <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-50">
             <Navbar initialUser={initialUser} />
-            <main className="container mx-auto px-4 py-8">{children}</main>
+            <main className="flex-1">{children}</main>
             <Footer />
             {/* Modal mandatory jika penjoki belum isi nomor WhatsApp */}
             {showWhatsappDialog && <MissingWhatsappDialog />}

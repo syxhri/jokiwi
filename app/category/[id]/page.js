@@ -40,7 +40,7 @@ export default async function CategoryDetailPage({ params }) {
   const orders = allOrders.filter((o) => o.categoryCode === id);
   const stats = computeStats(orders);
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto px-4 py-8 space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">{category.name}</h1>
         <p className="mt-1 text-sm text-gray-600">

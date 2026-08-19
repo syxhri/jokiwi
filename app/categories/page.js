@@ -1,4 +1,4 @@
-﻿export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 import { requireAuth } from "@/lib/auth.js";
 import {
@@ -29,7 +29,7 @@ export default async function CategoriesPage() {
     };
   });
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto px-4 py-8 space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">List Joki Tugas</h1>
         <p className="mt-1 text-sm text-gray-600">

@@ -295,7 +295,7 @@ export default function TrackOrderPage() {
 
   if (loading) {
     return (
-      <div className="-mx-4 -mt-8 -mb-8 min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
         <div className="space-y-2 text-center">
           <div className="h-8 w-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm text-gray-500">Memuat status pesanan…</p>
@@ -306,7 +306,7 @@ export default function TrackOrderPage() {
 
   if (error) {
     return (
-      <div className="-mx-4 -mt-8 -mb-8 min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4">
         <div className="text-center space-y-3">
           <p className="text-4xl">😕</p>
           <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
@@ -321,7 +321,7 @@ export default function TrackOrderPage() {
   }
 
   return (
-    <div className="-mx-4 -mt-8 -mb-8 min-h-screen bg-gradient-to-br from-primary-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-10 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-10 px-4">
       <div className="mx-auto max-w-lg space-y-5">
         {/* Header */}
         <div className="text-center">

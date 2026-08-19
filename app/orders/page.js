@@ -1,4 +1,4 @@
-﻿export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 import { requireAuth } from "@/lib/auth.js";
 import { getAllOrdersForUser, computeStats } from "@/lib/db.js";
@@ -14,7 +14,7 @@ export default async function OrdersPage() {
   const orders = await getAllOrdersForUser(user.id);
   const stats = computeStats(orders);
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-8 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Semua Orderan</h1>
         <p className="text-gray-600">Kelola dan filter semua orderan kamu</p>
