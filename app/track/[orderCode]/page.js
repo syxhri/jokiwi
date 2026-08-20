@@ -35,11 +35,11 @@ function buildQrisWithAmount(payload, amount) {
 
 // ─── Status Badge ─────────────────────────────────────────────
 const STATUS_CONFIG = {
-  pending:  { label: "Menunggu Konfirmasi", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300", icon: "⏳" },
-  accepted: { label: "Diterima & Diproses", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300", icon: "🔄" },
-  rejected: { label: "Ditolak", color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300", icon: "❌" },
-  done:     { label: "Selesai", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300", icon: "✅" },
-  manual:   { label: "Diproses", color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300", icon: "📋" },
+  pending:  { label: "Menunggu Konfirmasi", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" },
+  accepted: { label: "Diterima & Diproses", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
+  rejected: { label: "Ditolak", color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" },
+  done:     { label: "Selesai", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" },
+  manual:   { label: "Diproses", color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
 };
 
 // ─── Payment Dialog ───────────────────────────────────────────
@@ -63,12 +63,9 @@ function PaymentDialog({ order }) {
 
   return (
     <div className="rounded-2xl border-2 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-5 space-y-4">
-      <div className="flex items-center gap-2">
-        <span className="text-xl">💳</span>
-        <h2 className="font-semibold text-amber-900 dark:text-amber-200">
-          Selesaikan Pembayaran
-        </h2>
-      </div>
+      <h2 className="font-semibold text-amber-900 dark:text-amber-200">
+        Selesaikan Pembayaran
+      </h2>
 
       <div className="space-y-1 text-sm text-amber-800 dark:text-amber-300">
         <p>
@@ -86,7 +83,7 @@ function PaymentDialog({ order }) {
       {/* Petunjuk kirim bukti bayar via WA */}
       <div className="rounded-xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-800 p-4 space-y-2">
         <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
-          📱 Cara Bayar & Kirim Bukti:
+          Cara Bayar &amp; Kirim Bukti:
         </p>
         <ol className="text-xs text-gray-600 dark:text-gray-400 space-y-1 list-decimal list-inside">
           <li>Scan QRIS di bawah atau transfer manual ke penjoki</li>
@@ -99,7 +96,7 @@ function PaymentDialog({ order }) {
                 rel="noopener noreferrer"
                 className="font-semibold text-primary-600 underline"
               >
-                Klik di sini untuk chat penjoki
+                Chat penjoki
               </a>
             ) : (
               <span className="font-semibold">{order.jokiName || order.jokiUsername}</span>
@@ -138,14 +135,23 @@ function PaymentDialog({ order }) {
 
 // ─── Push Subscribe Banner ────────────────────────────────────
 function PushBanner({ orderCode, onSubscribed }) {
-  const [status, setStatus] = useState("idle"); // idle | loading | done | denied
+  const [status, setStatus] = useState("idle"); // idle | loading | done | denied | unsupported
 
-  async function subscribe() {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-      setStatus("denied");
+  // Sembunyikan jika notifikasi sudah diizinkan (atau tidak didukung)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+      setStatus("unsupported");
       return;
     }
+    if (Notification.permission === "granted") {
+      setStatus("done");
+    } else if (Notification.permission === "denied") {
+      setStatus("denied");
+    }
+  }, []);
 
+  async function subscribe() {
     setStatus("loading");
     try {
       const reg = await navigator.serviceWorker.ready;
@@ -175,18 +181,16 @@ function PushBanner({ orderCode, onSubscribed }) {
     }
   }
 
-  if (status === "done") return null;
-  if (status === "denied") return null;
+  if (status !== "idle") return null;
 
   return (
     <div className="rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-900/20 p-4 flex items-start gap-3">
-      <span className="text-xl mt-0.5">🔔</span>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-sky-800 dark:text-sky-200">
           Aktifkan Notifikasi
         </p>
         <p className="text-xs text-sky-600 dark:text-sky-400 mt-0.5">
-          Biar kamu dapat update otomatis saat pesanan diterima, selesai, atau ada pengingat bayar.
+          Dapatkan update otomatis saat pesanan diterima, selesai, atau ada pengingat bayar.
         </p>
         <button
           onClick={subscribe}
@@ -335,7 +339,6 @@ export default function TrackOrderPage() {
         <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-lg border border-gray-100 dark:border-slate-800 p-5 space-y-4">
           {/* Status badge */}
           <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold ${statusCfg.color}`}>
-            <span>{statusCfg.icon}</span>
             <span>{statusCfg.label}</span>
           </div>
 
@@ -404,7 +407,7 @@ export default function TrackOrderPage() {
             <div className="flex justify-between">
               <span className="text-gray-500">Status Bayar</span>
               <span className={`font-semibold ${order.isPaid ? "text-green-600" : "text-amber-600"}`}>
-                {order.isPaid ? "✅ Lunas" : "⏳ Belum Dibayar"}
+                {order.isPaid ? "Lunas" : "Belum Dibayar"}
               </span>
             </div>
           </div>
@@ -422,7 +425,7 @@ export default function TrackOrderPage() {
         {order.status === "done" && (
           <div className="rounded-2xl bg-white dark:bg-slate-900 shadow border border-gray-100 dark:border-slate-800 p-5 space-y-3">
             <h2 className="font-semibold text-gray-900 dark:text-gray-50">
-              📥 Hasil Pekerjaan
+              Hasil Pekerjaan
             </h2>
 
             {!order.isPaid ? (
@@ -442,7 +445,7 @@ export default function TrackOrderPage() {
                     rel="noopener noreferrer"
                     className="btn btn-primary w-full inline-flex items-center justify-center gap-2"
                   >
-                    <span>🔗 Buka Link Hasil (Google Drive / Mega)</span>
+                    Buka Link Hasil (Google Drive / Mega)
                   </a>
                 ) : (
                   <p className="text-sm text-amber-600">Link tidak tersedia.</p>
@@ -451,7 +454,7 @@ export default function TrackOrderPage() {
             ) : !order.hasFile ? (
               <div className="rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 p-3">
                 <p className="text-sm text-orange-700 dark:text-orange-300">
-                  ⚠️ File tidak tersedia. File mungkin sudah dihapus otomatis setelah didownload.
+                  File tidak tersedia. File mungkin sudah dihapus otomatis setelah didownload.
                   Hubungi penjoki via WhatsApp untuk meminta upload ulang.
                 </p>
                 {order.jokiWhatsapp && (
@@ -461,7 +464,7 @@ export default function TrackOrderPage() {
                     rel="noopener noreferrer"
                     className="mt-2 btn btn-secondary text-xs inline-flex items-center gap-1"
                   >
-                    💬 Chat Penjoki
+                    Chat Penjoki
                   </a>
                 )}
               </div>
@@ -477,10 +480,10 @@ export default function TrackOrderPage() {
                   disabled={downloading}
                   className="btn btn-primary w-full"
                 >
-                  {downloading ? "Mengunduh…" : "⬇️ Download File Hasil"}
+                  {downloading ? "Mengunduh…" : "Download File Hasil"}
                 </button>
                 <p className="text-[11px] text-gray-400 text-center">
-                  ⚠️ File akan otomatis dihapus dari server 15 menit setelah pertama kali didownload demi keamanan.
+                  File akan otomatis dihapus dari server 15 menit setelah pertama kali didownload demi keamanan.
                 </p>
               </>
             )}
@@ -490,7 +493,6 @@ export default function TrackOrderPage() {
         {/* Rejected state */}
         {order.status === "rejected" && (
           <div className="rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-5 text-center space-y-3">
-            <p className="text-3xl">😔</p>
             <p className="font-semibold text-red-800 dark:text-red-200">
               Pesanan Ditolak
             </p>

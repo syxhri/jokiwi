@@ -13,12 +13,14 @@ function NotificationBell({ userId }) {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [deletingAll, setDeletingAll] = useState(false);
 
   const fetchNotifications = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/notifications?limit=10", { cache: "no-store" });
+      const res = await fetch("/api/notifications?limit=20", { cache: "no-store" });
       if (!res.ok) return;
       const data = await res.json();
       setUnread(data.unreadCount || 0);
@@ -27,33 +29,50 @@ function NotificationBell({ userId }) {
     finally { setLoading(false); }
   }, [userId]);
 
-  // Initial load + poll setiap 30 detik + minta izin notifikasi web browser
+  // Initial load + poll setiap 30 detik
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
-
-    // Otomatis minta izin notifikasi saat pertama kali membuka website
-    if (typeof window !== "undefined" && "Notification" in window) {
-      if (Notification.permission === "default") {
-        setTimeout(() => {
-          Notification.requestPermission().catch(() => {});
-        }, 1500);
-      }
-    }
-
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
   async function handleOpen() {
-    setOpen((o) => !o);
-    if (!open) {
+    const willOpen = !open;
+    setOpen(willOpen);
+    if (willOpen) {
       await fetchNotifications();
-      // Mark as read setelah dibuka
       if (unread > 0) {
         fetch("/api/notifications", { method: "PATCH" }).catch(() => {});
         setUnread(0);
       }
     }
+  }
+
+  async function handleDelete(id) {
+    setDeletingId(id);
+    try {
+      await fetch("/api/notifications", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch {}
+    finally { setDeletingId(null); }
+  }
+
+  async function handleDeleteAll() {
+    setDeletingAll(true);
+    try {
+      await fetch("/api/notifications", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      });
+      setNotifications([]);
+      setUnread(0);
+    } catch {}
+    finally { setDeletingAll(false); }
   }
 
   return (
@@ -80,9 +99,21 @@ function NotificationBell({ userId }) {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-10 z-50 w-80 rounded-xl border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
-            <div className="px-4 py-2.5 border-b border-gray-100 dark:border-slate-800 text-xs font-semibold text-gray-500 dark:text-gray-400">
-              Notifikasi
+            {/* Header */}
+            <div className="px-4 py-2.5 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Notifikasi</span>
+              {notifications.length > 0 && (
+                <button
+                  onClick={handleDeleteAll}
+                  disabled={deletingAll}
+                  className="text-[11px] text-red-500 hover:text-red-700 disabled:opacity-50"
+                >
+                  {deletingAll ? "Menghapus…" : "Hapus semua"}
+                </button>
+              )}
             </div>
+
+            {/* List */}
             <div className="max-h-72 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800">
               {loading ? (
                 <div className="px-4 py-3 text-sm text-gray-400 text-center">Memuat…</div>
@@ -90,20 +121,34 @@ function NotificationBell({ userId }) {
                 <div className="px-4 py-3 text-sm text-gray-400 text-center">Belum ada notifikasi</div>
               ) : (
                 notifications.map((n) => (
-                  <div key={n.id} className={`px-4 py-3 text-sm ${n.isRead ? "text-gray-500" : "text-gray-800 dark:text-gray-100 font-medium"}`}>
-                    <p className="line-clamp-2">{n.message}</p>
-                    {n.orderCode && (
-                      <Link
-                        href={`/order/${n.orderCode}`}
-                        className="text-xs text-primary-600 hover:underline mt-0.5 block"
-                        onClick={() => setOpen(false)}
-                      >
-                        Lihat order →
-                      </Link>
-                    )}
-                    <p className="text-[10px] text-gray-400 mt-0.5">
-                      {n.createdAt ? new Date(n.createdAt).toLocaleString("id-ID") : ""}
-                    </p>
+                  <div key={n.id} className={`px-4 py-3 text-sm flex items-start gap-2 ${n.isRead ? "text-gray-500" : "text-gray-800 dark:text-gray-100 font-medium"}`}>
+                    <div className="flex-1 min-w-0">
+                      <p className="line-clamp-2">{n.message}</p>
+                      {n.orderCode && (
+                        <Link
+                          href={`/order/${n.orderCode}`}
+                          className="text-xs text-primary-600 hover:underline mt-0.5 block"
+                          onClick={() => setOpen(false)}
+                        >
+                          Lihat order →
+                        </Link>
+                      )}
+                      <p className="text-[10px] text-gray-400 mt-0.5">
+                        {n.createdAt ? new Date(n.createdAt).toLocaleString("id-ID") : ""}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDelete(n.id)}
+                      disabled={deletingId === n.id}
+                      className="flex-shrink-0 mt-0.5 text-gray-300 hover:text-red-400 disabled:opacity-40 transition-colors"
+                      aria-label="Hapus notifikasi"
+                    >
+                      {deletingId === n.id ? (
+                        <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      ) : (
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      )}
+                    </button>
                   </div>
                 ))
               )}
@@ -114,6 +159,7 @@ function NotificationBell({ userId }) {
     </div>
   );
 }
+
 
 // ─── Main Navbar ───────────────────────────────────────────────
 export default function Navbar() {
@@ -160,16 +206,27 @@ export default function Navbar() {
     setAccountOpen(false);
   }, [pathname]);
 
-  async function handleLogout() {
-    const ok = window.confirm("Yakin mau logout?");
-    if (!ok) return;
+  // Minta izin notifikasi browser untuk semua pengunjung (termasuk customer)
+  useEffect(() => {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    if (Notification.permission !== "default") return;
+    // Delay sedikit agar halaman selesai render dulu
+    const t = setTimeout(() => {
+      Notification.requestPermission().catch(() => {});
+    }, 2000);
+    return () => clearTimeout(t);
+  }, []); // hanya sekali saat mount
 
+  const [logoutOpen, setLogoutOpen] = useState(false);
+
+  async function handleLogout() {
     try {
       const res = await fetch("/api/auth/logout", { method: "POST" });
       if (!res.ok) return;
       setUser(null);
       setAccountOpen(false);
       setDrawerOpen(false);
+      setLogoutOpen(false);
       router.push("/");
       router.refresh?.();
     } catch {}
@@ -304,7 +361,7 @@ export default function Navbar() {
                       </Link>
                       <button
                         type="button"
-                        onClick={handleLogout}
+                        onClick={() => setLogoutOpen(true)}
                         className="flex w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-slate-800"
                       >
                         Logout
@@ -377,7 +434,7 @@ export default function Navbar() {
                 className={`rounded-lg px-3 py-2 ${drawerActive("/book")}`}
                 onClick={() => setDrawerOpen(false)}
               >
-                🎓 Pesan Joki
+                Pesan Joki
               </Link>
 
               {user && (
@@ -415,7 +472,7 @@ export default function Navbar() {
                   </Link>
                   <button
                     type="button"
-                    onClick={handleLogout}
+                    onClick={() => setLogoutOpen(true)}
                     className="rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-slate-800"
                   >
                     Logout
@@ -441,6 +498,31 @@ export default function Navbar() {
               )}
             </nav>
           </aside>
+        </>
+      )}
+      {/* Logout confirm dialog */}
+      {logoutOpen && (
+        <>
+          <div className="fixed inset-0 z-50 bg-black/40" onClick={() => setLogoutOpen(false)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div className="w-full max-w-xs rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-xl space-y-4">
+              <p className="font-semibold text-gray-900 dark:text-gray-50">Yakin mau logout?</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleLogout}
+                  className="flex-1 rounded-xl bg-red-500 py-2 text-sm font-semibold text-white hover:bg-red-600"
+                >
+                  Logout
+                </button>
+                <button
+                  onClick={() => setLogoutOpen(false)}
+                  className="flex-1 rounded-xl border border-gray-200 dark:border-slate-700 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800"
+                >
+                  Batal
+                </button>
+              </div>
+            </div>
+          </div>
         </>
       )}
     </>
