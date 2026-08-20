@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function BookPage() {
   const router = useRouter();
@@ -331,19 +332,21 @@ export default function BookPage() {
             className="btn btn-primary w-full text-sm"
             disabled={submitting || loadingJoki}
           >
-            {submitting ? "Mengirim pesanan…" : "Kirim Pesanan 🚀"}
+            {submitting ? "Mengirim pesanan…" : "Kirim Order 🚀"}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-xs text-gray-400">
-          Sudah punya kode order?{" "}
-          <a
-            href="/track"
-            className="text-primary-600 hover:underline"
-          >
-            Lacak pesanan kamu
-          </a>
-        </p>
+        <div className="mt-6 rounded-2xl border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-900/50 p-4 space-y-3">
+          <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">Sudah pernah order sebelumnya?</p>
+          <div className="flex gap-2 flex-wrap">
+            <Link href="/track" className="rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-3 py-2 transition-colors">
+              Cek Status Order
+            </Link>
+            <Link href="/my-orders" className="rounded-lg border border-gray-200 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-300 text-xs font-semibold px-3 py-2 transition-colors">
+              Riwayat Order Saya
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

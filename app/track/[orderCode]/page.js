@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
@@ -302,7 +302,7 @@ export default function TrackOrderPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
         <div className="space-y-2 text-center">
           <div className="h-8 w-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm text-gray-500">Memuat status pesanan…</p>
+          <p className="text-sm text-gray-500">Memuat status order…</p>
         </div>
       </div>
     );
@@ -311,14 +311,23 @@ export default function TrackOrderPage() {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4">
-        <div className="text-center space-y-3">
-          <p className="text-4xl">😕</p>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
-            {error}
-          </h1>
-          <a href="/book" className="btn btn-primary text-sm">
-            Buat Pesanan Baru
-          </a>
+        <div className="text-center space-y-5 max-w-sm">
+          <svg className="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.2" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="20" strokeLinecap="round"/>
+            <path d="M16 30c1.5-3 4.5-5 8-5s6.5 2 8 5" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="17" cy="20" r="2" fill="currentColor" stroke="none"/>
+            <circle cx="31" cy="20" r="2" fill="currentColor" stroke="none"/>
+          </svg>
+          <div className="space-y-2">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
+              {error}
+            </h1>
+            <p className="text-sm text-gray-500">Pastikan kode order sudah benar, atau buat order baru.</p>
+          </div>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <a href="/track" className="btn btn-secondary text-sm">Cari Order Lain</a>
+            <a href="/book" className="btn btn-primary text-sm">Buat Order Baru</a>
+          </div>
         </div>
       </div>
     );
@@ -330,7 +339,7 @@ export default function TrackOrderPage() {
         {/* Header */}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">
-            Lacak Pesanan
+            Status Order
           </h1>
           <p className="text-xs text-gray-400 mt-1 font-mono">{orderCode}</p>
         </div>
@@ -345,9 +354,9 @@ export default function TrackOrderPage() {
           {/* Timeline */}
           <div className="space-y-2">
             {[
-              { key: "pending", label: "Pesanan Dikirim" },
-              { key: "accepted", label: "Diterima Penjoki" },
-              { key: "done", label: "Pengerjaan Selesai" },
+              { key: "pending", label: "Order Dikirim" },
+              { key: "accepted", label: "Diproses Penjoki" },
+              { key: "done", label: "Hasil Siap Diunduh" },
             ].map((step, i) => {
               const statuses = ["pending", "accepted", "done"];
               const currentIdx = statuses.indexOf(order.status);
@@ -425,18 +434,18 @@ export default function TrackOrderPage() {
         {order.status === "done" && (
           <div className="rounded-2xl bg-white dark:bg-slate-900 shadow border border-gray-100 dark:border-slate-800 p-5 space-y-3">
             <h2 className="font-semibold text-gray-900 dark:text-gray-50">
-              Hasil Pekerjaan
+              Hasil Pengerjaan
             </h2>
 
             {!order.isPaid ? (
               <p className="text-sm text-amber-700 dark:text-amber-400">
-                Selesaikan pembayaran terlebih dahulu untuk mengakses hasil pekerjaan.
+                Selesaikan pembayaran terlebih dahulu untuk mengakses Hasil Pengerjaan.
               </p>
             ) : order.hasExternalLink ? (
               /* Link External (Google Drive / Mega / Dropbox) */
               <div className="space-y-3">
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Hasil pekerjaan tersedia via link external (Google Drive / Cloud Storage):
+                  Hasil Pengerjaan tersedia via link external (Google Drive / Cloud Storage):
                 </p>
                 {order.externalLink ? (
                   <a
@@ -494,20 +503,20 @@ export default function TrackOrderPage() {
         {order.status === "rejected" && (
           <div className="rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-5 text-center space-y-3">
             <p className="font-semibold text-red-800 dark:text-red-200">
-              Pesanan Ditolak
+              Order Ditolak
             </p>
             <p className="text-sm text-red-600 dark:text-red-400">
-              Maaf, penjoki tidak dapat menerima pesananmu saat ini.
+              Maaf, penjoki tidak dapat menerima ordermu saat ini.
               Kamu bisa coba pesan ke penjoki lain.
             </p>
             <a href="/book" className="btn btn-primary text-sm">
-              Buat Pesanan Baru
+              Buat Order Baru
             </a>
           </div>
         )}
 
         <p className="text-center text-xs text-gray-400">
-          Simpan link halaman ini untuk melacak pesananmu.
+          Simpan link halaman ini untuk meStatus Ordermu.
         </p>
       </div>
     </div>

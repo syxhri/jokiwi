@@ -45,26 +45,32 @@ export async function POST(request, { params }) {
     }
 
     if (!order.customer_push_token) {
-      return NextResponse.json(
-        { error: "Customer belum mengaktifkan notifikasi di halaman tracking" },
-        { status: 400 }
-      );
+      // Fallback: kembalikan info WA agar penjoki bisa kirim manual
+      const customerPhone = order.customer_phone
+        ? order.customer_phone.replace(/[^0-9]/g, "")
+        : null;
+      return NextResponse.json({
+        whatsappFallback: true,
+        customerPhone,
+        message: "Customer belum aktifkan notifikasi. Kirim via WhatsApp.",
+      });
     }
 
     // Kirim notifikasi push ke customer
     await notifyCustomer(order.customer_push_token, "payment_reminder", {
       orderCode: order.orderCode,
       price: order.price,
+      taskName: order.task_name,
     });
 
     // Catat reminder di DB
     await recordReminderSent(order.id);
 
     return NextResponse.json({
-      message: "Reminder pembayaran berhasil dikirimkan ke customer! 🔔",
+      message: "Pengingat pembayaran berhasil dikirimkan ke customer.",
     });
   } catch (err) {
     console.error("Failed to send manual payment reminder:", err);
-    return NextResponse.json({ error: "Gagal mengirim reminder" }, { status: 500 });
+    return NextResponse.json({ error: "Gagal mengirim pengingat" }, { status: 500 });
   }
 }

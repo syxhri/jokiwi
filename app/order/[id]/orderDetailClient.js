@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -109,7 +109,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
         const res = await fetch(`/api/order/${order.orderCode}/confirm-payment`, { method: "POST" });
         if (!res.ok) throw new Error();
         setConfirmDialog({ open: false, title: "", message: "", actionType: null, loading: false });
-        setAlertModal({ open: true, title: "Pembayaran Lunas! 💳", message: "Status pembayaran berhasil diubah menjadi LUNAS.", type: "success" });
+        setAlertModal({ open: true, title: "Pembayaran Lunas!", message: "Status pembayaran berhasil diubah menjadi LUNAS.", type: "success" });
         router.refresh();
         await refreshOrder();
       } else if (actionType === "delete") {
@@ -137,7 +137,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
         setAlertModal({ open: true, title: "Gagal Upload", message: data.error || "Gagal mengupload file.", type: "error" });
         return;
       }
-      setAlertModal({ open: true, title: "Upload Berhasil! 📤", message: "File hasil kerja berhasil diunggah dan notifikasi dikirim ke customer.", type: "success" });
+      setAlertModal({ open: true, title: "Upload Berhasil!", message: "File hasil kerja berhasil diunggah dan notifikasi dikirim ke customer.", type: "success" });
       setUploadModal({ open: false, isReupload: false, tab: "file", linkInput: "", loading: false, error: "" });
       router.refresh();
       await refreshOrder();
@@ -170,7 +170,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
         return;
       }
       setUploadModal({ open: false, isReupload: false, tab: "file", linkInput: "", loading: false, error: "" });
-      setAlertModal({ open: true, title: "Link Tersimpan! 🔗", message: "Link external berhasil disimpan dan dikirimkan ke customer.", type: "success" });
+      setAlertModal({ open: true, title: "Link Tersimpan!", message: "Link external berhasil disimpan dan dikirimkan ke customer.", type: "success" });
       router.refresh();
       await refreshOrder();
     } catch {
@@ -182,13 +182,27 @@ export default function OrderDetailClient({ order: initialOrder }) {
     try {
       const res = await fetch(`/api/order/${order.orderCode}/remind-payment`, { method: "POST" });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setAlertModal({ open: true, title: "Gagal Remind", message: data.error || "Gagal mengirim reminder.", type: "error" });
+
+      if (data.whatsappFallback) {
+        const phone = data.customerPhone || cleanCustomerPhone;
+        if (phone) {
+          const msg = encodeURIComponent(
+            `Halo ${order.customer_name || ""}, jangan lupa selesaikan pembayaran untuk order *${order.orderCode}* - ${order.task_name}. Total: Rp ${Number(order.price || 0).toLocaleString("id-ID")}. Terima kasih!`
+          );
+          window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
+        } else {
+          setAlertModal({ open: true, title: "Info", message: "Customer belum aktifkan notifikasi dan nomor WA tidak tersedia.", type: "info" });
+        }
         return;
       }
-      setAlertModal({ open: true, title: "Reminder Terkirim! 🔔", message: data.message || "Notifikasi pengingat bayar berhasil dikirimkan ke customer.", type: "success" });
+
+      if (!res.ok) {
+        setAlertModal({ open: true, title: "Gagal", message: data.error || "Gagal mengirim pengingat.", type: "error" });
+        return;
+      }
+      setAlertModal({ open: true, title: "Berhasil", message: data.message || "Pengingat pembayaran berhasil dikirimkan ke customer.", type: "success" });
     } catch {
-      setAlertModal({ open: true, title: "Error", message: "Gagal mengirim reminder.", type: "error" });
+      setAlertModal({ open: true, title: "Error", message: "Gagal mengirim pengingat.", type: "error" });
     }
   }
 
@@ -269,7 +283,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
             onClick={triggerDelete}
             className="btn btn-secondary text-xs text-red-600 hover:text-red-800 dark:text-red-400"
           >
-            🗑️ Hapus Orderan
+            Hapus Order
           </button>
         </div>
       </div>
@@ -281,7 +295,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
           {/* Card Info Tugas */}
           <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-50 border-b border-gray-100 dark:border-slate-800 pb-3">
-              📋 Informasi Pesanan
+              Informasi Order
             </h2>
 
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -328,7 +342,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
           {/* Customer Info Card */}
           <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-50 border-b border-gray-100 dark:border-slate-800 pb-3">
-              👤 Detail Customer
+              Detail Customer
             </h2>
 
             <div className="flex items-center justify-between">
@@ -348,7 +362,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                   rel="noopener noreferrer"
                   className="btn btn-secondary text-xs inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-800"
                 >
-                  <span>💬 Chat WhatsApp</span>
+                  <span>Chat WhatsApp</span>
                 </a>
               )}
             </div>
@@ -359,7 +373,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
         <div className="space-y-4">
           <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-gray-900 dark:text-gray-50 border-b border-gray-100 dark:border-slate-800 pb-2">
-              ⚙️ Aksi Penjoki
+              Aksi
             </h3>
 
             {/* Status Badges */}
@@ -377,14 +391,14 @@ export default function OrderDetailClient({ order: initialOrder }) {
                     onClick={() => setAcceptModal({ open: true, price: "", estimated_hours: "", loading: false, error: "" })}
                     className="btn btn-primary w-full text-xs"
                   >
-                    ✅ Terima Pesanan
+                    Terima Order
                   </button>
                   <button
                     type="button"
                     onClick={triggerReject}
                     className="btn btn-secondary w-full text-xs text-red-600 hover:text-red-800"
                   >
-                    ❌ Tolak Pesanan
+                    Tolak Order
                   </button>
                 </>
               )}
@@ -396,7 +410,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                   onClick={() => setUploadModal({ open: true, isReupload: false, tab: "file", linkInput: order.external_link || "", loading: false, error: "" })}
                   className="btn btn-primary w-full text-xs"
                 >
-                  📤 Upload Hasil / Link
+                  Upload Hasil Pengerjaan
                 </button>
               )}
 
@@ -408,7 +422,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                     onClick={() => setUploadModal({ open: true, isReupload: true, tab: order.external_link ? "link" : "file", linkInput: order.external_link || "", loading: false, error: "" })}
                     className="btn btn-secondary w-full text-xs"
                   >
-                    🔄 Reupload / Ganti Link
+                    Upload Ulang / Ganti Link
                   </button>
                   {!order.is_paid && (
                     <button
@@ -416,7 +430,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                       onClick={triggerConfirmPayment}
                       className="btn btn-primary w-full text-xs"
                     >
-                      💳 Konfirmasi Bayar Lunas
+                      Konfirmasi Lunas
                     </button>
                   )}
                 </>
@@ -429,7 +443,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                   onClick={handleSendRemindPayment}
                   className="btn btn-secondary w-full text-xs text-amber-700 hover:text-amber-800"
                 >
-                  🔔 Kirim Reminder Bayar
+                  Kirim Pengingat Bayar
                 </button>
               )}
 
@@ -439,7 +453,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                 onClick={handleMakeQris}
                 className="btn btn-secondary w-full text-xs"
               >
-                📱 Buat QRIS Pembayaran
+                Buat QRIS
               </button>
 
               {order.is_paid && (
@@ -448,7 +462,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                   onClick={() => setReceiptModal(true)}
                   className="btn btn-secondary w-full text-xs text-amber-600"
                 >
-                  🧾 Buat Struk Pembayaran
+                  Buat Struk
                 </button>
               )}
 
@@ -456,7 +470,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                 href={`/order/${order.orderCode}/edit`}
                 className="btn btn-secondary w-full text-xs text-center block"
               >
-                ✏️ Edit Data Order
+                Edit Order
               </Link>
             </div>
           </div>
@@ -487,7 +501,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                 </div>
                 <div className="flex gap-2 pt-1">
                   <button type="submit" disabled={acceptModal.loading} className="btn btn-primary flex-1 text-xs">
-                    {acceptModal.loading ? "Menyimpan…" : "✅ Terima Pesanan"}
+                    {acceptModal.loading ? "Menyimpan…" : "Terima Order"}
                   </button>
                   <button type="button" disabled={acceptModal.loading} onClick={() => setAcceptModal({ open: false, price: "", estimated_hours: "", loading: false, error: "" })} className="btn btn-secondary text-xs">
                     Batal

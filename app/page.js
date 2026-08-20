@@ -49,28 +49,28 @@ export default async function HomePage() {
               href="/book"
               className="btn btn-primary flex items-center gap-2 text-sm font-semibold"
             >
-              <span>🎓 Pesan Joki Sekarang</span>
+              <span>Order Sekarang</span>
               <span>→</span>
             </Link>
             <Link
               href="/track"
               className="btn btn-secondary text-sm font-semibold"
             >
-              🔍 Lacak Pesanan
+              Cek Status Order
             </Link>
             {user ? (
               <Link
                 href="/orders"
                 className="btn btn-secondary text-sm font-semibold text-primary-700 dark:text-primary-300"
               >
-                📊 Dashboard Penjoki
+                Dashboard Penjoki
               </Link>
             ) : (
               <Link
                 href="/login"
-                className="text-xs text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 underline ml-2"
+                className="btn btn-secondary text-sm font-semibold"
               >
-                Login Penjoki →
+                Login Penjoki
               </Link>
             )}
           </div>
@@ -78,7 +78,7 @@ export default async function HomePage() {
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span>Pesan tanpa akun (Nama & WA saja)</span>
+              <span>Order tanpa akun (Nama & WA saja)</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-sky-500" />
@@ -102,14 +102,17 @@ export default async function HomePage() {
             </h2>
           </div>
           <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-            <strong>Tidak perlu membuat akun atau login!</strong> Cukup pilih penjoki, isi nama dan nomor WhatsApp, lalu kamu akan mendapatkan <strong>Kode Order</strong> unik untuk memantau status pesanan dan mengunduh hasil.
+            <strong>Tidak perlu membuat akun atau login!</strong> Cukup pilih penjoki, isi nama dan nomor WhatsApp, lalu kamu akan mendapatkan <strong>Kode Order</strong> unik untuk memantau status dan mengunduh hasil.
           </p>
-          <div className="flex gap-2 pt-1">
+          <div className="flex gap-2 pt-1 flex-wrap">
             <Link href="/book" className="btn btn-primary text-xs">
-              Buat Pesanan Baru →
+              Buat Order Baru
             </Link>
             <Link href="/track" className="btn btn-secondary text-xs">
-              Lacak Pesanan Saya
+              Cek Status Order
+            </Link>
+            <Link href="/my-orders" className="btn btn-secondary text-xs">
+              Riwayat Order
             </Link>
           </div>
         </div>

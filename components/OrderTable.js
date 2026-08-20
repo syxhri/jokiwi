@@ -111,6 +111,10 @@ export default function OrderTable({
   }, [search, filterStatus, sortBy, sortDir, categoryCode]);
 
   const [deleteModal, setDeleteModal] = useState({ open: false, orderCode: null, loading: false });
+  const [alertModal, setAlertModal] = useState({ open: false, title: "", message: "", type: "info" });
+  const [rejectConfirm, setRejectConfirm] = useState({ open: false, orderId: null, loading: false });
+  const [remindConfirm, setRemindConfirm] = useState({ open: false, orderCode: null, customerPhone: null, loading: false });
+  const [confirmPayModal, setConfirmPayModal] = useState({ open: false, orderId: null, loading: false });
 
   function triggerDelete(orderCode) {
     setDeleteModal({ open: true, orderCode, loading: false });
@@ -132,18 +136,24 @@ export default function OrderTable({
   }
 
   async function handleReject(orderId) {
-    const ok = window.confirm("Yakin mau menolak pesanan ini?");
-    if (!ok) return;
+    setRejectConfirm({ open: true, orderId, loading: false });
+  }
+
+  async function confirmReject() {
+    if (!rejectConfirm.orderId) return;
+    setRejectConfirm((m) => ({ ...m, loading: true }));
     try {
-      const res = await fetch(`/api/order/${orderId}/reject`, { method: "POST" });
+      const res = await fetch(`/api/order/${rejectConfirm.orderId}/reject`, { method: "POST" });
       const data = await res.json().catch(() => ({}));
+      setRejectConfirm({ open: false, orderId: null, loading: false });
       if (!res.ok) {
-        alert(data.error || "Gagal menolak pesanan");
+        setAlertModal({ open: true, title: "Gagal", message: data.error || "Gagal menolak order", type: "error" });
         return;
       }
       await fetchOrders();
     } catch {
-      alert("Gagal menolak pesanan");
+      setRejectConfirm({ open: false, orderId: null, loading: false });
+      setAlertModal({ open: true, title: "Gagal", message: "Gagal menolak order", type: "error" });
     }
   }
 
@@ -194,33 +204,54 @@ export default function OrderTable({
   }
 
   async function handleConfirmPayment(orderId) {
-    const ok = window.confirm("Konfirmasi pembayaran dari customer?");
-    if (!ok) return;
+    setConfirmPayModal({ open: true, orderId, loading: false });
+  }
+
+  async function confirmPaymentAction() {
+    if (!confirmPayModal.orderId) return;
+    setConfirmPayModal((m) => ({ ...m, loading: true }));
     try {
-      const res = await fetch(`/api/order/${orderId}/confirm-payment`, { method: "POST" });
+      const res = await fetch(`/api/order/${confirmPayModal.orderId}/confirm-payment`, { method: "POST" });
       const data = await res.json().catch(() => ({}));
+      setConfirmPayModal({ open: false, orderId: null, loading: false });
       if (!res.ok) {
-        alert(data.error || "Gagal konfirmasi");
+        setAlertModal({ open: true, title: "Gagal", message: data.error || "Gagal konfirmasi pembayaran", type: "error" });
         return;
       }
       await fetchOrders();
     } catch {
-      alert("Gagal konfirmasi pembayaran");
+      setConfirmPayModal({ open: false, orderId: null, loading: false });
+      setAlertModal({ open: true, title: "Gagal", message: "Gagal konfirmasi pembayaran", type: "error" });
     }
   }
 
-  async function handleSendRemindPayment(orderCode) {
+  async function handleSendRemindPayment(orderCode, customerPhone) {
+    setRemindConfirm({ open: false, orderCode: null, customerPhone: null, loading: true });
     try {
       const res = await fetch(`/api/order/${orderCode}/remind-payment`, { method: "POST" });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        alert(data.error || "Gagal mengirim reminder");
+      if (data.whatsappFallback) {
+        const phone = data.customerPhone || customerPhone;
+        setRemindConfirm({ open: false, orderCode: null, customerPhone: null, loading: false });
+        if (phone) {
+          const msg = encodeURIComponent(`Halo, jangan lupa selesaikan pembayaran untuk ordermu ya. Terima kasih!`);
+          window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
+        } else {
+          setAlertModal({ open: true, title: "Info", message: "Customer belum aktifkan notifikasi dan nomor WA tidak tersedia.", type: "info" });
+        }
         return;
       }
-      alert(data.message || "Reminder bayar berhasil dikirim! 🔔");
+      if (!res.ok) {
+        setRemindConfirm({ open: false, orderCode: null, customerPhone: null, loading: false });
+        setAlertModal({ open: true, title: "Gagal", message: data.error || "Gagal mengirim pengingat", type: "error" });
+        return;
+      }
+      setRemindConfirm({ open: false, orderCode: null, customerPhone: null, loading: false });
+      setAlertModal({ open: true, title: "Berhasil", message: data.message || "Pengingat pembayaran berhasil dikirimkan.", type: "success" });
       await fetchOrders();
     } catch {
-      alert("Gagal mengirim reminder");
+      setRemindConfirm({ open: false, orderCode: null, customerPhone: null, loading: false });
+      setAlertModal({ open: true, title: "Gagal", message: "Gagal mengirim pengingat", type: "error" });
     }
   }
 
@@ -381,145 +412,99 @@ export default function OrderTable({
 
   return (
     <div className="space-y-6">
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-gray-500">
-            Total Pendapatan
-          </h3>
-          <p className="mt-2 text-2xl font-bold text-gray-900">
-            Rp {stats.totalIncome.toLocaleString("id-ID")}
-          </p>
+      {/* Stats bar */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="rounded-xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-3 shadow-sm">
+          <p className="text-[11px] text-gray-400">Pendapatan</p>
+          <p className="text-base font-bold text-gray-900 dark:text-gray-50">Rp {stats.totalIncome.toLocaleString("id-ID")}</p>
         </div>
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-gray-500">Sudah Dibayar</h3>
-          <p className="mt-2 text-2xl font-bold text-emerald-600">
-            Rp {stats.totalPaid.toLocaleString("id-ID")}
-          </p>
+        <div className="rounded-xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-3 shadow-sm">
+          <p className="text-[11px] text-gray-400">Lunas</p>
+          <p className="text-base font-bold text-emerald-600">Rp {stats.totalPaid.toLocaleString("id-ID")}</p>
         </div>
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-gray-500">Belum Dibayar</h3>
-          <p className="mt-2 text-2xl font-bold text-red-600">
-            Rp {stats.totalUnpaid.toLocaleString("id-ID")}
-          </p>
+        <div className="rounded-xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-3 shadow-sm">
+          <p className="text-[11px] text-gray-400">Belum Lunas</p>
+          <p className="text-base font-bold text-red-500">Rp {stats.totalUnpaid.toLocaleString("id-ID")}</p>
         </div>
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-gray-500">Total Orderan</h3>
-          <p className="mt-2 text-2xl font-bold text-blue-600">
-            {stats.totalOrders} Orderan
-          </p>
+        <div className="rounded-xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-3 shadow-sm">
+          <p className="text-[11px] text-gray-400">Total Order</p>
+          <p className="text-base font-bold text-primary-600">{stats.totalOrders}</p>
         </div>
       </div>
 
-      {/* Search + toggle filter */}
-      <div className="rounded-2xl bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="w-full flex items-end gap-2">
-            <div className="flex-1">
-              <label className="label">Pencarian</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Cari nama client atau tugas"
-                  className="input pr-10"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowFilters((v) => !v)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
-                  aria-label="Buka filter dan sort"
-                >
-                  <svg
-                    viewBox="0 0 20 20"
-                    aria-hidden="true"
-                    fill="none"
-                    className="h-4 w-4"
-                  >
-                    <path
-                      d="M3 5h14M6 10h8M8 15h4"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-        
-            <Link
-              href={categoryCode ? `/order/new?category=${encodeURIComponent(categoryCode)}` : "/order/new"}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-white shadow hover:bg-primary-700"
-              aria-label="Tambah orderan"
-            >
-              <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5">
-                <path
-                  d="M10 4v12M4 10h12"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
-          </div>
+      {/* Search + Sort + Add */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <input
+          type="search"
+          placeholder="Cari nama client atau tugas..."
+          className="input flex-1 text-sm"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className="flex items-center gap-2">
+          <select
+            className="input text-sm w-auto"
+            value={`${sortBy}:${sortDir}`}
+            onChange={(e) => {
+              const [by, dir] = e.target.value.split(":");
+              setSortBy(by);
+              setSortDir(dir);
+            }}
+          >
+            <option value="assigned_date:desc">Terbaru</option>
+            <option value="assigned_date:asc">Terlama</option>
+            <option value="deadline_date:asc">Deadline Terdekat</option>
+            <option value="price:desc">Harga Tertinggi</option>
+            <option value="price:asc">Harga Terendah</option>
+          </select>
+          <Link
+            href={categoryCode ? `/order/new?category=${encodeURIComponent(categoryCode)}` : "/order/new"}
+            className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary-600 text-white shadow hover:bg-primary-700"
+            aria-label="Tambah order"
+          >
+            <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5">
+              <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
         </div>
-      
-        {showFilters && (
-          <div className="mt-4 grid gap-4 md:grid-cols-3">
-            <div>
-              <label className="label">Filter Status</label>
-              <select
-                className="input"
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-              >
-                <option value="all">Semua</option>
-                <option value="done">Selesai</option>
-                <option value="not_done">Belum Selesai</option>
-                <option value="paid">Lunas</option>
-                <option value="not_paid">Belum Lunas</option>
-              </select>
-            </div>
-            <div>
-              <label className="label">Urut Berdasarkan</label>
-              <select
-                className="input"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="assigned_date">Tanggal Disuruh</option>
-                <option value="deadline_date">Deadline</option>
-                <option value="price">Harga</option>
-              </select>
-            </div>
-            <div>
-              <label className="label">Arah Sort</label>
-              <select
-                className="input"
-                value={sortDir}
-                onChange={(e) => setSortDir(e.target.value)}
-              >
-                <option value="asc">Naik (terlama / terkecil dulu)</option>
-                <option value="desc">Turun (terbaru / terbesar dulu)</option>
-              </select>
-            </div>
-          </div>
-        )}
+      </div>
+
+      {/* Status filter chips */}
+      <div className="flex flex-wrap gap-2">
+        {[
+          { value: "all", label: "Semua" },
+          { value: "pending", label: "Menunggu" },
+          { value: "accepted", label: "Diterima" },
+          { value: "done", label: "Selesai" },
+          { value: "rejected", label: "Ditolak" },
+          { value: "paid", label: "Lunas" },
+          { value: "not_paid", label: "Belum Lunas" },
+        ].map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setFilterStatus(opt.value)}
+            className={`rounded-full px-3 py-1 text-xs font-semibold border transition-colors ${
+              filterStatus === opt.value
+                ? "bg-primary-600 text-white border-primary-600"
+                : "bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:border-primary-400"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
 
       {/* Table */}
       {!hasData ? (
-          <p className="px-4 py-6 text-center text-sm text-gray-500">
-            Belum ada orderan.
+          <p className="py-6 text-center text-sm text-gray-500">
+            Belum ada order.
           </p>
       ) : (
-        <div className="mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm">
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-slate-800">
                 <tr>
                   <th className="w-40 px-4 py-3 text-left text-xs font-semibold text-gray-500">
                     Nama Client
@@ -531,7 +516,7 @@ export default function OrderTable({
                     Kategori
                   </th>
                   <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
-                    Tgl Disuruh
+                    Tgl Masuk
                   </th>
                   <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500 whitespace-nowrap">
                     Deadline
@@ -542,38 +527,34 @@ export default function OrderTable({
                   <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 min-w-[220px]">
-                    Catatan
-                  </th>
                   <th className="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-500">
                     Aksi
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                 {orders.map((order) => (
-                  <tr key={order.id}>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                  <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                       {order.client_name}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                       {order.task_name}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {order.category_name || "-"}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
                       {formatDate(order.assigned_date)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
                       {formatDate(order.deadline_date)}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900 text-left">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                       Rp {Number(order.price || 0).toLocaleString("id-ID")}
                     </td>
                     <td className="px-4 py-3 text-xs">
                       <div className="space-y-1">
-                        {/* Status pesanan customer (jika ada) */}
                         {order.status && order.status !== "manual" && (
                           <StatusBadge type="order-status" status={order.status} />
                         )}
@@ -581,27 +562,21 @@ export default function OrderTable({
                         <StatusBadge type="paid" status={order.is_paid} />
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      <p className="whitespace-pre-line break-words">
-                        {order.notes || "-"}
-                      </p>
-                    </td>
-                    <td className="px-4 py-3 text-xs text-left">
-                      <div className="flex items-center gap-2 whitespace-nowrap">
+                    <td className="px-4 py-3 text-xs">
+                      <div className="flex items-center gap-1.5 whitespace-nowrap">
                         <Link
                           href={`/order/${order.orderCode}`}
-                          className="btn btn-primary text-[11px] py-1 px-2.5 inline-flex items-center gap-1"
+                          className="rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-[11px] font-semibold px-2.5 py-1 transition-colors"
                         >
-                          <span>👁️ Detail</span>
+                          Detail
                         </Link>
-
                         <button
                           type="button"
                           onClick={() => triggerDelete(order.orderCode)}
-                          className="text-red-600 hover:text-red-800 text-xs font-medium px-1.5 py-1"
-                          title="Hapus Orderan"
+                          className="rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 text-[11px] font-semibold px-2.5 py-1 transition-colors"
+                          title="Hapus"
                         >
-                          🗑️
+                          Hapus
                         </button>
                       </div>
                     </td>
@@ -823,7 +798,7 @@ export default function OrderTable({
             >
               <div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">
-                  {uploadModal.isReupload ? "🔄 Upload Ulang Hasil" : "📤 Kirim Hasil Pekerjaan"}
+                  {uploadModal.isReupload ? "Upload Ulang Hasil" : "Kirim Hasil Pengerjaan"}
                 </h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                   Order: <span className="font-mono font-semibold">{uploadModal.orderCode}</span>
@@ -841,7 +816,7 @@ export default function OrderTable({
                       : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
                 >
-                  📁 Upload File (Max 50MB)
+                  Upload File (Max 50MB)
                 </button>
                 <button
                   type="button"
@@ -852,7 +827,7 @@ export default function OrderTable({
                       : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
                 >
-                  🔗 Link External (&gt;50MB)
+                  Link External (&gt;50MB)
                 </button>
               </div>
 
@@ -913,7 +888,7 @@ export default function OrderTable({
                       disabled={uploadModal.loading}
                       className="btn btn-primary flex-1 text-xs"
                     >
-                      {uploadModal.loading ? "Menyimpan…" : "💾 Simpan Link & Kirim Notif"}
+                      {uploadModal.loading ? "Menyimpan…" : "Simpan Link & Kirim Notif"}
                     </button>
                     <button
                       type="button"
@@ -942,27 +917,86 @@ export default function OrderTable({
               className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-gray-100 dark:border-slate-800 space-y-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">Hapus Orderan?</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">Hapus Order?</h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                Apakah kamu yakin ingin menghapus orderan <strong className="font-mono">{deleteModal.orderCode}</strong> secara permanen?
+                Yakin ingin menghapus order <strong className="font-mono">{deleteModal.orderCode}</strong> secara permanen?
               </p>
               <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  disabled={deleteModal.loading}
-                  onClick={confirmDelete}
-                  className="btn btn-primary flex-1 text-xs bg-red-600 hover:bg-red-700 border-red-600"
-                >
+                <button type="button" disabled={deleteModal.loading} onClick={confirmDelete}
+                  className="btn btn-primary flex-1 text-xs bg-red-600 hover:bg-red-700 border-red-600">
                   {deleteModal.loading ? "Menghapus…" : "Ya, Hapus"}
                 </button>
-                <button
-                  type="button"
-                  disabled={deleteModal.loading}
+                <button type="button" disabled={deleteModal.loading}
                   onClick={() => setDeleteModal({ open: false, orderCode: null, loading: false })}
-                  className="btn btn-secondary text-xs"
-                >
+                  className="btn btn-secondary text-xs">
                   Batal
                 </button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* Reject Confirmation Modal */}
+      {rejectConfirm.open && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => !rejectConfirm.loading && setRejectConfirm({ open: false, orderId: null, loading: false })}>
+            <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-gray-100 dark:border-slate-800 space-y-4"
+              onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">Tolak Order?</h3>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Yakin ingin menolak order ini? Customer akan mendapat notifikasi penolakan.</p>
+              <div className="flex gap-2 pt-2">
+                <button type="button" disabled={rejectConfirm.loading} onClick={confirmReject}
+                  className="btn btn-primary flex-1 text-xs bg-red-600 hover:bg-red-700 border-red-600">
+                  {rejectConfirm.loading ? "Memproses…" : "Ya, Tolak"}
+                </button>
+                <button type="button" disabled={rejectConfirm.loading}
+                  onClick={() => setRejectConfirm({ open: false, orderId: null, loading: false })}
+                  className="btn btn-secondary text-xs">Batal</button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* Confirm Payment Modal */}
+      {confirmPayModal.open && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => !confirmPayModal.loading && setConfirmPayModal({ open: false, orderId: null, loading: false })}>
+            <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-gray-100 dark:border-slate-800 space-y-4"
+              onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">Konfirmasi Pembayaran?</h3>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Tandai order ini sebagai lunas? Customer akan mendapat notifikasi untuk mengunduh hasil.</p>
+              <div className="flex gap-2 pt-2">
+                <button type="button" disabled={confirmPayModal.loading} onClick={confirmPaymentAction}
+                  className="btn btn-primary flex-1 text-xs">
+                  {confirmPayModal.loading ? "Memproses…" : "Ya, Konfirmasi"}
+                </button>
+                <button type="button" disabled={confirmPayModal.loading}
+                  onClick={() => setConfirmPayModal({ open: false, orderId: null, loading: false })}
+                  className="btn btn-secondary text-xs">Batal</button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* Alert Modal */}
+      {alertModal.open && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setAlertModal((a) => ({ ...a, open: false }))}>
+            <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-gray-100 dark:border-slate-800 space-y-3"
+              onClick={(e) => e.stopPropagation()}>
+              <h3 className={`text-base font-bold ${alertModal.type === "error" ? "text-red-600" : alertModal.type === "success" ? "text-emerald-600" : "text-primary-600"}`}>
+                {alertModal.title}
+              </h3>
+              <p className="text-xs text-gray-600 dark:text-gray-300">{alertModal.message}</p>
+              <div className="flex justify-end pt-2">
+                <button type="button" onClick={() => setAlertModal((a) => ({ ...a, open: false }))}
+                  className="btn btn-primary text-xs">OK</button>
               </div>
             </div>
           </div>
