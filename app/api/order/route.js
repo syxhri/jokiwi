@@ -31,6 +31,7 @@ export async function GET(request) {
     const search = searchParams.get("search") || "";
     const isDone = searchParams.get("is_done");
     const isPaid = searchParams.get("is_paid");
+    const status = searchParams.get("status") || "";
     const categoryCode = searchParams.get("categoryCode");
     const sortBy = searchParams.get("sortBy") || "assigned_date";
     const sortDir = searchParams.get("sortDir") || "desc";
@@ -39,6 +40,7 @@ export async function GET(request) {
       search,
       isDone,
       isPaid,
+      status: status || undefined,
       categoryCode,
       sortBy,
       sortDir,

@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import QRISLogo from "@/components/QRISLogo";
+import QRCode from "@/components/QRCode";
 
 // ─── QRIS Generator ──────────────────────────────────────────
 function crc16(str) {
@@ -44,21 +45,25 @@ const STATUS_CONFIG = {
 
 // ─── Payment Dialog ───────────────────────────────────────────
 function PaymentDialog({ order }) {
-  const [copied, setCopied] = useState(false);
+  const [qrisDataUrl, setQrisDataUrl] = useState("");
   const qrisWithAmount = order.jokiQrisPayload && order.price
     ? buildQrisWithAmount(order.jokiQrisPayload, order.price)
     : null;
 
   const waLink = order.jokiWhatsapp
     ? `https://wa.me/${order.jokiWhatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62")}?text=${encodeURIComponent(
-        `Halo, saya ingin konfirmasi pembayaran pesanan *${order.orderCode}* - ${order.taskName}.\n\nMohon dikonfirmasi ya, terima kasih! 🙏`
+        `Halo, saya ingin konfirmasi pembayaran pesanan *${order.orderCode}* - ${order.taskName}.\n\nMohon dikonfirmasi ya, terima kasih!`
       )}`
     : null;
 
-  async function copyQris() {
-    await navigator.clipboard.writeText(qrisWithAmount || order.jokiQrisPayload);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  function downloadQris() {
+    if (!qrisDataUrl) return;
+    const link = document.createElement("a");
+    link.href = qrisDataUrl;
+    link.download = `QRIS_${order.orderCode || "ORDER"}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   return (
@@ -113,19 +118,13 @@ function PaymentDialog({ order }) {
             QR Pembayaran (sudah include nominal):
           </p>
           <div className="flex items-center justify-center rounded-xl bg-white p-4 shadow-inner">
-            <img
-              src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrisWithAmount)}&size=200x200`}
-              alt="QRIS pembayaran"
-              width={200}
-              height={200}
-              className="rounded"
-            />
+            <QRCode value={qrisWithAmount} size={200} onDataUrl={setQrisDataUrl} />
           </div>
           <button
-            onClick={copyQris}
+            onClick={downloadQris}
             className="btn btn-secondary text-xs w-full"
           >
-            {copied ? "✅ Disalin!" : "📋 Salin kode QRIS"}
+            Download QRIS
           </button>
         </div>
       )}

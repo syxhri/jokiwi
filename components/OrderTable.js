@@ -86,10 +86,14 @@ export default function OrderTable({
     const params = new URLSearchParams();
     if (search) params.set("search", search);
 
-    if (filterStatus === "done") params.set("is_done", "true");
-    else if (filterStatus === "not_done") params.set("is_done", "false");
+    // Status filter — map chip values ke query params API
+    if (filterStatus === "pending") params.set("status", "pending");
+    else if (filterStatus === "accepted") params.set("status", "accepted");
+    else if (filterStatus === "done") params.set("status", "done");
+    else if (filterStatus === "rejected") params.set("status", "rejected");
     else if (filterStatus === "paid") params.set("is_paid", "true");
     else if (filterStatus === "not_paid") params.set("is_paid", "false");
+    // "all" = tidak set param apapun
 
     params.set("sortBy", sortBy);
     params.set("sortDir", sortDir);
@@ -338,7 +342,7 @@ export default function OrderTable({
       document.body.removeChild(link);
     } catch (err) {
       console.error(err);
-      alert("Gagal membuat gambar PNG struk");
+      setAlertModal({ open: true, title: "Gagal", message: "Gagal membuat gambar PNG struk.", type: "error" });
     }
   }
 
@@ -356,7 +360,7 @@ export default function OrderTable({
       pdf.save(`Receipt_${receiptModal.order.orderCode || "ORDER"}.pdf`);
     } catch (err) {
       console.error(err);
-      alert("Gagal membuat struk PDF");
+      setAlertModal({ open: true, title: "Gagal", message: "Gagal membuat struk PDF.", type: "error" });
     }
   }
 
@@ -768,7 +772,7 @@ export default function OrderTable({
                     disabled={acceptModal.loading}
                     className="btn btn-primary flex-1"
                   >
-                    {acceptModal.loading ? "Menyimpan…" : "✅ Terima Pesanan"}
+                    {acceptModal.loading ? "Menyimpan…" : "Terima Order"}
                   </button>
                   <button
                     type="button"
