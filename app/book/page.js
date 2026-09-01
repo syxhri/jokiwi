@@ -317,7 +317,7 @@ export default function BookPage() {
               value={form.notes}
               onChange={handleChange}
               className="input min-h-[80px] resize-y"
-              placeholder="Detail tambahan, instruksi khusus, format yang diinginkan, dll."
+              placeholder="Detail tambahan (NIM, kelas, jurusan, angkatan), instruksi khusus, format yang diinginkan, dll."
               rows={3}
             />
           </div>

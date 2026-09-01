@@ -515,7 +515,7 @@ export default function TrackOrderPage() {
         )}
 
         <p className="text-center text-xs text-gray-400">
-          Simpan link halaman ini untuk meStatus Ordermu.
+          Simpan link halaman ini untuk melihat status orderanmu nanti.
         </p>
       </div>
     </div>
