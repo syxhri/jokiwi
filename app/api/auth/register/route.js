@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME, verifyToken } from "@/lib/auth.js";
 import { findUserByCode, createUser } from "@/lib/db.js";
-import { authValidator, whatsappSchema } from "@/lib/auth.js";
+import { authValidator, whatsappSchema, formatPhone628 } from "@/lib/auth.js";
 import { customLimiter, getClientIp } from "@/lib/client.js";
 import { findUserByUsername } from "@/lib/db.js";
 
