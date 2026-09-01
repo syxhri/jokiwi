@@ -38,7 +38,7 @@ export default function MyOrdersPage() {
         </div>
         <div className="flex gap-2">
           <input type="search" placeholder="Cari kode atau nama tugas..." value={search} onChange={(e) => setSearch(e.target.value)} className="input flex-1 text-sm" />
-          <select value={sort} onChange={(e) => setSort(e.target.value)} className="input w-auto text-sm">
+          <select value={sort} onChange={(e) => setSort(e.target.value)} className="input w-auto text-sm pr-10">
             <option value="newest">Terbaru</option>
             <option value="oldest">Terlama</option>
           </select>

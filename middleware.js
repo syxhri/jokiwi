@@ -13,6 +13,7 @@ const PUBLIC_PATHS = [
   "/",
   "/book",
   "/track",
+  "/my-orders",
   "/api/customer",
   "/api/push",
   "/api/cron",
