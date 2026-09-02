@@ -206,16 +206,64 @@ export default function Navbar() {
     setAccountOpen(false);
   }, [pathname]);
 
-  // Minta izin notifikasi browser untuk semua pengunjung (termasuk customer)
+  // Daftarkan service worker + subscribe push untuk penjoki yang login
   useEffect(() => {
-    if (typeof window === "undefined" || !("Notification" in window)) return;
-    if (Notification.permission !== "default") return;
-    // Delay sedikit agar halaman selesai render dulu
-    const t = setTimeout(() => {
-      Notification.requestPermission().catch(() => {});
-    }, 2000);
-    return () => clearTimeout(t);
-  }, []); // hanya sekali saat mount
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) return;
+
+    async function registerAndSubscribe() {
+      try {
+        // 1. Register service worker
+        const reg = await navigator.serviceWorker.register("/sw.js");
+
+        // 2. Minta izin notifikasi (hanya jika belum diputuskan)
+        let permission = Notification.permission;
+        if (permission === "default") {
+          // Delay sedikit agar halaman selesai render dulu
+          await new Promise((r) => setTimeout(r, 2000));
+          permission = await Notification.requestPermission();
+        }
+        if (permission !== "granted") return;
+
+        // 3. Cek apakah sudah subscribe
+        const existingSub = await reg.pushManager.getSubscription();
+        if (existingSub) {
+          // Sudah subscribe — kirim ulang ke server supaya DB selalu up-to-date
+          await fetch("/api/push/subscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ subscription: existingSub.toJSON() }),
+          }).catch(() => {});
+          return;
+        }
+
+        // 4. Ambil VAPID public key lalu subscribe
+        const vapidRes = await fetch("/api/push/subscribe");
+        if (!vapidRes.ok) return;
+        const { vapidPublicKey } = await vapidRes.json();
+        if (!vapidPublicKey) return;
+
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: vapidPublicKey,
+        });
+
+        // 5. Simpan subscription ke server
+        await fetch("/api/push/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subscription: sub.toJSON() }),
+        }).catch(() => {});
+      } catch {
+        // Gagal silent — tidak perlu crash UI
+      }
+    }
+
+    // Hanya jalankan jika ada user yang login
+    if (user) {
+      registerAndSubscribe();
+    }
+  }, [user]); // re-run ketika user berubah (login/logout)
 
   const [logoutOpen, setLogoutOpen] = useState(false);
 
