@@ -26,7 +26,7 @@ export default function MyOrdersPage() {
       const q = search.trim().toLowerCase();
       list = list.filter(o => o.orderCode?.toLowerCase().includes(q) || o.taskName?.toLowerCase().includes(q));
     }
-    return sort === "newest" ? list.reverse() : list;
+    return sort === "oldest" ? list.reverse() : list;
   }, [orders, search, sort]);
 
   return (
@@ -67,7 +67,7 @@ export default function MyOrdersPage() {
                       <p className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100">{item.orderCode}</p>
                       <p className="text-xs text-gray-500 truncate max-w-[220px] mt-0.5">{item.taskName || "Orderan Joki"}</p>
                     </div>
-                    <Link href={/track/} className="flex-shrink-0 ml-3 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-3 py-1.5 transition-colors">
+                    <Link href={`/track/${item.orderCode}`} className="flex-shrink-0 ml-3 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-3 py-1.5 transition-colors">
                       Cek Status
                     </Link>
                   </div>
