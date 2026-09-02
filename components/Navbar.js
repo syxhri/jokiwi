@@ -130,7 +130,7 @@ function NotificationBell({ userId }) {
                           className="inline-flex items-center gap-1 mt-1 text-[11px] font-semibold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/50 px-2 py-0.5 rounded-md transition-colors"
                           onClick={() => setOpen(false)}
                         >
-                          Detail Order
+                          Detail Orderan
                         </Link>
                       )}
                       <p className="text-[10px] text-gray-400 mt-0.5">

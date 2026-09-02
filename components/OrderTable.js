@@ -431,7 +431,7 @@ export default function OrderTable({
           <p className="text-base font-bold text-red-500">Rp {stats.totalUnpaid.toLocaleString("id-ID")}</p>
         </div>
         <div className="rounded-xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-3 shadow-sm">
-          <p className="text-[11px] text-gray-400">Total Order</p>
+          <p className="text-[11px] text-gray-400">Total Orderan</p>
           <p className="text-base font-bold text-primary-600">{stats.totalOrders}</p>
         </div>
       </div>
@@ -502,7 +502,7 @@ export default function OrderTable({
       {/* Table */}
       {!hasData ? (
           <p className="py-6 text-center text-sm text-gray-500">
-            Belum ada order.
+            Belum ada orderan.
           </p>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm">
@@ -772,7 +772,7 @@ export default function OrderTable({
                     disabled={acceptModal.loading}
                     className="btn btn-primary flex-1"
                   >
-                    {acceptModal.loading ? "Menyimpan…" : "Terima Order"}
+                    {acceptModal.loading ? "Menyimpan…" : "Terima Orderan"}
                   </button>
                   <button
                     type="button"
@@ -805,7 +805,7 @@ export default function OrderTable({
                   {uploadModal.isReupload ? "Upload Ulang Hasil" : "Kirim Hasil Pengerjaan"}
                 </h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Order: <span className="font-mono font-semibold">{uploadModal.orderCode}</span>
+                  Orderan: <span className="font-mono font-semibold">{uploadModal.orderCode}</span>
                 </p>
               </div>
 
@@ -921,9 +921,9 @@ export default function OrderTable({
               className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-gray-100 dark:border-slate-800 space-y-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">Hapus Order?</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">Hapus Orderan?</h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                Yakin ingin menghapus order <strong className="font-mono">{deleteModal.orderCode}</strong> secara permanen?
+                Yakin ingin menghapus orderan <strong className="font-mono">{deleteModal.orderCode}</strong> secara permanen?
               </p>
               <div className="flex gap-2 pt-2">
                 <button type="button" disabled={deleteModal.loading} onClick={confirmDelete}
@@ -948,8 +948,8 @@ export default function OrderTable({
             onClick={() => !rejectConfirm.loading && setRejectConfirm({ open: false, orderId: null, loading: false })}>
             <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-gray-100 dark:border-slate-800 space-y-4"
               onClick={(e) => e.stopPropagation()}>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">Tolak Order?</h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Yakin ingin menolak order ini? Customer akan mendapat notifikasi penolakan.</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">Tolak Orderan?</h3>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Yakin ingin menolak orderan ini? Customer akan mendapat notifikasi penolakan.</p>
               <div className="flex gap-2 pt-2">
                 <button type="button" disabled={rejectConfirm.loading} onClick={confirmReject}
                   className="btn btn-primary flex-1 text-xs bg-red-600 hover:bg-red-700 border-red-600">
@@ -972,7 +972,7 @@ export default function OrderTable({
             <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-gray-100 dark:border-slate-800 space-y-4"
               onClick={(e) => e.stopPropagation()}>
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">Konfirmasi Pembayaran?</h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Tandai order ini sebagai lunas? Customer akan mendapat notifikasi untuk mengunduh hasil.</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Tandai orderan ini sebagai lunas? Customer akan mendapat notifikasi untuk mengunduh hasil.</p>
               <div className="flex gap-2 pt-2">
                 <button type="button" disabled={confirmPayModal.loading} onClick={confirmPaymentAction}
                   className="btn btn-primary flex-1 text-xs">

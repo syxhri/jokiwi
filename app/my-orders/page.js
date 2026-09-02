@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
@@ -33,8 +33,8 @@ export default function MyOrdersPage() {
     <div className="min-h-[70vh] px-4 py-8">
       <div className="mx-auto max-w-lg space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Riwayat Order</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Daftar order yang pernah kamu buat di perangkat ini.</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Riwayat Orderan</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Daftar orderan yang pernah kamu buat di perangkat ini.</p>
         </div>
         <div className="flex gap-2">
           <input type="search" placeholder="Cari kode atau nama tugas..." value={search} onChange={(e) => setSearch(e.target.value)} className="input flex-1 text-sm" />
@@ -54,7 +54,7 @@ export default function MyOrdersPage() {
         ) : (
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{filtered.length} order</span>
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{filtered.length} orderan</span>
               <button onClick={clearAll} className="text-[11px] text-red-500 hover:text-red-700">Hapus semua</button>
             </div>
             {filtered.length === 0 ? (
@@ -65,7 +65,7 @@ export default function MyOrdersPage() {
                   <div key={item.orderCode} className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                     <div className="min-w-0">
                       <p className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100">{item.orderCode}</p>
-                      <p className="text-xs text-gray-500 truncate max-w-[220px] mt-0.5">{item.taskName || "Order Joki"}</p>
+                      <p className="text-xs text-gray-500 truncate max-w-[220px] mt-0.5">{item.taskName || "Orderan Joki"}</p>
                     </div>
                     <Link href={/track/} className="flex-shrink-0 ml-3 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-3 py-1.5 transition-colors">
                       Cek Status

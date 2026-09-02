@@ -200,7 +200,7 @@ export default function TrackOrderPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
       <div className="space-y-2 text-center">
         <div className="h-8 w-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-sm text-gray-500">Memuat status order...</p>
+        <p className="text-sm text-gray-500">Memuat status orderan...</p>
       </div>
     </div>
   );
@@ -216,11 +216,11 @@ export default function TrackOrderPage() {
         </svg>
         <div className="space-y-2">
           <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">{error}</h1>
-          <p className="text-sm text-gray-500">Pastikan kode order sudah benar, atau buat order baru.</p>
+          <p className="text-sm text-gray-500">Pastikan kode orderan sudah benar, atau buat orderan baru.</p>
         </div>
         <div className="flex gap-3 justify-center flex-wrap">
-          <a href="/track" className="btn btn-secondary text-sm">Cari Order Lain</a>
-          <a href="/book" className="btn btn-primary text-sm">Buat Order Baru</a>
+          <a href="/track" className="btn btn-secondary text-sm">Cari Orderan Lain</a>
+          <a href="/book" className="btn btn-primary text-sm">Buat Orderan Baru</a>
         </div>
       </div>
     </div>
@@ -230,7 +230,7 @@ export default function TrackOrderPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-10 px-4">
       <div className="mx-auto max-w-lg space-y-5">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Status Order</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Status Orderan</h1>
           <p className="text-xs text-gray-400 mt-1 font-mono">{orderCode}</p>
         </div>
 
@@ -239,7 +239,7 @@ export default function TrackOrderPage() {
             <span>{statusCfg.label}</span>
           </div>
           <div className="space-y-2">
-            {[{ key: "pending", label: "Order Dikirim" }, { key: "accepted", label: "Diproses Penjoki" }, { key: "done", label: "Hasil Siap Diunduh" }].map((step, i) => {
+            {[{ key: "pending", label: "Orderan Dikirim" }, { key: "accepted", label: "Diproses Penjoki" }, { key: "done", label: "Hasil Siap Diunduh" }].map((step, i) => {
               const statuses = ["pending", "accepted", "done"];
               const isDone = i <= statuses.indexOf(order.status) && order.status !== "rejected";
               const isRejected = order.status === "rejected" && i === 0;
@@ -297,7 +297,7 @@ export default function TrackOrderPage() {
           <div className="rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-5 text-center space-y-3">
             <p className="font-semibold text-red-800 dark:text-red-200">Order Ditolak</p>
             <p className="text-sm text-red-600 dark:text-red-400 pb-4">Maaf, penjoki tidak dapat menerima ordermu saat ini. Kamu bisa coba pesan ke penjoki lain.</p>
-            <a href="/book" className="btn btn-primary text-sm">Buat Order Baru</a>
+            <a href="/book" className="btn btn-primary text-sm">Buat Orderan Baru</a>
           </div>
         )}
 
