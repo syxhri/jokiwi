@@ -504,7 +504,7 @@ export default function TrackOrderPage() {
             <p className="font-semibold text-red-800 dark:text-red-200">
               Order Ditolak
             </p>
-            <p className="text-sm text-red-600 dark:text-red-400">
+            <p className="text-sm text-red-600 dark:text-red-400 pb-10">
               Maaf, penjoki tidak dapat menerima ordermu saat ini.
               Kamu bisa coba pesan ke penjoki lain.
             </p>
