@@ -17,27 +17,27 @@ function crc16(str) {
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
 
-// function buildQrisWithAmount(qris, amount) {
-//   try {
-//     const { payload } = defGen({ qris, amount });
-//     return payload;
-//   } catch {
-//     return qris;
-//   }
-// }
-
-function buildQrisWithAmount(payload, amount) {
-  if (!payload || !amount) return payload;
+function buildQrisWithAmount(qris, amount) {
   try {
-    const amtStr = String(Math.round(Number(amount)));
-    const amtField = "54" + String(amtStr.length).padStart(2, "0") + amtStr;
-    let base = payload.endsWith("6304") ? payload.slice(0, -4) : payload;
-    if (base.includes("5303360")) { base = base.replace(/54\d{2}\d+/, ""); }
-    const withAmt = base + amtField;
-    const withoutCrc = withAmt.slice(0, -4) + "6304";
-    return withoutCrc + crc16(withoutCrc);
-  } catch { return payload; }
+    const result = defGen({ qris, amount });
+    return result.dataUrl;
+  } catch {
+    return qris;
+  }
 }
+
+// function buildQrisWithAmount(payload, amount) {
+//   if (!payload || !amount) return payload;
+//   try {
+//     const amtStr = String(Math.round(Number(amount)));
+//     const amtField = "54" + String(amtStr.length).padStart(2, "0") + amtStr;
+//     let base = payload.endsWith("6304") ? payload.slice(0, -4) : payload;
+//     if (base.includes("5303360")) { base = base.replace(/54\d{2}\d+/, ""); }
+//     const withAmt = base + amtField;
+//     const withoutCrc = withAmt.slice(0, -4) + "6304";
+//     return withoutCrc + crc16(withoutCrc);
+//   } catch { return payload; }
+// }
 
 const STATUS_CONFIG = {
   pending:  { label: "Menunggu Konfirmasi", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" },
