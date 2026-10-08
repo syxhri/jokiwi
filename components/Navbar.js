@@ -36,6 +36,23 @@ function NotificationBell({ userId }) {
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
+  // Tutup notifikasi saat Esc ditekan
+  useEffect(() => {
+    if (!open) return;
+    function onKeyDown(e) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    function onClose() {
+      setOpen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("close-modal", onClose);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("close-modal", onClose);
+    };
+  }, [open]);
+
   async function handleOpen() {
     const willOpen = !open;
     setOpen(willOpen);
@@ -267,6 +284,28 @@ export default function Navbar() {
 
   const [logoutOpen, setLogoutOpen] = useState(false);
 
+  // Tutup menu akun, drawer, dan dialog logout saat Esc ditekan
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === "Escape") {
+        setAccountOpen(false);
+        setDrawerOpen(false);
+        setLogoutOpen(false);
+      }
+    }
+    function onClose() {
+      setAccountOpen(false);
+      setDrawerOpen(false);
+      setLogoutOpen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("close-modal", onClose);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("close-modal", onClose);
+    };
+  }, []);
+
   async function handleLogout() {
     try {
       const res = await fetch("/api/auth/logout", { method: "POST" });
@@ -446,7 +485,7 @@ export default function Navbar() {
       {drawerOpen && (
         <>
           <div
-            className="fixed inset-0 z-30 bg-black/30 md:hidden"
+            className="fixed inset-0 z-30 bg-black/30 backdrop-blur-sm md:hidden"
             onClick={() => setDrawerOpen(false)}
           />
           <aside className="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-slate-900 shadow-xl md:hidden">
@@ -555,7 +594,7 @@ export default function Navbar() {
       {/* Logout confirm dialog */}
       {logoutOpen && (
         <>
-          <div className="fixed inset-0 z-50 bg-black/40" onClick={() => setLogoutOpen(false)} />
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setLogoutOpen(false)} />
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className="w-full max-w-xs rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-xl space-y-4">
               <p className="font-semibold text-gray-900 dark:text-gray-50">Yakin mau logout?</p>

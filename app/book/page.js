@@ -52,15 +52,27 @@ export default function BookPage() {
       .finally(() => setLoadingCat(false));
   }, [form.joki_user_code]);
 
-  // Tutup dropdown saat klik di luar
+  // Tutup dropdown saat klik di luar atau tekan Esc
   useEffect(() => {
     function handleClickOutside(e) {
       if (jokiDropdownRef.current && !jokiDropdownRef.current.contains(e.target)) {
         setJokiDropdownOpen(false);
       }
     }
+    function onKeyDown(e) {
+      if (e.key === "Escape") setJokiDropdownOpen(false);
+    }
+    function onCloseModal() {
+      setJokiDropdownOpen(false);
+    }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("close-modal", onCloseModal);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("close-modal", onCloseModal);
+    };
   }, []);
 
   const handleChange = (e) => {

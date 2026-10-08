@@ -62,17 +62,30 @@ export default function OrderTable({
   const hasData = useMemo(() => orders && orders.length > 0, [orders]);
 
   useEffect(() => {
-    if (!qrisModal.open) return;
+    function closeAllModals() {
+      if (qrisModal.open) closeQrisModal();
+      if (receiptModal.open) closeReceiptModal();
+      if (deleteModal.open && !deleteModal.loading) setDeleteModal({ open: false, orderCode: null, loading: false });
+      if (rejectConfirm.open && !rejectConfirm.loading) setRejectConfirm({ open: false, orderId: null, loading: false });
+      if (confirmPayModal.open && !confirmPayModal.loading) setConfirmPayModal({ open: false, orderId: null, loading: false });
+      if (uploadModal.open && !uploadModal.loading) setUploadModal((m) => ({ ...m, open: false }));
+      if (alertModal.open) setAlertModal({ open: false, title: "", message: "", type: "info" });
+    }
 
     function onKeyDown(e) {
-      if (e.key === "Escape") {
-        closeQrisModal();
-      }
+      if (e.key === "Escape") closeAllModals();
+    }
+    function onCloseModal() {
+      closeAllModals();
     }
 
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [qrisModal.open]);
+    window.addEventListener("close-modal", onCloseModal);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("close-modal", onCloseModal);
+    };
+  }, [qrisModal.open, receiptModal.open, deleteModal, rejectConfirm, confirmPayModal, uploadModal, alertModal]);
 
   useEffect(() => {
     const isModalOpen = qrisModal.open || receiptModal.open;
@@ -561,10 +574,16 @@ export default function OrderTable({
                     </td>
                     <td className="px-4 py-3 text-xs">
                       <div className="space-y-1">
-                        {order.status && order.status !== "manual" && (
-                          <StatusBadge type="order-status" status={order.status} />
+                        {order.status && order.status !== "manual" ? (
+                          <>
+                            <StatusBadge type="order-status" status={order.status} />
+                            {order.status !== "done" && order.status !== "rejected" && (
+                              <StatusBadge type="done" status={order.is_done} />
+                            )}
+                          </>
+                        ) : (
+                          <StatusBadge type="done" status={order.is_done} />
                         )}
-                        <StatusBadge type="done" status={order.is_done} />
                         <StatusBadge type="paid" status={order.is_paid} />
                       </div>
                     </td>
@@ -598,7 +617,7 @@ export default function OrderTable({
       {qrisModal.open && (
         <ModalPortal>
           <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
             style={{
               minHeight: "100dvh",
               paddingTop: "env(safe-area-inset-top)",
@@ -662,7 +681,7 @@ export default function OrderTable({
       {receiptModal.open && receiptModal.order && (
         <ModalPortal>
           <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
             style={{
               minHeight: "100dvh",
               paddingTop: "env(safe-area-inset-top)",

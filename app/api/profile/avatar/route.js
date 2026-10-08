@@ -3,7 +3,7 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME, verifyToken } from "@/lib/auth.js";
-import { setUserAvatar } from "@/lib/db.js";
+import { setUserAvatar, findUserById } from "@/lib/db.js";
 import { apiLimiter, getClientIp } from "@/lib/client.js";
 import { createClient } from "@supabase/supabase-js";
 
@@ -13,6 +13,41 @@ const supabase = createClient(
 );
 
 const AVATAR_BUCKET = "avatars";
+
+/**
+ * Hapus foto profil lama milik user dari bucket Supabase.
+ * Menghapus file dengan prefix `${userId}_` kecuali file baru (`keepFilename`),
+ * serta menghapus file lama spesifik jika ada (`extraOldFilename`).
+ */
+async function deleteOldAvatars(userId, keepFilename = null, extraOldFilename = null) {
+  try {
+    const { data: files } = await supabase.storage
+      .from(AVATAR_BUCKET)
+      .list("", { limit: 200 });
+
+    const toDeleteSet = new Set();
+    const prefix = `${userId}_`;
+
+    if (files && files.length > 0) {
+      for (const f of files) {
+        if (f.name.startsWith(prefix) && f.name !== keepFilename) {
+          toDeleteSet.add(f.name);
+        }
+      }
+    }
+
+    if (extraOldFilename && extraOldFilename !== keepFilename) {
+      toDeleteSet.add(extraOldFilename);
+    }
+
+    const toDelete = Array.from(toDeleteSet);
+    if (toDelete.length > 0) {
+      await supabase.storage.from(AVATAR_BUCKET).remove(toDelete);
+    }
+  } catch (cleanupErr) {
+    console.warn("Avatar cleanup warning:", cleanupErr);
+  }
+}
 
 export async function POST(request) {
   const ip = getClientIp(request);
@@ -27,6 +62,15 @@ export async function POST(request) {
     let userId;
     try { userId = verifyToken(token).userId; } catch {
       return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+    }
+
+    // Ambil info avatar lama sebelum diganti
+    const currentUser = await findUserById(userId);
+    let oldFilename = null;
+    if (currentUser?.avatarUrl) {
+      try {
+        oldFilename = currentUser.avatarUrl.split("/").pop();
+      } catch {}
     }
 
     const formData = await request.formData();
@@ -78,6 +122,9 @@ export async function POST(request) {
     const avatarUrl = publicUrlData.publicUrl;
     await setUserAvatar(userId, avatarUrl);
 
+    // Bersihkan foto profil lama dari bucket di background
+    await deleteOldAvatars(userId, filename, oldFilename);
+
     return NextResponse.json({ avatarUrl });
   } catch (err) {
     console.error("Failed to update avatar:", err);
@@ -100,7 +147,19 @@ export async function DELETE(request) {
       return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     }
 
+    const currentUser = await findUserById(userId);
+    let oldFilename = null;
+    if (currentUser?.avatarUrl) {
+      try {
+        oldFilename = currentUser.avatarUrl.split("/").pop();
+      } catch {}
+    }
+
     await setUserAvatar(userId, null);
+
+    // Hapus semua foto profil milik user ini dari bucket Supabase
+    await deleteOldAvatars(userId, null, oldFilename);
+
     return NextResponse.json({ message: "Foto profil dihapus" });
   } catch (err) {
     console.error("Failed to delete avatar:", err);

@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MissingWhatsappDialog from "@/components/MissingWhatsappDialog";
+import EscHandler from "@/components/EscHandler";
 import { getCurrentUser } from "@/lib/auth.js";
 import { ThemeProvider } from "./ThemeProvider";
 
@@ -34,6 +35,7 @@ export default async function RootLayout({ children }) {
       <body className={inter.className}>
         <ThemeProvider>
           <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-50">
+            <EscHandler />
             <Navbar initialUser={initialUser} />
             <main className="flex-1">{children}</main>
             <Footer />

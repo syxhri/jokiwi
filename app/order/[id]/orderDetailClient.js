@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,6 +23,20 @@ export default function OrderDetailClient({ order: initialOrder }) {
   const [uploadingFile, setUploadingFile] = useState(false);
 
   const receiptRef = useRef(null);
+
+  // Tutup semua modal saat Esc ditekan (via EscHandler global)
+  useEffect(() => {
+    function handleCloseModal() {
+      if (acceptModal.open && !acceptModal.loading) setAcceptModal((m) => ({ ...m, open: false }));
+      if (uploadModal.open && !uploadModal.loading) setUploadModal((m) => ({ ...m, open: false }));
+      if (qrisModal.open) setQrisModal({ open: false, loading: false, dataUrl: "", error: "" });
+      if (receiptModal) setReceiptModal(false);
+      if (confirmDialog.open && !confirmDialog.loading) setConfirmDialog((d) => ({ ...d, open: false }));
+      if (alertModal.open) setAlertModal((a) => ({ ...a, open: false }));
+    }
+    window.addEventListener("close-modal", handleCloseModal);
+    return () => window.removeEventListener("close-modal", handleCloseModal);
+  }, [acceptModal, uploadModal, qrisModal, receiptModal, confirmDialog, alertModal]);
 
   // Refresh order data
   async function refreshOrder() {
@@ -284,7 +298,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
           <button
             type="button"
             onClick={triggerDelete}
-            className="btn btn-secondary text-xs text-red-600 hover:text-red-800 dark:text-red-400"
+            className="btn text-xs bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800"
           >
             Hapus Orderan
           </button>
@@ -399,7 +413,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                   <button
                     type="button"
                     onClick={triggerReject}
-                    className="btn btn-secondary w-full text-xs text-red-600 hover:text-red-800"
+                    className="btn btn-danger w-full text-xs"
                   >
                     Tolak Orderan
                   </button>
@@ -423,7 +437,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                   <button
                     type="button"
                     onClick={() => setUploadModal({ open: true, isReupload: true, tab: order.external_link ? "link" : "file", linkInput: order.external_link || "", loading: false, error: "" })}
-                    className="btn btn-secondary w-full text-xs"
+                    className="btn w-full text-xs bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
                   >
                     Upload Ulang / Ganti Link
                   </button>
@@ -441,30 +455,34 @@ export default function OrderDetailClient({ order: initialOrder }) {
 
               {/* Remind Payment Buttons */}
               {!order.is_paid && (order.status === "accepted" || order.status === "done") && (
-                <div className="space-y-1.5">
-                  <p className="text-[10px] text-gray-400 font-medium">Kirim Pengingat Bayar:</p>
-                  <button
-                    type="button"
-                    onClick={handleRemindViaWhatsApp}
-                    className="btn btn-secondary w-full text-xs text-emerald-600 hover:text-emerald-800"
-                  >
-                    💬 WhatsApp
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleRemindViaPush}
-                    className="btn btn-secondary w-full text-xs text-amber-700 hover:text-amber-800"
-                  >
-                    🔔 Notifikasi Push
-                  </button>
-                </div>
+                <>
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] text-gray-400 font-medium">Kirim Pengingat Bayar:</p>
+                    <button
+                      type="button"
+                      onClick={handleRemindViaWhatsApp}
+                      className="btn w-full text-xs bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                    >
+                      💬 WhatsApp
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRemindViaPush}
+                      className="btn w-full text-xs bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
+                    >
+                      🔔 Notifikasi Push
+                    </button>
+                  </div>
+                  {/* Pemisah antara pengingat bayar dan aksi QRIS/Edit */}
+                  <hr className="border-gray-100 dark:border-slate-800 my-2" />
+                </>
               )}
 
               {/* Standard utilities */}
               <button
                 type="button"
                 onClick={handleMakeQris}
-                className="btn btn-secondary w-full text-xs"
+                className="btn w-full text-xs bg-violet-50 hover:bg-violet-100 dark:bg-violet-900/20 dark:hover:bg-violet-900/40 text-violet-700 dark:text-violet-400 border border-violet-200 dark:border-violet-800"
               >
                 Buat QRIS
               </button>
@@ -473,7 +491,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                 <button
                   type="button"
                   onClick={() => setReceiptModal(true)}
-                  className="btn btn-secondary w-full text-xs text-amber-600"
+                  className="btn w-full text-xs bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
                 >
                   Buat Struk
                 </button>

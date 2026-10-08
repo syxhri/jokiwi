@@ -46,6 +46,28 @@ export default function ProfileClient({ user }) {
   // ─── Alert modal state ───────────────────────────────────────
   const [alertModal, setAlertModal] = useState({ open: false, title: "", message: "", type: "info" });
 
+  // ─── Esc key handler ─────────────────────────────────────────
+  useEffect(() => {
+    function closeAll() {
+      if (deleteQrisConfirm) setDeleteQrisConfirm(false);
+      if (alertModal.open) setAlertModal((a) => ({ ...a, open: false }));
+      if (editingProfile) setEditingProfile(false);
+      if (editingWa) setEditingWa(false);
+    }
+    function onKeyDown(e) {
+      if (e.key === "Escape") closeAll();
+    }
+    function onCloseModal() {
+      closeAll();
+    }
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("close-modal", onCloseModal);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("close-modal", onCloseModal);
+    };
+  }, [deleteQrisConfirm, alertModal.open, editingProfile, editingWa]);
+
   // ─── QRIS functions ──────────────────────────────────────────
   async function readImage(file) {
     return new Promise((resolve, reject) => {

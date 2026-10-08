@@ -59,7 +59,7 @@ function PaymentDialog({ order }) {
           <div className="flex items-center justify-center rounded-xl bg-white p-4 shadow-inner">
             <QRCode value={qrisWithAmount} size={200} onDataUrl={setQrisDataUrl} />
           </div>
-          <button onClick={downloadQris} className="btn btn-secondary text-xs w-full">Download QRIS</button>
+          <button onClick={downloadQris} className="btn w-full text-xs bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800 font-semibold">Download QRIS</button>
         </div>
       )}
     </div>
@@ -311,7 +311,7 @@ export default function TrackOrderPage() {
             ) : !order.hasFile ? (
               <div className="rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 p-3">
                 <p className="text-sm text-orange-700 dark:text-orange-300">File tidak tersedia. File mungkin sudah dihapus otomatis setelah didownload. Hubungi penjoki via WhatsApp untuk meminta upload ulang.</p>
-                {order.jokiWhatsapp && <a href={"https://wa.me/" + order.jokiWhatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62") + "?text=" + encodeURIComponent("Halo, bisakah file untuk pesanan " + orderCode + " diupload ulang? File saya sepertinya sudah terhapus. Terima kasih!")} target="_blank" rel="noopener noreferrer" className="mt-2 btn btn-secondary text-xs inline-flex items-center gap-1">Chat Penjoki</a>}
+                {order.jokiWhatsapp && <a href={"https://wa.me/" + order.jokiWhatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62") + "?text=" + encodeURIComponent("Halo, bisakah file untuk pesanan " + orderCode + " diupload ulang? File saya sepertinya sudah terhapus. Terima kasih!")} target="_blank" rel="noopener noreferrer" className="mt-2 btn text-xs inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 font-semibold">Chat Penjoki</a>}
               </div>
             ) : (
               <>
