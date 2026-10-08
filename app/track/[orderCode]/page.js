@@ -8,8 +8,8 @@ import { defGen } from "@/lib/qris";
 
 function buildQrisWithAmount(qris, amount) {
   try {
-    const { payload } = defGen({ qris, amount });
-    return payload;
+    const { dataUrl } = defGen({ qris, amount });
+    return dataUrl;
   } catch {
     return qris;
   }
