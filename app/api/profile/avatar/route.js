@@ -1,4 +1,4 @@
-﻿export const runtime = "nodejs";
+export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -35,17 +35,17 @@ export async function POST(request) {
       return NextResponse.json({ error: "File avatar wajib diupload" }, { status: 400 });
     }
 
-    const maxSize = 2 * 1024 * 1024; // 2MB
+    const maxSize = 5 * 1024 * 1024; // 5MB — sesuai setting Supabase bucket
     if (file.size > maxSize) {
-      return NextResponse.json({ error: "Ukuran foto maksimal 2MB" }, { status: 400 });
+      return NextResponse.json({ error: "Ukuran foto maksimal 5MB" }, { status: 400 });
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: "Format foto harus JPG, PNG, WebP, atau GIF" }, { status: 400 });
+    // Supabase bucket strict MIME: image/* — tolak semua non-image sebelum upload
+    if (!file.type.startsWith("image/")) {
+      return NextResponse.json({ error: "File harus berupa gambar (JPG, PNG, WebP, dll)" }, { status: 400 });
     }
 
-    const ext = file.type.split("/")[1].replace("jpeg", "jpg");
+    const ext = (file.type.split("/")[1] || "jpg").replace("jpeg", "jpg").replace("svg+xml", "svg");
     const filename = `${userId}_${Date.now()}.${ext}`;
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -60,7 +60,15 @@ export async function POST(request) {
 
     if (uploadError) {
       console.error("Avatar upload error:", uploadError);
-      return NextResponse.json({ error: "Gagal upload foto profil" }, { status: 500 });
+      // Parse error dari Supabase untuk pesan yang lebih jelas
+      const msg = uploadError.message || "";
+      if (msg.includes("Entity Too Large") || msg.includes("maximum allowed size")) {
+        return NextResponse.json({ error: "Ukuran foto melebihi batas maksimal Supabase (5MB)" }, { status: 413 });
+      }
+      if (msg.includes("mime") || msg.includes("MIME") || msg.includes("content type")) {
+        return NextResponse.json({ error: "Format file tidak diizinkan. Upload gambar (JPG, PNG, WebP, dll)" }, { status: 415 });
+      }
+      return NextResponse.json({ error: "Gagal upload foto profil. Coba lagi nanti." }, { status: 500 });
     }
 
     const { data: publicUrlData } = supabase.storage
