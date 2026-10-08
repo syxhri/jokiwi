@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -155,29 +155,64 @@ export default function BookPage() {
           )}
 
           {/* Pilih penjoki */}
-          <div className="space-y-1">
-            <label htmlFor="joki_user_code" className="label">
+          <div className="space-y-2">
+            <label className="label">
               Pilih Penjoki <span className="text-red-500">*</span>
             </label>
             {loadingJoki ? (
-              <div className="h-10 animate-pulse rounded-lg bg-gray-100 dark:bg-slate-800" />
-            ) : (
-              <select
-                id="joki_user_code"
-                name="joki_user_code"
-                value={form.joki_user_code}
-                onChange={handleChange}
-                className="input"
-                required
-              >
-                <option value="">-- Pilih penjoki --</option>
-                {jokiList.map((j) => (
-                  <option key={j.userCode} value={j.userCode}>
-                    {j.name || j.username} (@{j.username})
-                  </option>
+              <div className="grid grid-cols-2 gap-2">
+                {[1,2].map(i => (
+                  <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-100 dark:bg-slate-800" />
                 ))}
-              </select>
+              </div>
+            ) : jokiList.length === 0 ? (
+              <p className="text-sm text-gray-400">Belum ada penjoki tersedia.</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {jokiList.map((j) => {
+                  const selected = form.joki_user_code === j.userCode;
+                  return (
+                    <button
+                      key={j.userCode}
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, joki_user_code: j.userCode }))}
+                      className={`flex items-center gap-3 rounded-xl border-2 p-3 text-left transition-all ${
+                        selected
+                          ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
+                          : "border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-200 dark:hover:border-primary-700"
+                      }`}
+                    >
+                      <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+                        {j.avatarUrl ? (
+                          <img src={j.avatarUrl} alt={j.name || j.username} className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-base font-bold text-primary-600 dark:text-primary-400">
+                            {(j.name || j.username || "?")[0].toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-semibold truncate ${selected ? "text-primary-700 dark:text-primary-300" : "text-gray-900 dark:text-gray-100"}`}>
+                          {j.name || j.username}
+                        </p>
+                        <p className="text-xs text-gray-400 font-mono truncate">@{j.username}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             )}
+            {/* Hidden input untuk validasi form required */}
+            <input
+              type="text"
+              name="joki_user_code"
+              value={form.joki_user_code}
+              onChange={() => {}}
+              required
+              className="sr-only"
+              aria-hidden="true"
+              tabIndex={-1}
+            />
           </div>
 
           {/* Nama customer */}

@@ -386,16 +386,8 @@ export default function ProfileClient({ user }) {
         ) : (
           <div className="space-y-1">
             {waStatus && <p className="text-xs text-emerald-600">{waStatus}</p>}
-            <div className="flex items-center gap-3">
-              <div className="flex-1">
-                <p className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100">{whatsapp}</p>
-                <p className="text-xs text-gray-400 mt-0.5">Nomor ini digunakan customer untuk menghubungi kamu.</p>
-              </div>
-              <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer"
-                className="rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold px-3 py-1.5 transition-colors">
-                Test WA
-              </a>
-            </div>
+            <p className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100">{whatsapp}</p>
+            <p className="text-xs text-gray-400 mt-0.5">Nomor ini digunakan customer untuk menghubungi kamu.</p>
           </div>
         )}
       </div>

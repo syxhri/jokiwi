@@ -385,8 +385,12 @@ export default function Navbar() {
                   <span className="hidden sm:inline max-w-[120px] truncate text-xs font-medium text-gray-700 dark:text-gray-300">
                     {user.name || user.username}
                   </span>
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold text-white">
-                    {firstLetter}
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold text-white overflow-hidden">
+                    {user.avatarUrl ? (
+                      <img src={user.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                    ) : (
+                      firstLetter
+                    )}
                   </span>
                 </button>
 
