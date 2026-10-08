@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -13,6 +13,8 @@ export default function BookPage() {
   const [loadingCat, setLoadingCat] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [jokiDropdownOpen, setJokiDropdownOpen] = useState(false);
+  const jokiDropdownRef = useRef(null);
 
   const [form, setForm] = useState({
     joki_user_code: "",
@@ -49,6 +51,17 @@ export default function BookPage() {
       .catch(() => setCategories([]))
       .finally(() => setLoadingCat(false));
   }, [form.joki_user_code]);
+
+  // Tutup dropdown saat klik di luar
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (jokiDropdownRef.current && !jokiDropdownRef.current.contains(e.target)) {
+        setJokiDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -154,65 +167,103 @@ export default function BookPage() {
             </div>
           )}
 
-          {/* Pilih penjoki */}
-          <div className="space-y-2">
+          {/* Pilih penjoki — custom dropdown dengan foto */}
+          <div className="space-y-1.5" ref={jokiDropdownRef}>
             <label className="label">
               Pilih Penjoki <span className="text-red-500">*</span>
             </label>
             {loadingJoki ? (
-              <div className="grid grid-cols-2 gap-2">
-                {[1,2].map(i => (
-                  <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-100 dark:bg-slate-800" />
-                ))}
-              </div>
-            ) : jokiList.length === 0 ? (
-              <p className="text-sm text-gray-400">Belum ada penjoki tersedia.</p>
+              <div className="h-11 animate-pulse rounded-lg bg-gray-100 dark:bg-slate-800" />
             ) : (
-              <div className="grid grid-cols-2 gap-2">
-                {jokiList.map((j) => {
-                  const selected = form.joki_user_code === j.userCode;
-                  return (
-                    <button
-                      key={j.userCode}
-                      type="button"
-                      onClick={() => setForm((prev) => ({ ...prev, joki_user_code: j.userCode }))}
-                      className={`flex items-center gap-3 rounded-xl border-2 p-3 text-left transition-all ${
-                        selected
-                          ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
-                          : "border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-200 dark:hover:border-primary-700"
-                      }`}
-                    >
-                      <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
-                        {j.avatarUrl ? (
-                          <img src={j.avatarUrl} alt={j.name || j.username} className="h-full w-full object-cover" />
-                        ) : (
-                          <span className="text-base font-bold text-primary-600 dark:text-primary-400">
-                            {(j.name || j.username || "?")[0].toUpperCase()}
-                          </span>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className={`text-sm font-semibold truncate ${selected ? "text-primary-700 dark:text-primary-300" : "text-gray-900 dark:text-gray-100"}`}>
+              <div className="relative">
+                {/* Trigger button */}
+                <button
+                  type="button"
+                  onClick={() => setJokiDropdownOpen((o) => !o)}
+                  className="input flex items-center gap-2.5 text-left w-full pr-9"
+                >
+                  {form.joki_user_code ? (() => {
+                    const j = jokiList.find(x => x.userCode === form.joki_user_code);
+                    return j ? (
+                      <>
+                        <div className="flex-shrink-0 h-6 w-6 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+                          {j.avatarUrl ? (
+                            <img src={j.avatarUrl} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="text-[10px] font-bold text-primary-600 dark:text-primary-400">
+                              {(j.name || j.username)[0].toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        <span className="flex-1 truncate text-sm text-gray-900 dark:text-gray-100">
                           {j.name || j.username}
-                        </p>
-                        <p className="text-xs text-gray-400 font-mono truncate">@{j.username}</p>
-                      </div>
-                    </button>
-                  );
-                })}
+                          <span className="text-gray-400 font-mono ml-1.5 text-xs">@{j.username}</span>
+                        </span>
+                      </>
+                    ) : null;
+                  })() : (
+                    <span className="text-gray-400 text-sm">-- Pilih penjoki --</span>
+                  )}
+                  <svg className={`absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 transition-transform ${jokiDropdownOpen ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+
+                {/* Dropdown list */}
+                {jokiDropdownOpen && (
+                  <div className="absolute z-50 mt-1 w-full rounded-xl border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
+                    <div className="max-h-52 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800">
+                      {jokiList.length === 0 ? (
+                        <p className="px-4 py-3 text-sm text-gray-400">Belum ada penjoki tersedia.</p>
+                      ) : jokiList.map((j) => {
+                        const selected = form.joki_user_code === j.userCode;
+                        return (
+                          <button
+                            key={j.userCode}
+                            type="button"
+                            onClick={() => {
+                              setForm((prev) => ({ ...prev, joki_user_code: j.userCode }));
+                              setJokiDropdownOpen(false);
+                            }}
+                            className={`flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors ${
+                              selected ? "bg-primary-50 dark:bg-primary-900/20" : "hover:bg-gray-50 dark:hover:bg-slate-800"
+                            }`}
+                          >
+                            <div className="flex-shrink-0 h-8 w-8 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+                              {j.avatarUrl ? (
+                                <img src={j.avatarUrl} alt="" className="h-full w-full object-cover" />
+                              ) : (
+                                <span className="text-sm font-bold text-primary-600 dark:text-primary-400">
+                                  {(j.name || j.username)[0].toUpperCase()}
+                                </span>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className={`text-sm font-semibold truncate ${selected ? "text-primary-700 dark:text-primary-300" : "text-gray-900 dark:text-gray-100"}`}>
+                                {j.name || j.username}
+                              </p>
+                              <p className="text-xs text-gray-400 font-mono">@{j.username}</p>
+                            </div>
+                            {selected && (
+                              <svg className="h-4 w-4 flex-shrink-0 text-primary-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Hidden input untuk validasi form required */}
+                <input
+                  type="text"
+                  value={form.joki_user_code}
+                  onChange={() => {}}
+                  required
+                  className="sr-only"
+                  aria-hidden="true"
+                  tabIndex={-1}
+                />
               </div>
             )}
-            {/* Hidden input untuk validasi form required */}
-            <input
-              type="text"
-              name="joki_user_code"
-              value={form.joki_user_code}
-              onChange={() => {}}
-              required
-              className="sr-only"
-              aria-hidden="true"
-              tabIndex={-1}
-            />
           </div>
 
           {/* Nama customer */}
