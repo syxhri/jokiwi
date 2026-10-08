@@ -4,40 +4,16 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import QRISLogo from "@/components/QRISLogo";
 import QRCode from "@/components/QRCode";
-import { defGen } from "@/lib/qris";
-
-function crc16(str) {
-  let crc = 0xffff;
-  for (let i = 0; i < str.length; i++) {
-    crc ^= (str.charCodeAt(i) & 0xff) << 8;
-    for (let j = 0; j < 8; j++) {
-      crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
-    }
-  }
-  return crc.toString(16).toUpperCase().padStart(4, "0");
-}
+import { convertQrisStaticToDynamic } from "@/lib/qris";
 
 function buildQrisWithAmount(qris, amount) {
   try {
-    const result = defGen({ qris, amount });
-    return result.payload;
+    const result = convertQrisStaticToDynamic({ qris, amount });
+    return result;
   } catch {
     return qris;
   }
 }
-
-// function buildQrisWithAmount(payload, amount) {
-//   if (!payload || !amount) return payload;
-//   try {
-//     const amtStr = String(Math.round(Number(amount)));
-//     const amtField = "54" + String(amtStr.length).padStart(2, "0") + amtStr;
-//     let base = payload.endsWith("6304") ? payload.slice(0, -4) : payload;
-//     if (base.includes("5303360")) { base = base.replace(/54\d{2}\d+/, ""); }
-//     const withAmt = base + amtField;
-//     const withoutCrc = withAmt.slice(0, -4) + "6304";
-//     return withoutCrc + crc16(withoutCrc);
-//   } catch { return payload; }
-// }
 
 const STATUS_CONFIG = {
   pending:  { label: "Menunggu Konfirmasi", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" },
