@@ -67,7 +67,9 @@ function PaymentDialog({ order }) {
 }
 
 function PushBanner({ orderCode, onSubscribed }) {
+  // "idle" | "loading" | "done" | "denied" | "error" | "unsupported"
   const [status, setStatus] = useState("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -81,9 +83,11 @@ function PushBanner({ orderCode, onSubscribed }) {
 
   async function autoSubscribe() {
     try {
+      // Pastikan SW sudah terdaftar sebelum pakai .ready
+      await navigator.serviceWorker.register("/sw.js");
       const reg = await navigator.serviceWorker.ready;
       const vapidRes = await fetch("/api/customer/orders/" + orderCode + "/push-subscribe");
-      if (!vapidRes.ok) return;
+      if (!vapidRes.ok) return; // gagal silently — biarkan banner tetap idle
       const { vapidPublicKey } = await vapidRes.json();
       if (!vapidPublicKey) return;
       let sub = await reg.pushManager.getSubscription();
@@ -93,19 +97,35 @@ function PushBanner({ orderCode, onSubscribed }) {
         body: JSON.stringify({ subscription: sub.toJSON() }),
       });
       setStatus("done"); onSubscribed?.();
-    } catch { setStatus("done"); }
+    } catch {
+      // Gagal auto-subscribe: jangan ubah status, biarkan banner "idle" tampil
+      // supaya user bisa klik manual
+    }
   }
 
   async function subscribe() {
     setStatus("loading");
+    setErrorMsg("");
     try {
       await navigator.serviceWorker.register("/sw.js");
       const reg = await navigator.serviceWorker.ready;
       const vapidRes = await fetch("/api/customer/orders/" + orderCode + "/push-subscribe");
       const { vapidPublicKey } = await vapidRes.json();
-      if (!vapidPublicKey) { setStatus("denied"); return; }
+      if (!vapidPublicKey) {
+        setStatus("error");
+        setErrorMsg("Gagal mendapatkan konfigurasi notifikasi. Coba lagi nanti.");
+        return;
+      }
       const permission = await Notification.requestPermission();
-      if (permission !== "granted") { setStatus("denied"); return; }
+      if (permission === "denied") {
+        setStatus("denied");
+        return;
+      }
+      if (permission !== "granted") {
+        // User menutup dialog tanpa memilih — kembali ke idle
+        setStatus("idle");
+        return;
+      }
       let sub = await reg.pushManager.getSubscription();
       if (!sub) { sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidPublicKey }); }
       await fetch("/api/customer/orders/" + orderCode + "/push-subscribe", {
@@ -113,17 +133,41 @@ function PushBanner({ orderCode, onSubscribed }) {
         body: JSON.stringify({ subscription: sub.toJSON() }),
       });
       setStatus("done"); onSubscribed?.();
-    } catch (err) { console.error("Push subscribe error:", err); setStatus("denied"); }
+    } catch (err) {
+      console.error("Push subscribe error:", err);
+      setStatus("error");
+      setErrorMsg("Gagal mengaktifkan notifikasi. Pastikan browser kamu mendukung fitur ini.");
+    }
   }
 
-  if (status !== "idle") return null;
+  // Sudah subscribe berhasil — tidak perlu tampilkan apa-apa
+  if (status === "done" || status === "unsupported") return null;
+
+  // Notifikasi diblokir oleh browser — tampilkan panduan
+  if (status === "denied") {
+    return (
+      <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 p-4">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          🔕 Notifikasi diblokir. Untuk aktifkan, buka pengaturan browser dan izinkan notifikasi untuk situs ini, lalu muat ulang halaman.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-900/20 p-4 flex items-start gap-3">
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-sky-800 dark:text-sky-200">Aktifkan Notifikasi</p>
         <p className="text-xs text-sky-600 dark:text-sky-400 mt-0.5">Dapatkan update otomatis saat pesanan diterima, selesai, atau ada pengingat bayar.</p>
-        <button onClick={subscribe} disabled={status === "loading"} className="mt-2 btn btn-primary text-xs py-1.5 px-3">
-          {status === "loading" ? "Mengaktifkan..." : "Izinkan Notifikasi"}
+        {status === "error" && (
+          <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errorMsg}</p>
+        )}
+        <button
+          onClick={subscribe}
+          disabled={status === "loading"}
+          className="mt-2 btn btn-primary text-xs py-1.5 px-3 disabled:opacity-60"
+        >
+          {status === "loading" ? "Menunggu izin..." : status === "error" ? "Coba Lagi" : "Izinkan Notifikasi"}
         </button>
       </div>
     </div>
@@ -232,7 +276,7 @@ export default function TrackOrderPage() {
               return (
                 <div key={step.key} className="flex items-center gap-3">
                   <div className={"h-6 w-6 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold " + (isDone ? "bg-primary-500 text-white" : isRejected ? "bg-red-500 text-white" : "bg-gray-200 dark:bg-slate-700 text-gray-400")}>
-                    {isDone ? "v" : isRejected ? "x" : i + 1}
+                    {isDone ? "✓" : isRejected ? "✗" : i + 1}
                   </div>
                   <span className={"text-sm " + (isDone ? "text-gray-900 dark:text-gray-100 font-medium" : "text-gray-400")}>
                     {step.label}{step.key === "accepted" && order.status === "rejected" ? " (Ditolak)" : ""}

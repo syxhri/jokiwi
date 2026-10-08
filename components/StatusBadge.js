@@ -42,7 +42,7 @@ export default function StatusBadge({ type, status }) {
         className += " bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300";
         break;
       case "done":
-        label = "Done";
+        label = "Selesai";
         className += " bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300";
         break;
       default:

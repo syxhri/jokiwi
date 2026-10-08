@@ -93,6 +93,7 @@ export default function OrderTable({
     else if (filterStatus === "rejected") params.set("status", "rejected");
     else if (filterStatus === "paid") params.set("is_paid", "true");
     else if (filterStatus === "not_paid") params.set("is_paid", "false");
+    else if (filterStatus === "not_done") params.set("is_done", "false");
     // "all" = tidak set param apapun
 
     params.set("sortBy", sortBy);
@@ -483,6 +484,7 @@ export default function OrderTable({
           { value: "rejected", label: "Ditolak" },
           { value: "paid", label: "Lunas" },
           { value: "not_paid", label: "Belum Lunas" },
+          { value: "not_done", label: "Belum Selesai" },
         ].map((opt) => (
           <button
             key={opt.value}
@@ -559,11 +561,17 @@ export default function OrderTable({
                     </td>
                     <td className="px-4 py-3 text-xs">
                       <div className="space-y-1">
-                        {order.status && order.status !== "manual" && (
-                          <StatusBadge type="order-status" status={order.status} />
+                        {order.status && order.status !== "manual" ? (
+                          <>
+                            <StatusBadge type="order-status" status={order.status} />
+                            <StatusBadge type="paid" status={order.is_paid} />
+                          </>
+                        ) : (
+                          <>
+                            <StatusBadge type="done" status={order.is_done} />
+                            <StatusBadge type="paid" status={order.is_paid} />
+                          </>
                         )}
-                        <StatusBadge type="done" status={order.is_done} />
-                        <StatusBadge type="paid" status={order.is_paid} />
                       </div>
                     </td>
                     <td className="px-4 py-3 text-xs">
