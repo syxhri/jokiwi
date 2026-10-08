@@ -17,14 +17,14 @@ function crc16(str) {
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
 
-function buildQrisWithAmount(qris, amount) {
-  try {
-    const { payload } = defGen({ qris, amount });
-    return payload;
-  } catch {
-    return qris;
-  }
-}
+// function buildQrisWithAmount(qris, amount) {
+//   try {
+//     const { payload } = defGen({ qris, amount });
+//     return payload;
+//   } catch {
+//     return qris;
+//   }
+// }
 
 function buildQrisWithAmount(payload, amount) {
   if (!payload || !amount) return payload;
