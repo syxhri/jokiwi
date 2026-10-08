@@ -20,7 +20,7 @@ function crc16(str) {
 function buildQrisWithAmount(qris, amount) {
   try {
     const result = defGen({ qris, amount });
-    return result.dataUrl;
+    return result.payload;
   } catch {
     return qris;
   }
