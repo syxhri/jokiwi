@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { convertQrisStaticToDynamic } from "@/lib/qris";
 
 function buildQrisWithAmount(qris, amount) {
   try {
-    const result = convertQrisStaticToDynamic({ qris, amount });
+    const result = convertQrisStaticToDynamic(qris, amount);
     return result;
   } catch {
     return qris;
