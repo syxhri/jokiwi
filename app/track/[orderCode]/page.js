@@ -6,13 +6,37 @@ import QRISLogo from "@/components/QRISLogo";
 import QRCode from "@/components/QRCode";
 import { defGen } from "@/lib/qris";
 
+function crc16(str) {
+  let crc = 0xffff;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= (str.charCodeAt(i) & 0xff) << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+
 function buildQrisWithAmount(qris, amount) {
   try {
-    const { dataUrl } = defGen({ qris, amount });
-    return dataUrl;
+    const { payload } = defGen({ qris, amount });
+    return payload;
   } catch {
     return qris;
   }
+}
+
+function buildQrisWithAmount(payload, amount) {
+  if (!payload || !amount) return payload;
+  try {
+    const amtStr = String(Math.round(Number(amount)));
+    const amtField = "54" + String(amtStr.length).padStart(2, "0") + amtStr;
+    let base = payload.endsWith("6304") ? payload.slice(0, -4) : payload;
+    if (base.includes("5303360")) { base = base.replace(/54\d{2}\d+/, ""); }
+    const withAmt = base + amtField;
+    const withoutCrc = withAmt.slice(0, -4) + "6304";
+    return withoutCrc + crc16(withoutCrc);
+  } catch { return payload; }
 }
 
 const STATUS_CONFIG = {
