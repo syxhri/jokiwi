@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import StatusBadge from "./StatusBadge";
@@ -56,22 +56,29 @@ export default function OrderTable({
   });
   // State untuk status loading upload per order
   const [uploadState, setUploadState] = useState({}); // keyed by orderId
+  const [deleteModal, setDeleteModal] = useState({ open: false, orderCode: null, loading: false });
+  const [alertModal, setAlertModal] = useState({ open: false, title: "", message: "", type: "info" });
+  const [rejectConfirm, setRejectConfirm] = useState({ open: false, orderId: null, loading: false });
+  const [remindConfirm, setRemindConfirm] = useState({ open: false, orderCode: null, customerPhone: null, loading: false });
+  const [confirmPayModal, setConfirmPayModal] = useState({ open: false, orderId: null, loading: false });
 
   const receiptRef = useRef(null);
 
   const hasData = useMemo(() => orders && orders.length > 0, [orders]);
 
-  useEffect(() => {
-    function closeAllModals() {
-      if (qrisModal.open) closeQrisModal();
-      if (receiptModal.open) closeReceiptModal();
-      if (deleteModal.open && !deleteModal.loading) setDeleteModal({ open: false, orderCode: null, loading: false });
-      if (rejectConfirm.open && !rejectConfirm.loading) setRejectConfirm({ open: false, orderId: null, loading: false });
-      if (confirmPayModal.open && !confirmPayModal.loading) setConfirmPayModal({ open: false, orderId: null, loading: false });
-      if (uploadModal.open && !uploadModal.loading) setUploadModal((m) => ({ ...m, open: false }));
-      if (alertModal.open) setAlertModal({ open: false, title: "", message: "", type: "info" });
-    }
+  const closeAllModals = useCallback(() => {
+    setQrisModal((m) => (m.open ? { ...m, open: false } : m));
+    setReceiptModal((m) => (m.open ? { ...m, open: false, order: null } : m));
+    setDeleteModal((m) => (m.open && !m.loading ? { open: false, orderCode: null, loading: false } : m));
+    setRejectConfirm((m) => (m.open && !m.loading ? { open: false, orderId: null, loading: false } : m));
+    setConfirmPayModal((m) => (m.open && !m.loading ? { open: false, orderId: null, loading: false } : m));
+    setRemindConfirm((m) => (m.open && !m.loading ? { open: false, orderCode: null, customerPhone: null, loading: false } : m));
+    setAcceptModal((m) => (m.open && !m.loading ? { ...m, open: false } : m));
+    setUploadModal((m) => (m.open && !m.loading ? { ...m, open: false } : m));
+    setAlertModal((m) => (m.open ? { open: false, title: "", message: "", type: "info" } : m));
+  }, []);
 
+  useEffect(() => {
     function onKeyDown(e) {
       if (e.key === "Escape") closeAllModals();
     }
@@ -85,7 +92,7 @@ export default function OrderTable({
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("close-modal", onCloseModal);
     };
-  }, [qrisModal.open, receiptModal.open, deleteModal, rejectConfirm, confirmPayModal, uploadModal, alertModal]);
+  }, [closeAllModals]);
 
   useEffect(() => {
     const isModalOpen = qrisModal.open || receiptModal.open;
@@ -127,12 +134,6 @@ export default function OrderTable({
     fetchOrders(controller.signal).catch(() => {});
     return () => controller.abort();
   }, [search, filterStatus, sortBy, sortDir, categoryCode]);
-
-  const [deleteModal, setDeleteModal] = useState({ open: false, orderCode: null, loading: false });
-  const [alertModal, setAlertModal] = useState({ open: false, title: "", message: "", type: "info" });
-  const [rejectConfirm, setRejectConfirm] = useState({ open: false, orderId: null, loading: false });
-  const [remindConfirm, setRemindConfirm] = useState({ open: false, orderCode: null, customerPhone: null, loading: false });
-  const [confirmPayModal, setConfirmPayModal] = useState({ open: false, orderId: null, loading: false });
 
   function triggerDelete(orderCode) {
     setDeleteModal({ open: true, orderCode, loading: false });
