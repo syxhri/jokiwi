@@ -1,4 +1,4 @@
-﻿export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 import { requireAuth } from "@/lib/auth.js";
 import ProfileClient from "./profileClient";
@@ -15,7 +15,9 @@ export default async function ProfilePage() {
     id: user.id,
     username: user.username,
     name: user.name || "",
-    qrisPayload: user.qrisPayload,
+    qrisPayload: user.qrisPayload || null,
+    whatsappPhone: user.whatsappPhone || "",
+    avatarUrl: user.avatarUrl || null,
   };
 
   return <ProfileClient user={safeUser} />;

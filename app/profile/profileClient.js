@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import jsQR from "jsqr";
 import QRISLogo from "@/components/QRISLogo";
@@ -34,6 +34,14 @@ export default function ProfileClient({ user }) {
   const [profileStatus, setProfileStatus] = useState("");
   const [profileError, setProfileError] = useState("");
   const [busyProfile, setBusyProfile] = useState(false);
+
+  // ─── Avatar state ─────────────────────────────────────────────
+  const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || null);
+  const [busyAvatar, setBusyAvatar] = useState(false);
+  const avatarInputRef = useRef(null);
+
+  // ─── QRIS generated QR image state ───────────────────────────
+  const [qrisGenUrl, setQrisGenUrl] = useState("");
 
   // ─── Alert modal state ───────────────────────────────────────
   const [alertModal, setAlertModal] = useState({ open: false, title: "", message: "", type: "info" });
@@ -151,7 +159,7 @@ export default function ProfileClient({ user }) {
       const res = await fetch("/api/profile/whatsapp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: formatted }),
+        body: JSON.stringify({ whatsapp_phone: formatted }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -203,6 +211,54 @@ export default function ProfileClient({ user }) {
     }
   }
 
+  // ─── QRIS QR code generation ─────────────────────────────────
+  useEffect(() => {
+    if (!payloadPreview) { setQrisGenUrl(""); return; }
+    import("qrcode").then((QRLib) => {
+      QRLib.toDataURL(payloadPreview, {
+        errorCorrectionLevel: "M", width: 400, margin: 2,
+        color: { dark: "#000000", light: "#ffffff" },
+      }).then(setQrisGenUrl).catch(() => setQrisGenUrl(""));
+    }).catch(() => {});
+  }, [payloadPreview]);
+
+  // ─── Avatar functions ────────────────────────────────────────
+  async function handleAvatarChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBusyAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+      const res = await fetch("/api/profile/avatar", { method: "POST", body: formData });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAlertModal({ open: true, title: "Gagal", message: data.error || "Gagal upload foto profil.", type: "error" });
+        return;
+      }
+      setAvatarUrl(data.avatarUrl);
+      router.refresh();
+    } catch {
+      setAlertModal({ open: true, title: "Error", message: "Gagal upload foto profil.", type: "error" });
+    } finally {
+      setBusyAvatar(false);
+      e.target.value = "";
+    }
+  }
+
+  async function handleDeleteAvatar() {
+    setBusyAvatar(true);
+    try {
+      await fetch("/api/profile/avatar", { method: "DELETE" });
+      setAvatarUrl(null);
+      router.refresh();
+    } catch {
+      setAlertModal({ open: true, title: "Error", message: "Gagal menghapus foto profil.", type: "error" });
+    } finally {
+      setBusyAvatar(false);
+    }
+  }
+
   return (
     <div className="max-w-2xl mx-auto space-y-6 py-6 px-4">
       <canvas ref={canvasRef} className="hidden" />
@@ -234,7 +290,7 @@ export default function ProfileClient({ user }) {
               <p className="text-[11px] text-gray-400 mt-1">3-30 karakter, huruf/angka/underscore. Harus unik.</p>
             </div>
             <div>
-              <label className="label">Nama Tampil</label>
+              <label className="label">Nickname</label>
               <input type="text" value={profileForm.name} onChange={(e) => setProfileForm(f => ({ ...f, name: e.target.value }))}
                 className="input" placeholder="Nama kamu" />
             </div>
@@ -251,19 +307,49 @@ export default function ProfileClient({ user }) {
           <div className="space-y-2 text-sm">
             {profileStatus && <p className="text-xs text-emerald-600">{profileStatus}</p>}
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                <span className="text-xl font-bold text-primary-600 dark:text-primary-400">
-                  {(user.name || user.username || "?")[0].toUpperCase()}
-                </span>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={busyAvatar}
+                  className="h-14 w-14 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center border-2 border-white dark:border-slate-800 shadow hover:opacity-80 transition-opacity"
+                  title="Ganti foto profil"
+                >
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-xl font-bold text-primary-600 dark:text-primary-400">
+                      {(user.name || user.username || "?")[0].toUpperCase()}
+                    </span>
+                  )}
+                </button>
+                {busyAvatar && (
+                  <div className="absolute inset-0 rounded-full bg-black/30 flex items-center justify-center">
+                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                />
               </div>
               <div>
                 <p className="font-bold text-gray-900 dark:text-gray-50">{user.name || user.username}</p>
                 <p className="text-xs text-gray-500 font-mono">@{user.username}</p>
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={handleDeleteAvatar}
+                    disabled={busyAvatar}
+                    className="text-[11px] text-red-400 hover:text-red-600 mt-0.5"
+                  >
+                    Hapus foto
+                  </button>
+                )}
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1 pt-2 text-sm border-t border-gray-50 dark:border-slate-800">
-              <span className="text-gray-400 text-xs">Email</span>
-              <span className="text-gray-700 dark:text-gray-300 text-xs truncate">{user.email || "-"}</span>
             </div>
           </div>
         )}
@@ -344,10 +430,12 @@ export default function ProfileClient({ user }) {
           </div>
         )}
 
-        {hasQris && !qrisImageUrl && payloadPreview && (
-          <div className="rounded-lg bg-gray-50 dark:bg-slate-800 p-3">
-            <p className="text-[11px] text-gray-400 mb-1">Payload QRIS</p>
-            <p className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all line-clamp-3">{payloadPreview}</p>
+        {hasQris && !qrisImageUrl && qrisGenUrl && (
+          <div className="flex flex-col items-center gap-3">
+            <div className="rounded-xl border border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 p-3 inline-block">
+              <img src={qrisGenUrl} alt="QRIS" className="h-44 w-44 object-contain" />
+            </div>
+            <p className="text-xs text-gray-400 text-center">QRIS ini ditampilkan ke customer saat pembayaran.</p>
           </div>
         )}
 

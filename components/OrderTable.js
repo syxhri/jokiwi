@@ -561,17 +561,11 @@ export default function OrderTable({
                     </td>
                     <td className="px-4 py-3 text-xs">
                       <div className="space-y-1">
-                        {order.status && order.status !== "manual" ? (
-                          <>
-                            <StatusBadge type="order-status" status={order.status} />
-                            <StatusBadge type="paid" status={order.is_paid} />
-                          </>
-                        ) : (
-                          <>
-                            <StatusBadge type="done" status={order.is_done} />
-                            <StatusBadge type="paid" status={order.is_paid} />
-                          </>
+                        {order.status && order.status !== "manual" && (
+                          <StatusBadge type="order-status" status={order.status} />
                         )}
+                        <StatusBadge type="done" status={order.is_done} />
+                        <StatusBadge type="paid" status={order.is_paid} />
                       </div>
                     </td>
                     <td className="px-4 py-3 text-xs">

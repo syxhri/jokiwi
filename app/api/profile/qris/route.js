@@ -28,7 +28,7 @@ export async function POST(request) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const qrisPayload = String(body.qrisPayload || "").trim();
+    const qrisPayload = String(body.payload || body.qrisPayload || "").trim();
     if (!qrisPayload) {
       return NextResponse.json(
         { error: "qrisPayload is required" },

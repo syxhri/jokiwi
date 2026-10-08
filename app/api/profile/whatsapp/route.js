@@ -51,3 +51,6 @@ export async function PATCH(request) {
     );
   }
 }
+
+// Alias: client kirim POST, arahkan ke handler yang sama
+export const POST = PATCH;
