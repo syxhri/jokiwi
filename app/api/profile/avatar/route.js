@@ -3,7 +3,7 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME, verifyToken } from "@/lib/auth.js";
-import { setUserAvatar, findUserById } from "@/lib/db.js";
+import { setUserAvatar, findUser } from "@/lib/db.js";
 import { apiLimiter, getClientIp } from "@/lib/client.js";
 import { createClient } from "@supabase/supabase-js";
 
@@ -65,7 +65,7 @@ export async function POST(request) {
     }
 
     // Ambil info avatar lama sebelum diganti
-    const currentUser = await findUserById(userId);
+    const currentUser = await findUser(userId);
     let oldFilename = null;
     if (currentUser?.avatarUrl) {
       try {
@@ -147,7 +147,7 @@ export async function DELETE(request) {
       return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     }
 
-    const currentUser = await findUserById(userId);
+    const currentUser = await findUser(userId);
     let oldFilename = null;
     if (currentUser?.avatarUrl) {
       try {
