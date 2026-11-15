@@ -16,6 +16,35 @@ function buildQrisWithAmount(qris, amount) {
   }
 }
 
+function getDeadlineInfo(deadlineDate, status) {
+  if (!deadlineDate || status === "done" || status === "rejected") return null;
+  const deadline = new Date(deadlineDate);
+  deadline.setHours(23, 59, 59, 999);
+  const now = new Date();
+  const diffMs = deadline - now;
+  if (diffMs <= 0) {
+    return {
+      text: "Deadline Terlewat",
+      color: "text-red-700 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900",
+    };
+  }
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
+  const remHours = diffHours % 24;
+  if (diffDays > 0) {
+    return {
+      text: `Sisa: ${diffDays} hari ${remHours > 0 ? `${remHours} jam` : ""}`,
+      color: diffDays <= 1
+        ? "text-amber-700 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900"
+        : "text-primary-700 bg-primary-50 dark:bg-primary-950/40 border-primary-200 dark:border-primary-900",
+    };
+  }
+  return {
+    text: `Sisa: ${diffHours} jam`,
+    color: "text-red-700 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900",
+  };
+}
+
 const STATUS_CONFIG = {
   pending:  { label: "Menunggu Konfirmasi", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" },
   accepted: { label: "Diterima & Diproses", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
@@ -182,7 +211,6 @@ export default function TrackOrderPage() {
   const [error, setError] = useState("");
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState("");
-  const [showReceipt, setShowReceipt] = useState(false);
   const receiptRef = useRef(null);
 
   const fetchOrder = useCallback(async () => {
@@ -233,7 +261,31 @@ export default function TrackOrderPage() {
     if (!receiptRef.current) return;
     try {
       const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(receiptRef.current, { scale: 2, backgroundColor: "#ffffff" });
+      const el = receiptRef.current;
+      const width = el.offsetWidth || 380;
+      const height = el.offsetHeight || 500;
+      const canvas = await html2canvas(el, {
+        scale: 3,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        logging: false,
+        width: width,
+        height: height,
+        windowWidth: width,
+        windowHeight: height,
+        onclone: (clonedDoc) => {
+          const target = clonedDoc.querySelector("[data-receipt-card]") || clonedDoc.body.firstChild;
+          if (target) {
+            target.style.width = `${width}px`;
+            target.style.maxWidth = `${width}px`;
+            target.style.minWidth = `${width}px`;
+            target.style.boxSizing = "border-box";
+            target.style.margin = "0";
+            target.style.padding = "20px";
+            target.style.backgroundColor = "#ffffff";
+          }
+        },
+      });
       const dataUrl = canvas.toDataURL("image/png");
       const a = document.createElement("a");
       a.href = dataUrl;
@@ -247,12 +299,37 @@ export default function TrackOrderPage() {
     try {
       const html2canvas = (await import("html2canvas")).default;
       const { jsPDF } = await import("jspdf");
-      const canvas = await html2canvas(receiptRef.current, { scale: 2, backgroundColor: "#ffffff" });
+      const el = receiptRef.current;
+      const width = el.offsetWidth || 380;
+      const height = el.offsetHeight || 500;
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        logging: false,
+        width: width,
+        height: height,
+        windowWidth: width,
+        windowHeight: height,
+        onclone: (clonedDoc) => {
+          const target = clonedDoc.querySelector("[data-receipt-card]") || clonedDoc.body.firstChild;
+          if (target) {
+            target.style.width = `${width}px`;
+            target.style.maxWidth = `${width}px`;
+            target.style.minWidth = `${width}px`;
+            target.style.boxSizing = "border-box";
+            target.style.margin = "0";
+            target.style.padding = "20px";
+            target.style.backgroundColor = "#ffffff";
+          }
+        },
+      });
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
-      const imgWidth = 190;
+      const imgWidth = 140;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+      const xOffset = (210 - imgWidth) / 2;
+      pdf.addImage(imgData, "PNG", xOffset, 15, imgWidth, imgHeight);
       pdf.save(`Struk_${order.orderCode || "ORDER"}.pdf`);
     } catch {}
   }
@@ -287,17 +364,67 @@ export default function TrackOrderPage() {
     </div>
   );
 
+  const receiptData = order ? {
+    orderCode: order.orderCode,
+    client_name: order.clientName || order.customerName || "-",
+    task_name: order.taskName,
+    category_name: order.categoryName,
+    deadline_date: order.deadlineDate,
+    price: order.price,
+    is_done: order.isDone || order.status === "done",
+    is_paid: order.isPaid,
+    notes: order.notes,
+  } : null;
+
+  const deadlineInfo = order ? getDeadlineInfo(order.deadlineDate, order.status) : null;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-10 px-4">
       <div className="mx-auto max-w-lg space-y-5">
+        {/* Header */}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Status Orderan</h1>
           <p className="text-xs text-gray-400 mt-1 font-mono">{orderCode}</p>
         </div>
 
+        {/* Penjoki Contact Card (Top Prominence) */}
+        {(order.jokiWhatsapp || order.jokiName || order.jokiUsername) && (
+          <div className="flex items-center justify-between bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                {(order.jokiName || order.jokiUsername || "P")[0].toUpperCase()}
+              </div>
+              <div>
+                <p className="text-[11px] text-gray-400">Penjoki</p>
+                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                  {order.jokiName || order.jokiUsername}
+                </p>
+              </div>
+            </div>
+            {order.jokiWhatsapp && (
+              <a
+                href={"https://wa.me/" + order.jokiWhatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62") + "?text=" + encodeURIComponent("Halo, saya ingin menanyakan pesanan *" + orderCode + "* - " + (order.taskName || "") + ".")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn text-xs inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3.5 rounded-xl shadow-sm transition"
+              >
+                Chat Penjoki
+              </a>
+            )}
+          </div>
+        )}
+
+        {/* Stepper Status Card */}
         <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-lg border border-gray-100 dark:border-slate-800 p-5 space-y-4">
-          <div className={"inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold " + statusCfg.color}>
-            <span>{statusCfg.label}</span>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className={"inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold " + statusCfg.color}>
+              <span>{statusCfg.label}</span>
+            </div>
+            {deadlineInfo && (
+              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${deadlineInfo.color}`}>
+                {deadlineInfo.text}
+              </span>
+            )}
           </div>
           <div className="space-y-2">
             {[{ key: "pending", label: "Orderan Dikirim" }, { key: "accepted", label: "Diproses Penjoki" }, { key: "done", label: "Hasil Siap Diunduh" }].map((step, i) => {
@@ -307,7 +434,17 @@ export default function TrackOrderPage() {
               return (
                 <div key={step.key} className="flex items-center gap-3">
                   <div className={"h-6 w-6 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold " + (isDone ? "bg-primary-500 text-white" : isRejected ? "bg-red-500 text-white" : "bg-gray-200 dark:bg-slate-700 text-gray-400")}>
-                    {isDone ? "✓" : isRejected ? "✗" : i + 1}
+                    {isDone ? (
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : isRejected ? (
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    ) : (
+                      i + 1
+                    )}
                   </div>
                   <span className={"text-sm " + (isDone ? "text-gray-900 dark:text-gray-100 font-medium" : "text-gray-400")}>
                     {step.label}{step.key === "accepted" && order.status === "rejected" ? " (Ditolak)" : ""}
@@ -316,24 +453,45 @@ export default function TrackOrderPage() {
               );
             })}
           </div>
-          <div className="border-t border-gray-100 dark:border-slate-800 pt-3 space-y-1 text-sm">
-            <div className="flex justify-between"><span className="text-gray-500">Tugas</span><span className="font-medium text-gray-900 dark:text-gray-100 text-right max-w-[60%]">{order.taskName}</span></div>
-            {order.categoryName && <div className="flex justify-between"><span className="text-gray-500">Kategori</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.categoryName}</span></div>}
-            {(order.clientName || order.customerName) && <div className="flex justify-between"><span className="text-gray-500">Nama Client</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.clientName || order.customerName}</span></div>}
-            {order.assignedDate && <div className="flex justify-between"><span className="text-gray-500">Tanggal Disuruh</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.assignedDate}</span></div>}
-            {order.deadlineDate && <div className="flex justify-between"><span className="text-gray-500">Deadline</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.deadlineDate}</span></div>}
-            {(order.status === "accepted" || order.status === "done") && order.price && <div className="flex justify-between"><span className="text-gray-500">Harga</span><span className="font-semibold text-gray-900 dark:text-gray-100">Rp {Number(order.price).toLocaleString("id-ID")}</span></div>}
-            {(order.status === "accepted" || order.status === "done") && order.estimatedHours && <div className="flex justify-between"><span className="text-gray-500">Estimasi</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.estimatedHours} jam</span></div>}
-            <div className="flex justify-between"><span className="text-gray-500">Status Bayar</span><span className={"font-semibold " + (order.isPaid ? "text-green-600" : "text-amber-600")}>{order.isPaid ? "Lunas" : "Belum Dibayar"}</span></div>
-            {(order.jokiName || order.jokiUsername) && <div className="flex justify-between"><span className="text-gray-500">Penjoki</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.jokiName || order.jokiUsername}</span></div>}
-            {order.jokiWhatsapp && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">WhatsApp Penjoki</span>
-                <a href={"https://wa.me/" + order.jokiWhatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62")} target="_blank" rel="noopener noreferrer" className="font-medium text-primary-600 underline">Chat Penjoki</a>
+        </div>
+
+        {/* Order Details (ReceiptCard) */}
+        {receiptData && (
+          <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-lg border border-gray-100 dark:border-slate-800 p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+              <h2 className="text-base font-bold text-gray-900 dark:text-gray-50">Detail Pesanan</h2>
+              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${order.isPaid ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400" : "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400"}`}>
+                {order.isPaid ? "Lunas" : "Belum Lunas"}
+              </span>
+            </div>
+
+            <div className="rounded-xl border border-gray-100 bg-gray-50 dark:bg-slate-800/40 p-2" data-receipt-root>
+              <ReceiptCard order={receiptData} ref={receiptRef} variant="plain" />
+            </div>
+
+            {order.isPaid && (
+              <div className="space-y-2 pt-1 border-t border-gray-100 dark:border-slate-800">
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center">Struk pembayaran resmi kamu dapat diunduh di bawah:</p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleReceiptDownloadPdf}
+                    className="btn btn-secondary flex-1 text-xs"
+                  >
+                    Download PDF
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleReceiptDownloadPng}
+                    className="btn btn-primary flex-1 text-xs"
+                  >
+                    Download PNG
+                  </button>
+                </div>
               </div>
             )}
           </div>
-        </div>
+        )}
 
         {order.status !== "rejected" && <PushBanner orderCode={orderCode} onSubscribed={fetchOrder} />}
         {showPaymentDialog && <PaymentDialog order={order} />}
@@ -362,57 +520,6 @@ export default function TrackOrderPage() {
             )}
           </div>
         )}
-
-        {order.isPaid && (() => {
-          const receiptData = {
-            orderCode: order.orderCode,
-            client_name: order.clientName || order.customerName || "-",
-            task_name: order.taskName,
-            category_name: order.categoryName,
-            assigned_date: order.assignedDate,
-            deadline_date: order.deadlineDate,
-            price: order.price,
-            is_done: order.isDone || order.status === "done",
-            is_paid: order.isPaid,
-            notes: order.notes,
-          };
-          return (
-            <div className="rounded-2xl bg-white dark:bg-slate-900 shadow border border-gray-100 dark:border-slate-800 p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-gray-900 dark:text-gray-50">Struk Pembayaran</h2>
-                <button
-                  onClick={() => setShowReceipt(v => !v)}
-                  className="btn text-xs bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800 font-semibold"
-                >
-                  {showReceipt ? "Sembunyikan Struk" : "Lihat Struk Pembayaran"}
-                </button>
-              </div>
-              {showReceipt && (
-                <div className="space-y-3">
-                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-2" data-receipt-root>
-                    <ReceiptCard order={receiptData} ref={receiptRef} variant="plain" />
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={handleReceiptDownloadPdf}
-                      className="btn btn-secondary flex-1 text-xs"
-                    >
-                      Download PDF
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleReceiptDownloadPng}
-                      className="btn btn-primary flex-1 text-xs"
-                    >
-                      Download PNG
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })()}
 
         {order.status === "rejected" && (
           <div className="rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-5 text-center space-y-3">

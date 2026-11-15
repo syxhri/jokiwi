@@ -242,7 +242,31 @@ export default function OrderDetailClient({ order: initialOrder }) {
     if (!receiptRef.current) return;
     try {
       const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(receiptRef.current, { scale: 2, backgroundColor: "#ffffff" });
+      const el = receiptRef.current;
+      const width = el.offsetWidth || 380;
+      const height = el.offsetHeight || 500;
+      const canvas = await html2canvas(el, {
+        scale: 3,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        logging: false,
+        width: width,
+        height: height,
+        windowWidth: width,
+        windowHeight: height,
+        onclone: (clonedDoc) => {
+          const target = clonedDoc.querySelector("[data-receipt-card]") || clonedDoc.body.firstChild;
+          if (target) {
+            target.style.width = `${width}px`;
+            target.style.maxWidth = `${width}px`;
+            target.style.minWidth = `${width}px`;
+            target.style.boxSizing = "border-box";
+            target.style.margin = "0";
+            target.style.padding = "20px";
+            target.style.backgroundColor = "#ffffff";
+          }
+        },
+      });
       const dataUrl = canvas.toDataURL("image/png");
       const a = document.createElement("a");
       a.href = dataUrl;
@@ -258,12 +282,37 @@ export default function OrderDetailClient({ order: initialOrder }) {
     try {
       const html2canvas = (await import("html2canvas")).default;
       const { jsPDF } = await import("jspdf");
-      const canvas = await html2canvas(receiptRef.current, { scale: 2, backgroundColor: "#ffffff" });
+      const el = receiptRef.current;
+      const width = el.offsetWidth || 380;
+      const height = el.offsetHeight || 500;
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        logging: false,
+        width: width,
+        height: height,
+        windowWidth: width,
+        windowHeight: height,
+        onclone: (clonedDoc) => {
+          const target = clonedDoc.querySelector("[data-receipt-card]") || clonedDoc.body.firstChild;
+          if (target) {
+            target.style.width = `${width}px`;
+            target.style.maxWidth = `${width}px`;
+            target.style.minWidth = `${width}px`;
+            target.style.boxSizing = "border-box";
+            target.style.margin = "0";
+            target.style.padding = "20px";
+            target.style.backgroundColor = "#ffffff";
+          }
+        },
+      });
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
-      const imgWidth = 190;
+      const imgWidth = 140;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+      const xOffset = (210 - imgWidth) / 2;
+      pdf.addImage(imgData, "PNG", xOffset, 15, imgWidth, imgHeight);
       pdf.save(`Struk_${order.orderCode || "ORDER"}.pdf`);
     } catch {
       setAlertModal({ open: true, title: "Gagal Download", message: "Gagal membuat dokumen PDF struk.", type: "error" });
@@ -323,6 +372,54 @@ export default function OrderDetailClient({ order: initialOrder }) {
       <div className="grid gap-6 md:grid-cols-3">
         {/* Detail Utama (2 cols) */}
         <div className="md:col-span-2 space-y-6">
+          {/* Customer Info Card - TOP PRIORITY */}
+          <div className="bg-white dark:bg-slate-900 border border-emerald-200/80 dark:border-emerald-800/50 rounded-2xl p-5 shadow-sm space-y-3">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                Informasi Customer / Client
+              </span>
+              {waUrl && (
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn text-xs inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-1.5 px-3 rounded-xl shadow-sm transition"
+                >
+                  Chat WhatsApp
+                </a>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="h-11 w-11 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-base flex-shrink-0">
+                  {(order.customer_name || order.client_name || "C")[0].toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-base font-bold text-gray-900 dark:text-gray-50">
+                    {order.customer_name || order.client_name || "Client Manual"}
+                  </p>
+                  <p className="text-xs text-gray-500 font-mono mt-0.5">
+                    {order.customer_phone || "Nomor WhatsApp belum tercatat"}
+                  </p>
+                </div>
+              </div>
+
+              {order.customer_phone && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(order.customer_phone);
+                    setAlertModal({ open: true, title: "Tersalin", message: `Nomor WhatsApp ${order.customer_phone} berhasil disalin ke clipboard.`, type: "info" });
+                  }}
+                  className="btn btn-secondary text-xs"
+                >
+                  Salin Nomor
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Card Info Tugas */}
           <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-50 border-b border-gray-100 dark:border-slate-800 pb-3">
@@ -368,35 +465,6 @@ export default function OrderDetailClient({ order: initialOrder }) {
                 </p>
               </div>
             )}
-          </div>
-
-          {/* Customer Info Card */}
-          <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-50 border-b border-gray-100 dark:border-slate-800 pb-3">
-              Detail Customer
-            </h2>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                  {order.customer_name || order.client_name || "Client Manual"}
-                </p>
-                <p className="text-xs text-gray-500 font-mono mt-0.5">
-                  {order.customer_phone || "Belum ada nomor WA"}
-                </p>
-              </div>
-
-              {waUrl && (
-                <a
-                  href={waUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-secondary text-xs inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-800"
-                >
-                  <span>Chat WhatsApp</span>
-                </a>
-              )}
-            </div>
           </div>
         </div>
 
@@ -628,7 +696,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                 <h3 className="text-base font-bold text-gray-900 dark:text-gray-50">Struk Pembayaran</h3>
                 <button type="button" onClick={() => setReceiptModal(false)} className="text-xs text-gray-500">Tutup</button>
               </div>
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-2" data-receipt-root>
+              <div className="rounded-xl border border-gray-200 bg-white p-2" data-receipt-root>
                 <ReceiptCard order={order} ref={receiptRef} variant="plain" />
               </div>
               <div className="mt-4 flex gap-2">

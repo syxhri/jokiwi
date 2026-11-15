@@ -29,6 +29,20 @@ export default function BookPage() {
 
   const [useCustomCat, setUseCustomCat] = useState(false);
 
+  // Auto-fill data pemesan jika pernah order sebelumnya
+  useEffect(() => {
+    try {
+      const savedProfile = JSON.parse(localStorage.getItem("jokiwi_customer_profile") || "null");
+      if (savedProfile) {
+        setForm((prev) => ({
+          ...prev,
+          customer_name: prev.customer_name || savedProfile.name || "",
+          customer_phone: prev.customer_phone || savedProfile.phone || "",
+        }));
+      }
+    } catch {}
+  }, []);
+
   // Ambil daftar penjoki
   useEffect(() => {
     fetch("/api/customer/orders")
@@ -140,6 +154,12 @@ export default function BookPage() {
         if (existingIdx >= 0) saved[existingIdx] = newItem;
         else saved.unshift(newItem);
         localStorage.setItem("jokiwi_recent_orders", JSON.stringify(saved.slice(0, 10)));
+
+        // Simpan profil pemesan agar auto-fill di pesanan berikutnya
+        localStorage.setItem(
+          "jokiwi_customer_profile",
+          JSON.stringify({ name: form.customer_name, phone: formattedPhone })
+        );
       } catch {}
 
       // Redirect ke halaman tracking
