@@ -101,7 +101,7 @@ const ReceiptCard = forwardRef(function ReceiptCard(
 
       <div className="pt-3 text-[11px] text-gray-500">
         <p className="text-center leading-[1.4]">
-          Terima kasih sudah menggunakan jasa Jokiwi 🎓
+          Terima kasih sudah menggunakan jasa Jokiwi.
         </p>
         <p className="text-center leading-[1.4]">
           Struk ini dibuat secara otomatis dari{" "}

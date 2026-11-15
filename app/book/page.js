@@ -159,7 +159,7 @@ export default function BookPage() {
         {/* Header */}
         <div className="mb-8 text-center">
           <span className="inline-flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-900/40 px-3 py-1 text-xs font-semibold text-primary-700 dark:text-primary-300 mb-3">
-            🎓 Joki Tugas Terpercaya
+            Joki Tugas Terpercaya
           </span>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">
             Pesan Joki Sekarang
@@ -362,7 +362,7 @@ export default function BookPage() {
                   </option>
                 ))}
                 {form.joki_user_code && (
-                  <option value="CUSTOM">✏️ Input Kategori Sendiri...</option>
+                  <option value="CUSTOM">Input Kategori Sendiri...</option>
                 )}
               </select>
             )}
@@ -381,7 +381,7 @@ export default function BookPage() {
                   autoFocus
                 />
                 <p className="text-[11px] text-primary-600 dark:text-primary-400 mt-1">
-                  ✨ Kategori baru ini akan tersimpan otomatis untuk penjoki.
+                  Kategori baru ini akan tersimpan otomatis untuk penjoki.
                 </p>
               </div>
             )}
@@ -422,7 +422,7 @@ export default function BookPage() {
 
           {/* Info: harga ditentukan penjoki */}
           <div className="rounded-xl bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 p-3 text-xs text-sky-700 dark:text-sky-300">
-            💡 <strong>Catatan:</strong> Harga akan ditentukan oleh penjoki setelah pesanan diterima. Kamu akan mendapat notifikasi beserta detail harganya.
+            <strong>Catatan:</strong> Harga akan ditentukan oleh penjoki setelah pesanan diterima. Kamu akan mendapat notifikasi beserta detail harganya.
           </div>
 
           <button
@@ -430,7 +430,7 @@ export default function BookPage() {
             className="btn btn-primary w-full text-sm"
             disabled={submitting || loadingJoki}
           >
-            {submitting ? "Mengirim pesanan…" : "Kirim Order 🚀"}
+            {submitting ? "Mengirim pesanan…" : "Kirim Order"}
           </button>
         </form>
 

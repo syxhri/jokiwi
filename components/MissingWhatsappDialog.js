@@ -61,8 +61,10 @@ export default function MissingWhatsappDialog() {
         <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-gray-200 dark:border-slate-700 p-6 space-y-4">
           {/* Icon */}
           <div className="flex justify-center">
-            <div className="h-16 w-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-3xl">
-              📱
+            <div className="h-16 w-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
             </div>
           </div>
 
@@ -84,7 +86,7 @@ export default function MissingWhatsappDialog() {
           </p>
 
           <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 p-3 text-xs text-amber-800 dark:text-amber-300">
-            ⚠️ Kamu tidak bisa menerima atau memproses pesanan apapun sampai nomor WhatsApp diisi.
+            Perhatian: Kamu tidak bisa menerima atau memproses pesanan apapun sampai nomor WhatsApp diisi.
           </div>
 
           {/* CTA — satu-satunya cara keluar dari dialog */}

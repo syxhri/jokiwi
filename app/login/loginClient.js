@@ -52,7 +52,7 @@ export default function LoginPage({ next }) {
     <div className="max-w-sm mx-auto py-8 space-y-4">
       {/* Customer Notice */}
       <div className="rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 p-3.5 text-xs text-sky-800 dark:text-sky-300">
-        <p className="font-semibold mb-1">🎓 Kamu seorang Customer?</p>
+        <p className="font-semibold mb-1">Kamu seorang Customer?</p>
         <p>
           Kamu <strong>tidak perlu membuat akun atau login</strong>! Cukup pesan di{" "}
           <Link href="/book" className="underline font-semibold">Pesan Joki</Link> atau lacak status di{" "}

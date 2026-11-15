@@ -4,7 +4,6 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import jsQR from "jsqr";
 import QRISLogo from "@/components/QRISLogo";
-import Image from "next/image";
 import ModalPortal from "@/components/ModalPortal";
 
 export default function ProfileClient({ user }) {
@@ -15,7 +14,6 @@ export default function ProfileClient({ user }) {
   const [qrisStatus, setQrisStatus] = useState("");
   const [qrisError, setQrisError] = useState("");
   const [payloadPreview, setPayloadPreview] = useState(hasQris ? user.qrisPayload : "");
-  const [qrisImageUrl, setQrisImageUrl] = useState(user.qrisImageUrl || null);
   const [busyQris, setBusyQris] = useState(false);
   const [deleteQrisConfirm, setDeleteQrisConfirm] = useState(false);
   const canvasRef = useRef(null);
@@ -73,7 +71,7 @@ export default function ProfileClient({ user }) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const img = new Image();
+        const img = new window.Image();
         img.onload = () => resolve(img);
         img.onerror = () => reject(new Error("Gagal load gambar"));
         img.src = String(e.target?.result || "");
@@ -128,7 +126,6 @@ export default function ProfileClient({ user }) {
         return;
       }
       setHasQris(true);
-      setQrisImageUrl(data.qrisImageUrl || null);
       setQrisStatus("QRIS berhasil disimpan!");
       router.refresh();
     } catch (err) {
@@ -148,8 +145,8 @@ export default function ProfileClient({ user }) {
       const res = await fetch("/api/profile/qris", { method: "DELETE" });
       if (res.ok) {
         setHasQris(false);
-        setQrisImageUrl(null);
         setPayloadPreview("");
+        setQrisGenUrl("");
         setQrisStatus("QRIS berhasil dihapus.");
         router.refresh();
       } else {
@@ -435,16 +432,7 @@ export default function ProfileClient({ user }) {
         {qrisStatus && <p className="text-xs text-emerald-600">{qrisStatus}</p>}
 
         {/* Tampilkan QR image jika sudah ada */}
-        {hasQris && qrisImageUrl && (
-          <div className="flex flex-col items-center gap-3">
-            <div className="rounded-xl border border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 p-3 inline-block">
-              <img src={qrisImageUrl} alt="QRIS" className="h-44 w-44 object-contain" />
-            </div>
-            <p className="text-xs text-gray-400 text-center">QRIS ini ditampilkan ke customer saat pembayaran.</p>
-          </div>
-        )}
-
-        {hasQris && !qrisImageUrl && qrisGenUrl && (
+        {hasQris && qrisGenUrl && (
           <div className="flex flex-col items-center gap-3">
             <div className="rounded-xl border border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 p-3 inline-block">
               <img src={qrisGenUrl} alt="QRIS" className="h-44 w-44 object-contain" />

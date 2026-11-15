@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import QRISLogo from "@/components/QRISLogo";
 import QRCode from "@/components/QRCode";
 import { convertQrisStaticToDynamic } from "@/lib/qris";
+import ReceiptCard from "@/components/ReceiptCard";
 
 function buildQrisWithAmount(qris, amount) {
   try {
@@ -148,7 +149,7 @@ function PushBanner({ orderCode, onSubscribed }) {
     return (
       <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 p-4">
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          🔕 Notifikasi diblokir. Untuk aktifkan, buka pengaturan browser dan izinkan notifikasi untuk situs ini, lalu muat ulang halaman.
+          Notifikasi diblokir. Untuk aktifkan, buka pengaturan browser dan izinkan notifikasi untuk situs ini, lalu muat ulang halaman.
         </p>
       </div>
     );
@@ -181,6 +182,8 @@ export default function TrackOrderPage() {
   const [error, setError] = useState("");
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState("");
+  const [showReceipt, setShowReceipt] = useState(false);
+  const receiptRef = useRef(null);
 
   const fetchOrder = useCallback(async () => {
     if (!orderCode) return;
@@ -225,6 +228,34 @@ export default function TrackOrderPage() {
 
   const statusCfg = order ? (STATUS_CONFIG[order.status] || STATUS_CONFIG.manual) : null;
   const showPaymentDialog = order && (order.status === "accepted" || order.status === "done") && !order.isPaid;
+
+  async function handleReceiptDownloadPng() {
+    if (!receiptRef.current) return;
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const canvas = await html2canvas(receiptRef.current, { scale: 2, backgroundColor: "#ffffff" });
+      const dataUrl = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `Struk_${order.orderCode || "ORDER"}.png`;
+      a.click();
+    } catch {}
+  }
+
+  async function handleReceiptDownloadPdf() {
+    if (!receiptRef.current) return;
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const { jsPDF } = await import("jspdf");
+      const canvas = await html2canvas(receiptRef.current, { scale: 2, backgroundColor: "#ffffff" });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 190;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+      pdf.save(`Struk_${order.orderCode || "ORDER"}.pdf`);
+    } catch {}
+  }
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
@@ -288,10 +319,19 @@ export default function TrackOrderPage() {
           <div className="border-t border-gray-100 dark:border-slate-800 pt-3 space-y-1 text-sm">
             <div className="flex justify-between"><span className="text-gray-500">Tugas</span><span className="font-medium text-gray-900 dark:text-gray-100 text-right max-w-[60%]">{order.taskName}</span></div>
             {order.categoryName && <div className="flex justify-between"><span className="text-gray-500">Kategori</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.categoryName}</span></div>}
+            {(order.clientName || order.customerName) && <div className="flex justify-between"><span className="text-gray-500">Nama Client</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.clientName || order.customerName}</span></div>}
+            {order.assignedDate && <div className="flex justify-between"><span className="text-gray-500">Tanggal Disuruh</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.assignedDate}</span></div>}
             {order.deadlineDate && <div className="flex justify-between"><span className="text-gray-500">Deadline</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.deadlineDate}</span></div>}
             {(order.status === "accepted" || order.status === "done") && order.price && <div className="flex justify-between"><span className="text-gray-500">Harga</span><span className="font-semibold text-gray-900 dark:text-gray-100">Rp {Number(order.price).toLocaleString("id-ID")}</span></div>}
             {(order.status === "accepted" || order.status === "done") && order.estimatedHours && <div className="flex justify-between"><span className="text-gray-500">Estimasi</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.estimatedHours} jam</span></div>}
             <div className="flex justify-between"><span className="text-gray-500">Status Bayar</span><span className={"font-semibold " + (order.isPaid ? "text-green-600" : "text-amber-600")}>{order.isPaid ? "Lunas" : "Belum Dibayar"}</span></div>
+            {(order.jokiName || order.jokiUsername) && <div className="flex justify-between"><span className="text-gray-500">Penjoki</span><span className="font-medium text-gray-900 dark:text-gray-100">{order.jokiName || order.jokiUsername}</span></div>}
+            {order.jokiWhatsapp && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">WhatsApp Penjoki</span>
+                <a href={"https://wa.me/" + order.jokiWhatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62")} target="_blank" rel="noopener noreferrer" className="font-medium text-primary-600 underline">Chat Penjoki</a>
+              </div>
+            )}
           </div>
         </div>
 
@@ -322,6 +362,57 @@ export default function TrackOrderPage() {
             )}
           </div>
         )}
+
+        {order.isPaid && (() => {
+          const receiptData = {
+            orderCode: order.orderCode,
+            client_name: order.clientName || order.customerName || "-",
+            task_name: order.taskName,
+            category_name: order.categoryName,
+            assigned_date: order.assignedDate,
+            deadline_date: order.deadlineDate,
+            price: order.price,
+            is_done: order.isDone || order.status === "done",
+            is_paid: order.isPaid,
+            notes: order.notes,
+          };
+          return (
+            <div className="rounded-2xl bg-white dark:bg-slate-900 shadow border border-gray-100 dark:border-slate-800 p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-gray-900 dark:text-gray-50">Struk Pembayaran</h2>
+                <button
+                  onClick={() => setShowReceipt(v => !v)}
+                  className="btn text-xs bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800 font-semibold"
+                >
+                  {showReceipt ? "Sembunyikan Struk" : "Lihat Struk Pembayaran"}
+                </button>
+              </div>
+              {showReceipt && (
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-2" data-receipt-root>
+                    <ReceiptCard order={receiptData} ref={receiptRef} variant="plain" />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleReceiptDownloadPdf}
+                      className="btn btn-secondary flex-1 text-xs"
+                    >
+                      Download PDF
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleReceiptDownloadPng}
+                      className="btn btn-primary flex-1 text-xs"
+                    >
+                      Download PNG
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {order.status === "rejected" && (
           <div className="rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-5 text-center space-y-3">

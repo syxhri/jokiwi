@@ -35,17 +35,21 @@ export async function GET(request, { params }) {
       categoryName: order.category_name,
       notes: order.notes,
       deadlineDate: order.deadline_date,
+      assignedDate: order.assigned_date,
       createdAt: order.created_at,
       status: order.status,
       price: order.status === "accepted" || order.status === "done" ? order.price : null,
       estimatedHours: order.status === "accepted" || order.status === "done" ? order.estimated_hours : null,
       isPaid: order.is_paid,
+      isDone: order.is_done,
       hasFile: Boolean(order.storage_path),
       fileAvailable: Boolean(order.storage_path) && !order.file_delete_at, // false jika sudah dijadwalkan hapus
       hasExternalLink: Boolean(order.external_link),
       // Link external hanya ditampilkan jika SUDAH LUNAS
       externalLink: order.is_paid ? order.external_link : null,
       // Info penjoki (untuk petunjuk pembayaran)
+      clientName: order.client_name,
+      customerName: order.customer_name,
       jokiName: order.jokiName,
       jokiUsername: order.jokiUsername,
       jokiWhatsapp: order.jokiWhatsapp,

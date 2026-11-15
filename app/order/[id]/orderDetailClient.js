@@ -69,7 +69,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
         return;
       }
       setAcceptModal({ open: false, price: "", estimated_hours: "", loading: false, error: "" });
-      setAlertModal({ open: true, title: "Berhasil! ✅", message: "Pesanan berhasil diterima dan notifikasi telah dikirim ke customer.", type: "success" });
+      setAlertModal({ open: true, title: "Berhasil", message: "Pesanan berhasil diterima dan notifikasi telah dikirim ke customer.", type: "success" });
       router.refresh();
       await refreshOrder();
     } catch {
@@ -217,7 +217,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
         setAlertModal({ open: true, title: "Gagal", message: data.error || "Gagal mengirim pengingat.", type: "error" });
         return;
       }
-      setAlertModal({ open: true, title: "Berhasil ✅", message: data.message || "Pengingat pembayaran berhasil dikirimkan via notifikasi.", type: "success" });
+      setAlertModal({ open: true, title: "Berhasil", message: data.message || "Pengingat pembayaran berhasil dikirimkan via notifikasi.", type: "success" });
     } catch {
       setAlertModal({ open: true, title: "Error", message: "Gagal mengirim pengingat.", type: "error" });
     }
@@ -295,6 +295,20 @@ export default function OrderDetailClient({ order: initialOrder }) {
           <Link href="/orders" className="btn btn-secondary text-xs">
             ← Kembali ke List
           </Link>
+          <button
+            type="button"
+            onClick={() => {
+              const url = `${window.location.origin}/track/${order.orderCode}`;
+              navigator.clipboard.writeText(url).then(() => {
+                setAlertModal({ open: true, title: "Link Disalin", message: `Link orderan ${order.orderCode} berhasil disalin ke clipboard.`, type: "success" });
+              }).catch(() => {
+                setAlertModal({ open: true, title: "Gagal", message: "Gagal menyalin link. Coba secara manual.", type: "error" });
+              });
+            }}
+            className="btn btn-secondary text-xs inline-flex items-center gap-1.5"
+          >
+            Salin Link Orderan
+          </button>
           <button
             type="button"
             onClick={triggerDelete}
@@ -463,14 +477,14 @@ export default function OrderDetailClient({ order: initialOrder }) {
                       onClick={handleRemindViaWhatsApp}
                       className="btn w-full text-xs bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
                     >
-                      💬 WhatsApp
+                      WhatsApp
                     </button>
                     <button
                       type="button"
                       onClick={handleRemindViaPush}
                       className="btn w-full text-xs bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
                     >
-                      🔔 Notifikasi Push
+                      Notifikasi Push
                     </button>
                   </div>
                   {/* Pemisah antara pengingat bayar dan aksi QRIS/Edit */}
@@ -550,12 +564,12 @@ export default function OrderDetailClient({ order: initialOrder }) {
           <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => !uploadModal.loading && setUploadModal((m) => ({ ...m, open: false }))}>
             <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-5 shadow-2xl border border-gray-100 dark:border-slate-700 space-y-4" onClick={(e) => e.stopPropagation()}>
               <div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">{uploadModal.isReupload ? "🔄 Upload Ulang Hasil" : "📤 Kirim Hasil Pekerjaan"}</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">{uploadModal.isReupload ? "Upload Ulang Hasil" : "Kirim Hasil Pekerjaan"}</h3>
                 <p className="text-xs text-gray-500 mt-0.5">Orderan: <span className="font-mono font-semibold">{order.orderCode}</span></p>
               </div>
               <div className="flex rounded-xl bg-gray-100 dark:bg-slate-800 p-1 text-xs font-semibold">
-                <button type="button" onClick={() => setUploadModal((m) => ({ ...m, tab: "file", error: "" }))} className={`flex-1 py-1.5 rounded-lg text-center transition ${uploadModal.tab === "file" ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 shadow-sm" : "text-gray-500"}`}>📁 Upload File (&lt;50MB)</button>
-                <button type="button" onClick={() => setUploadModal((m) => ({ ...m, tab: "link", error: "" }))} className={`flex-1 py-1.5 rounded-lg text-center transition ${uploadModal.tab === "link" ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 shadow-sm" : "text-gray-500"}`}>🔗 Link External (&gt;50MB)</button>
+                <button type="button" onClick={() => setUploadModal((m) => ({ ...m, tab: "file", error: "" }))} className={`flex-1 py-1.5 rounded-lg text-center transition ${uploadModal.tab === "file" ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 shadow-sm" : "text-gray-500"}`}>Upload File (&lt;50MB)</button>
+                <button type="button" onClick={() => setUploadModal((m) => ({ ...m, tab: "link", error: "" }))} className={`flex-1 py-1.5 rounded-lg text-center transition ${uploadModal.tab === "link" ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 shadow-sm" : "text-gray-500"}`}>Link External (&gt;50MB)</button>
               </div>
               {uploadModal.error && <div className="rounded-xl bg-red-50 text-xs text-red-700 p-3">{uploadModal.error}</div>}
               {uploadModal.tab === "file" ? (
@@ -571,7 +585,7 @@ export default function OrderDetailClient({ order: initialOrder }) {
                   <p className="text-xs text-gray-500">Tempel link Google Drive / Mega / Cloud Storage jika file &gt; 50 MB:</p>
                   <input type="url" required placeholder="https://drive.google.com/file/d/..." value={uploadModal.linkInput} onChange={(e) => setUploadModal((m) => ({ ...m, linkInput: e.target.value }))} className="input text-xs" autoFocus />
                   <div className="flex gap-2 pt-1">
-                    <button type="submit" disabled={uploadModal.loading} className="btn btn-primary flex-1 text-xs">{uploadModal.loading ? "Menyimpan…" : "💾 Simpan Link & Kirim Notif"}</button>
+                    <button type="submit" disabled={uploadModal.loading} className="btn btn-primary flex-1 text-xs">{uploadModal.loading ? "Menyimpan…" : "Simpan Link & Kirim Notif"}</button>
                     <button type="button" onClick={() => setUploadModal({ open: false, isReupload: false, tab: "file", linkInput: "", loading: false, error: "" })} className="btn btn-secondary text-xs">Batal</button>
                   </div>
                 </form>

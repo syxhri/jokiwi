@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+﻿export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth.js";
@@ -29,7 +29,7 @@ export default async function HomePage() {
 
         <div className="relative space-y-6">
           <p className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-primary-700 shadow-sm backdrop-blur dark:bg-slate-900/70">
-            Platform Joki Tugas Terpercaya 🎓
+            Platform Joki Tugas Terpercaya
           </p>
 
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-50">
@@ -96,7 +96,6 @@ export default async function HomePage() {
       <section className="grid gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-primary-100 bg-primary-50/50 p-6 space-y-3 dark:border-primary-900/40 dark:bg-primary-950/20">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">👤</span>
             <h2 className="text-base font-bold text-gray-900 dark:text-gray-50">
               Untuk Customer / Pemesan
             </h2>
@@ -119,7 +118,6 @@ export default async function HomePage() {
 
         <div className="rounded-2xl border border-gray-100 bg-white p-6 space-y-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">💻</span>
             <h2 className="text-base font-bold text-gray-900 dark:text-gray-50">
               Untuk Penjoki (Penyedia Jasa)
             </h2>
