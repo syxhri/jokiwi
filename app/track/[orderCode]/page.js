@@ -379,43 +379,16 @@ export default function TrackOrderPage() {
   const deadlineInfo = order ? getDeadlineInfo(order.deadlineDate, order.status) : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-10 px-4">
-      <div className="mx-auto max-w-lg space-y-5">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-8 px-4">
+      <div className="mx-auto max-w-lg space-y-4">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Status Orderan</h1>
           <p className="text-xs text-gray-400 mt-1 font-mono">{orderCode}</p>
         </div>
 
-        {/* Penjoki Contact Card (Top Prominence) */}
-        {(order.jokiWhatsapp || order.jokiName || order.jokiUsername) && (
-          <div className="flex items-center justify-between bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 flex items-center justify-center font-bold text-sm flex-shrink-0">
-                {(order.jokiName || order.jokiUsername || "P")[0].toUpperCase()}
-              </div>
-              <div>
-                <p className="text-[11px] text-gray-400">Penjoki</p>
-                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                  {order.jokiName || order.jokiUsername}
-                </p>
-              </div>
-            </div>
-            {order.jokiWhatsapp && (
-              <a
-                href={"https://wa.me/" + order.jokiWhatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62") + "?text=" + encodeURIComponent("Halo, saya ingin menanyakan pesanan *" + orderCode + "* - " + (order.taskName || "") + ".")}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn text-xs inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3.5 rounded-xl shadow-sm transition"
-              >
-                Chat Penjoki
-              </a>
-            )}
-          </div>
-        )}
-
         {/* Stepper Status Card */}
-        <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-lg border border-gray-100 dark:border-slate-800 p-5 space-y-4">
+        <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-5 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className={"inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold " + statusCfg.color}>
               <span>{statusCfg.label}</span>
@@ -455,9 +428,12 @@ export default function TrackOrderPage() {
           </div>
         </div>
 
-        {/* Order Details (ReceiptCard) */}
+        {/* Payment Dialog (jika perlu bayar) */}
+        {showPaymentDialog && <PaymentDialog order={order} />}
+
+        {/* Detail Pesanan, Hasil Pengerjaan, dan Struk (Disatukan dalam 1 card) */}
         {receiptData && (
-          <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-lg border border-gray-100 dark:border-slate-800 p-5 space-y-4">
+          <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
               <h2 className="text-base font-bold text-gray-900 dark:text-gray-50">Detail Pesanan</h2>
               <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${order.isPaid ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400" : "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400"}`}>
@@ -465,25 +441,86 @@ export default function TrackOrderPage() {
               </span>
             </div>
 
+            {/* Receipt Card */}
             <div className="rounded-xl border border-gray-100 bg-gray-50 dark:bg-slate-800/40 p-2" data-receipt-root>
               <ReceiptCard order={receiptData} ref={receiptRef} variant="plain" />
             </div>
 
+            {/* Hasil Pengerjaan (Disatukan di sini agar ringkas) */}
+            {order.status === "done" && (
+              <div className="border-t border-gray-100 dark:border-slate-800 pt-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Hasil Pengerjaan</h3>
+                  {order.isPaid && <span className="text-[11px] text-emerald-600 font-medium">Siap diunduh</span>}
+                </div>
+
+                {!order.isPaid ? (
+                  <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 p-3 rounded-xl">
+                    Selesaikan pembayaran terlebih dahulu untuk mengakses file hasil pengerjaan.
+                  </p>
+                ) : order.hasExternalLink ? (
+                  <div className="space-y-2">
+                    <p className="text-xs text-gray-600 dark:text-gray-300">File tersedia via link external:</p>
+                    {order.externalLink ? (
+                      <a href={order.externalLink} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full text-xs inline-flex items-center justify-center gap-2">
+                        Buka Link Hasil (Google Drive / Cloud)
+                      </a>
+                    ) : (
+                      <p className="text-xs text-amber-600">Link tidak tersedia.</p>
+                    )}
+                  </div>
+                ) : !order.hasFile ? (
+                  <div className="rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 p-3 text-xs text-orange-700 dark:text-orange-300 space-y-2">
+                    <p>File tidak tersedia atau sudah dihapus otomatis. Hubungi penjoki untuk upload ulang.</p>
+                    {order.jokiWhatsapp && (
+                      <a
+                        href={"https://wa.me/" + order.jokiWhatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62") + "?text=" + encodeURIComponent("Halo, bisakah file untuk pesanan " + orderCode + " diupload ulang? Terima kasih!")}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn text-xs inline-flex items-center gap-1.5 bg-emerald-600 text-white font-semibold py-1.5 px-3 rounded-lg"
+                      >
+                        Chat Penjoki
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    {downloadError && (
+                      <div className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 p-2 text-xs text-red-700 dark:text-red-300">
+                        {downloadError}
+                      </div>
+                    )}
+                    <button
+                      onClick={handleDownload}
+                      disabled={downloading}
+                      className="btn btn-primary w-full text-xs font-semibold py-2.5"
+                    >
+                      {downloading ? "Mengunduh..." : "Download File Hasil"}
+                    </button>
+                    <p className="text-[10px] text-gray-400 text-center">
+                      File otomatis dihapus dari server 15 menit setelah unduhan pertama demi keamanan.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Unduh Struk (Hanya jika sudah lunas) */}
             {order.isPaid && (
-              <div className="space-y-2 pt-1 border-t border-gray-100 dark:border-slate-800">
-                <p className="text-xs text-gray-500 dark:text-gray-400 text-center">Struk pembayaran resmi kamu dapat diunduh di bawah:</p>
+              <div className="space-y-2 pt-3 border-t border-gray-100 dark:border-slate-800">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block">Struk Pembayaran</span>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={handleReceiptDownloadPdf}
-                    className="btn btn-secondary flex-1 text-xs"
+                    className="btn btn-secondary flex-1 text-xs py-2"
                   >
                     Download PDF
                   </button>
                   <button
                     type="button"
                     onClick={handleReceiptDownloadPng}
-                    className="btn btn-primary flex-1 text-xs"
+                    className="btn btn-secondary flex-1 text-xs py-2"
                   >
                     Download PNG
                   </button>
@@ -493,41 +530,44 @@ export default function TrackOrderPage() {
           </div>
         )}
 
-        {order.status !== "rejected" && <PushBanner orderCode={orderCode} onSubscribed={fetchOrder} />}
-        {showPaymentDialog && <PaymentDialog order={order} />}
+        {/* Order Ditolak */}
+        {order.status === "rejected" && (
+          <div className="rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-5 text-center space-y-3">
+            <p className="font-semibold text-red-800 dark:text-red-200">Order Ditolak</p>
+            <p className="text-sm text-red-600 dark:text-red-400 pb-2">Maaf, penjoki tidak dapat menerima ordermu saat ini. Kamu bisa coba pesan ke penjoki lain.</p>
+            <a href="/book" className="btn btn-primary text-sm">Buat Orderan Baru</a>
+          </div>
+        )}
 
-        {order.status === "done" && (
-          <div className="rounded-2xl bg-white dark:bg-slate-900 shadow border border-gray-100 dark:border-slate-800 p-5 space-y-3">
-            <h2 className="font-semibold text-gray-900 dark:text-gray-50">Hasil Pengerjaan</h2>
-            {!order.isPaid ? (
-              <p className="text-sm text-amber-700 dark:text-amber-400">Selesaikan pembayaran terlebih dahulu untuk mengakses Hasil Pengerjaan.</p>
-            ) : order.hasExternalLink ? (
-              <div className="space-y-3">
-                <p className="text-sm text-gray-600 dark:text-gray-300">Hasil Pengerjaan tersedia via link external (Google Drive / Cloud Storage):</p>
-                {order.externalLink ? <a href={order.externalLink} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full inline-flex items-center justify-center gap-2">Buka Link Hasil (Google Drive / Mega)</a> : <p className="text-sm text-amber-600">Link tidak tersedia.</p>}
+        {/* Kontak Penjoki (Paling bawah sebelum notifikasi) */}
+        {(order.jokiWhatsapp || order.jokiName || order.jokiUsername) && (
+          <div className="flex items-center justify-between bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                {(order.jokiName || order.jokiUsername || "P")[0].toUpperCase()}
               </div>
-            ) : !order.hasFile ? (
-              <div className="rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 p-3">
-                <p className="text-sm text-orange-700 dark:text-orange-300">File tidak tersedia. File mungkin sudah dihapus otomatis setelah didownload. Hubungi penjoki via WhatsApp untuk meminta upload ulang.</p>
-                {order.jokiWhatsapp && <a href={"https://wa.me/" + order.jokiWhatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62") + "?text=" + encodeURIComponent("Halo, bisakah file untuk pesanan " + orderCode + " diupload ulang? File saya sepertinya sudah terhapus. Terima kasih!")} target="_blank" rel="noopener noreferrer" className="mt-2 btn text-xs inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 font-semibold">Chat Penjoki</a>}
+              <div>
+                <p className="text-[11px] text-gray-400">Ada pertanyaan seputar pesanan?</p>
+                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                  {order.jokiName || order.jokiUsername}
+                </p>
               </div>
-            ) : (
-              <>
-                {downloadError && <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 p-2 text-xs text-red-700 dark:text-red-300">{downloadError}</div>}
-                <button onClick={handleDownload} disabled={downloading} className="btn btn-primary w-full">{downloading ? "Mengunduh..." : "Download File Hasil"}</button>
-                <p className="text-[11px] text-gray-400 text-center">File akan otomatis dihapus dari server 15 menit setelah pertama kali didownload demi keamanan.</p>
-              </>
+            </div>
+            {order.jokiWhatsapp && (
+              <a
+                href={"https://wa.me/" + order.jokiWhatsapp.replace(/[^0-9]/g, "").replace(/^0/, "62") + "?text=" + encodeURIComponent("Halo, saya ingin menanyakan pesanan *" + orderCode + "* - " + (order.taskName || "") + ".")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn text-xs inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3.5 rounded-xl shadow-sm transition flex-shrink-0"
+              >
+                Chat Penjoki
+              </a>
             )}
           </div>
         )}
 
-        {order.status === "rejected" && (
-          <div className="rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-5 text-center space-y-3">
-            <p className="font-semibold text-red-800 dark:text-red-200">Order Ditolak</p>
-            <p className="text-sm text-red-600 dark:text-red-400 pb-4">Maaf, penjoki tidak dapat menerima ordermu saat ini. Kamu bisa coba pesan ke penjoki lain.</p>
-            <a href="/book" className="btn btn-primary text-sm">Buat Orderan Baru</a>
-          </div>
-        )}
+        {/* Request Notifikasi Push */}
+        {order.status !== "rejected" && <PushBanner orderCode={orderCode} onSubscribed={fetchOrder} />}
 
         <p className="text-center text-xs text-gray-400">Simpan link halaman ini untuk melihat status orderanmu nanti.</p>
       </div>
